@@ -11,6 +11,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         <div className="nav-content">
           <a href="/" className="nav-logo">{siteConfig.author}</a>
           <div className="nav-links">
+            <a href="/series">Series</a>
             <a href="/books">Books</a>
             <a href="/worlds">Worlds</a>
             <a href="/characters">Characters</a>
@@ -21,7 +22,12 @@ function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} {siteConfig.author}. All rights reserved.</p>
+        <div className="footer-content">
+          <span>&copy; {new Date().getFullYear()} {siteConfig.author}. All rights reserved.</span>
+          <span className="footer-site-link">
+            <a href={siteConfig.baseUrl} target="_blank" rel="noopener noreferrer">{siteConfig.baseUrl.replace(/^https?:\/\//, '')}</a>
+          </span>
+        </div>
       </footer>
     </div>
   );

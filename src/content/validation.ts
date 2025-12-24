@@ -1,34 +1,63 @@
 export interface Book {
   slug: string;
   title: string;
+  subtitle?: string | null;
   description: string;
+  longDescription?: string;
   coverImage: string;
   publishDate: string;
-  amazonUrl: string;
-  kindleUrl: string;
-  excerpt: string;
+  status?: string;
+  author?: string;
   worldSlug?: string;
+  series?: {
+    id: string;
+    name: string;
+    bookNumber: number;
+  };
+  formats?: Array<{
+    type: string;
+    label: string;
+    url: string;
+  }>;
+  links?: Record<string, string>;
+  excerpt?: string | null;
+  audioExcerpt?: string | null;
+  related?: Record<string, string | null>;
+  badges?: string[];
+  tags?: string[];
+  ogImage?: string;
+  amazonUrl?: string;
+  kindleUrl?: string;
 }
 
 export interface World {
   slug: string;
   title: string;
   description: string;
-  image: string;
-  history: string;
-  geography: string;
+  summary?: string;
+  heroImage: string;
+  heroImageCaption?: string;
+  image2?: string;
+  image2Caption?: string;
+  image3?: string;
+  image3Caption?: string;
+  image4?: string;
+  image4Caption?: string;
+  themeTags?: string[];
+  bookSlugs?: string[];
+  startHereBookSlug?: string;
 }
 
 export interface Character {
   slug: string;
   name: string;
-  title: string;
-  description: string;
-  image: string;
-  backstory: string;
-  abilities: string[];
+  roleTag?: string;
+  bio?: string;
   worldSlug?: string;
-  bookSlugs?: string[];
+  appearsInBookSlugs?: string[];
+  portraitImage: string;
+  tags?: string[];
+  audioExcerpt?: string | null;
 }
 
 function validateSlug(slug: string): boolean {
@@ -71,18 +100,16 @@ export function validateBook(book: Book): void {
   if (!book.coverImage) {
     throw new Error(`Book "${book.slug}" missing required field: coverImage`);
   }
-  if (!book.publishDate || !validateDate(book.publishDate)) {
+  if (!book.publishDate || (book.publishDate !== "TBD" && !validateDate(book.publishDate))) {
     throw new Error(`Book "${book.slug}" has invalid publishDate: "${book.publishDate}"`);
   }
-  if (!book.amazonUrl || !validateUrl(book.amazonUrl)) {
+  if (book.amazonUrl && book.amazonUrl !== "" && !validateUrl(book.amazonUrl)) {
     throw new Error(`Book "${book.slug}" has invalid amazonUrl: "${book.amazonUrl}"`);
   }
-  if (!book.kindleUrl || !validateUrl(book.kindleUrl)) {
+  if (book.kindleUrl && book.kindleUrl !== "" && !validateUrl(book.kindleUrl)) {
     throw new Error(`Book "${book.slug}" has invalid kindleUrl: "${book.kindleUrl}"`);
   }
-  if (!book.excerpt || book.excerpt.trim().length === 0) {
-    throw new Error(`Book "${book.slug}" missing required field: excerpt`);
-  }
+  // excerpt is now optional or can be null/empty
 }
 
 export function validateWorld(world: World): void {
@@ -95,15 +122,10 @@ export function validateWorld(world: World): void {
   if (!world.description || world.description.trim().length === 0) {
     throw new Error(`World "${world.slug}" missing required field: description`);
   }
-  if (!world.image) {
-    throw new Error(`World "${world.slug}" missing required field: image`);
+  if (!world.heroImage) {
+    throw new Error(`World "${world.slug}" missing required field: heroImage`);
   }
-  if (!world.history || world.history.trim().length === 0) {
-    throw new Error(`World "${world.slug}" missing required field: history`);
-  }
-  if (!world.geography || world.geography.trim().length === 0) {
-    throw new Error(`World "${world.slug}" missing required field: geography`);
-  }
+  // summary, themeTags, bookSlugs, startHereBookSlug are optional
 }
 
 export function validateCharacter(character: Character): void {
@@ -113,21 +135,10 @@ export function validateCharacter(character: Character): void {
   if (!character.name || character.name.trim().length === 0) {
     throw new Error(`Character "${character.slug}" missing required field: name`);
   }
-  if (!character.title || character.title.trim().length === 0) {
-    throw new Error(`Character "${character.slug}" missing required field: title`);
+  if (!character.portraitImage) {
+    throw new Error(`Character "${character.slug}" missing required field: portraitImage`);
   }
-  if (!character.description || character.description.trim().length === 0) {
-    throw new Error(`Character "${character.slug}" missing required field: description`);
-  }
-  if (!character.image) {
-    throw new Error(`Character "${character.slug}" missing required field: image`);
-  }
-  if (!character.backstory || character.backstory.trim().length === 0) {
-    throw new Error(`Character "${character.slug}" missing required field: backstory`);
-  }
-  if (!Array.isArray(character.abilities) || character.abilities.length === 0) {
-    throw new Error(`Character "${character.slug}" missing or invalid abilities array`);
-  }
+  // roleTag, bio, worldSlug, appearsInBookSlugs, tags are optional
 }
 
 export function validateBooks(books: Book[]): void {
