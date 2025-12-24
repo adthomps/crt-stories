@@ -1,0 +1,18 @@
+[
+  {
+    "slug": "mystara",
+    "title": "Mystara",
+    "description": "A vast realm where magic flows through every living thing.",
+    "image": "/images/worlds/mystara.jpg",
+    "history": "Founded millennia ago by the Ancient Ones, Mystara has been the stage for countless epic tales.",
+    "geography": "Spanning three continents and countless islands, Mystara features diverse landscapes from frozen tundras to scorching deserts."
+  },
+  {
+    "slug": "shadowrealm",
+    "title": "The Shadow Realm",
+    "description": "A parallel dimension where darkness reigns supreme.",
+    "image": "/images/worlds/shadowrealm.jpg",
+    "history": "The Shadow Realm exists beyond the veil of reality, a place few mortals dare to tread.",
+    "geography": "An ever-shifting landscape of shadow and nightmare, where the laws of physics bend and break."
+  }
+]
