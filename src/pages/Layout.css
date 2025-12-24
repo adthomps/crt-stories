@@ -1,3 +1,160 @@
+@media (max-width: 700px) {
+  /* Detail page flex layouts stack vertically */
+  .book-detail-flex,
+  .world-detail-flex,
+  .character-detail-flex {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: stretch;
+  }
+  .book-cover-col,
+  .world-hero-col,
+  .character-portrait-col {
+    max-width: 100%;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  .book-detail-cover,
+  .world-detail-hero,
+  .character-detail-portrait {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+  .book-info-col,
+  .world-info-col,
+  .character-info-col {
+    min-width: 0;
+    width: 100%;
+  }
+  .detail-content {
+    padding: 0.7rem;
+  }
+  .section {
+    margin-bottom: 1.2rem;
+  }
+}
+/* Responsive Design: Mobile Breakpoints */
+@media (max-width: 900px) {
+  .main-content {
+    padding: 1rem;
+  }
+  .grid {
+    gap: 1.2rem;
+  }
+  .detail-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .main-content {
+    padding: 0.5rem;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .detail-header {
+    padding: 0 0.2rem;
+  }
+  .detail-content {
+    padding: 0.7rem;
+  }
+  .section {
+    margin-bottom: 1.2rem;
+  }
+  .card-content {
+    padding: 1rem;
+  }
+  .card img {
+    height: 180px;
+  }
+  .nav-content {
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 0 1rem;
+  }
+  .nav-links {
+    gap: 1.1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .footer {
+    padding: 1rem;
+    font-size: 0.98rem;
+  }
+  .about-author-flex {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: stretch;
+  }
+  .about-author-portrait-col {
+    flex: none;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .about-author-portrait {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    margin: 0 auto 1rem auto;
+  }
+  .about-author-info-col {
+    min-width: 0;
+    width: 100%;
+  }
+  .world-detail-flex,
+  .book-detail-flex,
+  .character-detail-flex {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: stretch;
+  }
+  .world-hero-col,
+  .book-cover-col,
+  .character-portrait-col {
+    max-width: 100%;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .world-detail-hero,
+  .book-detail-cover,
+  .character-detail-portrait {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.2rem;
+  }
+  .page-title {
+    font-size: 1.5rem;
+  }
+  .section h2 {
+    font-size: 1.1rem;
+  }
+  .card-title {
+    font-size: 1.1rem;
+  }
+  .card-content {
+    padding: 0.7rem;
+  }
+  .card img {
+    height: 120px;
+  }
+  .about-author-portrait {
+    max-width: 140px;
+  }
+}
 .badge-list {
   margin: 0.5rem 0 0.2rem 0;
   display: flex;
