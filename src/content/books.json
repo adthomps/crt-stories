@@ -165,7 +165,8 @@
     "excerpt": "TBD",
     "related": {
       "prequelSlug": "alex",
-      "nextSlug": "dorian-volume-2"
+      "nextSlug": "dorian-volume-2",
+      "previousSlug": null
     },
     "badges": ["Space Opera"],
     "tags": ["science fiction", "space opera", "lunar base", "mystery", "earth window", "tln"],
@@ -203,7 +204,7 @@
     ],
     "excerpt": "TBD",
     "related": {
-      "prequelSlug": "dorian-volume-1",
+      "prequelSlug": "alex",
       "nextSlug": "dorian-volume-3",
       "previousSlug": "dorian-volume-1"
     },
@@ -232,7 +233,7 @@
     "formats": [],
     "excerpt": null,
     "related": {
-      "prequelSlug": "dorian-volume-2",
+      "prequelSlug": "alex",
       "nextSlug": null,
       "previousSlug": "dorian-volume-2"
     },

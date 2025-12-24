@@ -42,10 +42,10 @@ function Page() {
           <img src={book.coverImage} alt={book.title} className="detail-image book-detail-cover" />
         </div>
         <div className="book-info-col">
-          {/* Call out previous book, prequel, or series */}
-          {(book.related?.prequelSlug || book.related?.previousSlug || (book.series && book.series.bookNumber > 1)) && (
+          {/* Call out prequel, previous, next, series (in that order) */}
+          {(book.related?.prequelSlug || book.related?.previousSlug || book.related?.nextSlug || (book.series && book.series.bookNumber > 1)) && (
             <div className="section">
-              <h2>Start Here?</h2>
+              <h2>Reading Order</h2>
               <div>
                 {book.related?.prequelSlug && (
                   <p>
@@ -60,6 +60,14 @@ function Page() {
                     <strong>Previous Book:</strong>{' '}
                     <a href={`/books/${book.related.previousSlug}`} className="link">
                       {getBookTitleBySlug(book.related.previousSlug)}
+                    </a>
+                  </p>
+                )}
+                {book.related?.nextSlug && (
+                  <p>
+                    <strong>Next Book:</strong>{' '}
+                    <a href={`/books/${book.related.nextSlug}`} className="link">
+                      {getBookTitleBySlug(book.related.nextSlug)}
                     </a>
                   </p>
                 )}
