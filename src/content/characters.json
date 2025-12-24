@@ -1,0 +1,24 @@
+[
+  {
+    "slug": "elena-brightstar",
+    "name": "Elena Brightstar",
+    "title": "The Chosen One",
+    "description": "A young mage destined to save the world from darkness.",
+    "image": "/images/characters/elena-brightstar.jpg",
+    "backstory": "Born under a rare celestial alignment, Elena discovered her magical abilities at age seven.",
+    "abilities": ["Fire Magic", "Telepathy", "Healing"],
+    "worldSlug": "mystara",
+    "bookSlugs": ["the-awakening", "shadows-of-destiny"]
+  },
+  {
+    "slug": "marcus-shadowbane",
+    "name": "Marcus Shadowbane",
+    "title": "The Dark Knight",
+    "description": "A warrior who walks the line between light and shadow.",
+    "image": "/images/characters/marcus-shadowbane.jpg",
+    "backstory": "Once a paladin of light, Marcus fell into darkness before finding redemption.",
+    "abilities": ["Shadow Manipulation", "Master Swordsman", "Stealth"],
+    "worldSlug": "mystara",
+    "bookSlugs": ["shadows-of-destiny"]
+  }
+]

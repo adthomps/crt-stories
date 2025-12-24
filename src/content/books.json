@@ -1,0 +1,24 @@
+[
+  {
+    "slug": "the-awakening",
+    "title": "The Awakening",
+    "description": "A thrilling journey into a world of magic and mystery.",
+    "coverImage": "/images/books/the-awakening.jpg",
+    "publishDate": "2024-01-15",
+    "amazonUrl": "https://www.amazon.com/dp/EXAMPLE1",
+    "kindleUrl": "https://www.amazon.com/dp/EXAMPLE1",
+    "excerpt": "In the beginning, there was only darkness...",
+    "worldSlug": "mystara"
+  },
+  {
+    "slug": "shadows-of-destiny",
+    "title": "Shadows of Destiny",
+    "description": "The sequel to The Awakening brings new challenges.",
+    "coverImage": "/images/books/shadows-of-destiny.jpg",
+    "publishDate": "2024-06-20",
+    "amazonUrl": "https://www.amazon.com/dp/EXAMPLE2",
+    "kindleUrl": "https://www.amazon.com/dp/EXAMPLE2",
+    "excerpt": "The prophecy foretold of a great darkness...",
+    "worldSlug": "mystara"
+  }
+]
