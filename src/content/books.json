@@ -1,24 +1,244 @@
 [
   {
-    "slug": "the-awakening",
-    "title": "The Awakening",
-    "description": "A thrilling journey into a world of magic and mystery.",
-    "coverImage": "/images/books/the-awakening.jpg",
-    "publishDate": "2024-01-15",
-    "amazonUrl": "https://www.amazon.com/dp/EXAMPLE1",
-    "kindleUrl": "https://www.amazon.com/dp/EXAMPLE1",
-    "excerpt": "In the beginning, there was only darkness...",
-    "worldSlug": "mystara"
+    "slug": "true-story-of-trafalgar",
+    "title": "The True Story of Trafalgar",
+    "subtitle": "Volume One",
+    "description": "A famous square. A legendary battle. The untold lives behind the history.",
+    "longDescription": "Today we can travel to London and experience the many historical sites, including beautiful Trafalgar Square, in the area known as Charing Cross. We think that the statue of Admiral Nelson that stands watch on top of the tall column represents the Battle of Trafalgar and the naming of the square, but it is only a small part of a greater story that involves the lives of many people. The True Story of Trafalgar reveals the names and details of many persons recorded in history and many others who lived their lives in relative anonymity, but perhaps enjoying life every bit as much as their famous counterparts. Welcome to volume one taking place primarily in London and Garristown, Ireland, where George and Riley show us that life and love can be very complicated.",
+    "coverImage": "/images/books/trafalgar/trafalgar1.png",
+    "publishDate": "2025-07-25",
+    "status": "available",
+    "author": "C.R. Thompson",
+    "worldSlug": "trafalgar",
+    "series": {
+      "id": "trafalgar",
+      "name": "The True Story of Trafalgar",
+      "bookNumber": 1
+    },
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/True-Story-Trafalgar-One-ebook/dp/B0FK1XDKD5"
+      },
+      {
+        "type": "audiobook",
+        "label": "Audiobook",
+        "url": "https://www.amazon.com/True-Story-Trafalgar-One/dp/B0FMKHFDB6"
+      }
+    ],
+    "excerpt": "TBD",
+    "related": {
+      "prequelSlug": null,
+      "nextSlug": null,
+      "previousSlug": null
+    },
+    "badges": ["Historical Fiction"],
+    "tags": ["historical fiction", "london", "ireland", "trafalgar", "character-driven"],
+    "ogImage": "/images/og/books/true-story-of-trafalgar.jpg",
+    "amazonUrl": "https://www.amazon.com/True-Story-Trafalgar-One-ebook/dp/B0FK1XDKD5"
   },
+
   {
-    "slug": "shadows-of-destiny",
-    "title": "Shadows of Destiny",
-    "description": "The sequel to The Awakening brings new challenges.",
-    "coverImage": "/images/books/shadows-of-destiny.jpg",
-    "publishDate": "2024-06-20",
-    "amazonUrl": "https://www.amazon.com/dp/EXAMPLE2",
-    "kindleUrl": "https://www.amazon.com/dp/EXAMPLE2",
-    "excerpt": "The prophecy foretold of a great darkness...",
-    "worldSlug": "mystara"
+    "slug": "power-seven",
+    "title": "Power Seven",
+    "subtitle": null,
+    "description": "When catastrophe strikes, the truth hides in plain sight.",
+    "longDescription": "Strange phenomena are observed during chaotic and catastrophic events around the world. Efforts to discover the cause are finding nothing. David Stone is assigned to investigate one of the scenes, where he found violent actions seen only on the worst battlefields. Politics seem to be thwarting his best efforts to solve the mystery. The truth is hard to find and harder to accept. Hoping to stop a worldwide catastrophe, Stone needs help and it seems to come from the most unlikely sources.",
+    "coverImage": "/images/books/powerseven/powerseven1.png",
+    "publishDate": "2024-06-12",
+    "status": "available",
+    "author": "C.R. Thompson",
+    "worldSlug": "power-seven",
+    "series": {
+      "id": "power-seven",
+      "name": "Power Seven",
+      "bookNumber": 1
+    },
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/Power-Seven-C-R-Thompson-ebook/dp/B0D6YZWRJP"
+      },
+      {
+        "type": "audiobook",
+        "label": "Audiobook",
+        "url": "https://www.amazon.com/Audible-Power-Seven/dp/B0CZ4N4LZV"
+      },
+      {
+        "type": "paperback",
+        "label": "Paperback",
+        "url": "https://www.amazon.com/Power-Seven-C-R-Thompson/dp/B0D7QNX41K"
+      }
+    ],
+    "excerpt": "TBD",
+    "related": {
+      "prequelSlug": null,
+      "nextSlug": null,
+      "previousSlug": null
+    },
+    "badges": ["Sci-Fi Thriller"],
+    "tags": ["science fiction", "thriller", "mystery", "global catastrophe", "conspiracy"],
+    "ogImage": "/images/og/books/power-seven.jpg",
+    "amazonUrl": "https://www.amazon.com/Power-Seven-C-R-Thompson-ebook/dp/B0D6YZWRJP"
+  },
+
+  {
+    "slug": "alex",
+    "title": "Alex",
+    "subtitle": "Tales of the Labyrinth Nebula · Book 1",
+    "description": "A single encounter can change the course of a life—and a universe.",
+    "longDescription": "As young boys, growing up on Earth, Alex and his brother Ryan have a brief encounter with the strange alien, C621. From that moment on, Alex knows that his destiny is in the stars. The path is not always clear or easy, but it is definitely life changing. Alex was originally published on Kindle Vella as one of the Top Faved Science Fiction stories. Alex is the prequel to the even larger story that continues with Alex’s daughter, Dorian in the Tales of the Labyrinth Nebula series by C. R. Thompson, published on Amazon, for Kindle eBooks and in paperback. Dorian: Volume 3 is coming soon (previously on Vella).",
+    "coverImage": "/images/books/tln/alex1.png",
+    "publishDate": "2022-11-28",
+    "status": "available",
+    "author": "C.R. Thompson",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 1
+    },
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/gp/product/B0BNLSLCMH"
+      },
+      {
+        "type": "audiobook",
+        "label": "Audiobook",
+        "url": "https://www.amazon.com/Audible-Alex/dp/B0CY4YLQW9"
+      },
+      {
+        "type": "paperback",
+        "label": "Paperback",
+        "url": "https://www.amazon.com/Alex-Tales-Labyrinth-Nebula-Thompson/dp/B0BMZ85NBF"
+      }
+    ],
+    "excerpt": "TBD",
+    "related": {
+      "prequelSlug": null,
+      "nextSlug": "dorian-volume-1",
+      "previousSlug": null
+    },
+    "badges": ["Space Opera", "Kindle Vella"],
+    "tags": ["science fiction", "space opera", "first contact", "origin story", "tln"],
+    "ogImage": "/images/og/books/alex.jpg",
+    "amazonUrl": "https://www.amazon.com/gp/product/B0BNLSLCMH"
+  },
+
+  {
+    "slug": "dorian-volume-1",
+    "title": "Dorian – Volume 1",
+    "subtitle": "Tales of the Labyrinth Nebula · Book 2",
+    "description": "The universe is calling—and the answers lie beyond Earth.",
+    "longDescription": "What is the Earth Window? Who is Ck5? Where are the voices coming from? Driven by memories of her famous Astronaut father, Alex Fox, Dorian is on her way to the new Polaris Lunar Mining Base. It is only the beginning of her journey and nothing seems to happen as planned. The Defense Alliance needs her help and she needs answers. With only fragments of family stories, Dorian hopes that going to the stars will help her to discover the parents that she never really knew. In many ways Dorian is exceptional, but she is also filled with doubts about meeting the challenges of the future. During her Polaris training she met Adam Casey, a self-assured and exceptional pilot astronaut. Adam helps Dorian with her confidence and skills. He is her rock and the close relationship that Dorian never expected. Together they make amazing discoveries that change the direction of both of their lives forever. Dorian, Volume 1 is just the first in the Dorian series telling her fantastic story. We are not alone in this Universe and we have a lot to learn.",
+    "coverImage": "/images/books/tln/dorian1.png",
+    "publishDate": "2019-11-04",
+    "status": "available",
+    "author": "C.R. Thompson",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 2
+    },
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/Dorian-Tales-Labyrinth-Nebula-Dorians-ebook/dp/B0811FHP1L"
+      },
+      {
+        "type": "audiobook",
+        "label": "Audiobook",
+        "url": "https://www.amazon.com/Dorian-Volume-1-Extended-Edition/dp/B0DT91GL9D"
+      },
+      {
+        "type": "paperback",
+        "label": "Paperback",
+        "url": "https://www.amazon.com/Dorian-Tales-Labyrinth-Nebula-Dorians/dp/1705662412"
+      }
+    ],
+    "excerpt": "TBD",
+    "related": {
+      "prequelSlug": "alex",
+      "nextSlug": "dorian-volume-2"
+    },
+    "badges": ["Space Opera"],
+    "tags": ["science fiction", "space opera", "lunar base", "mystery", "earth window", "tln"],
+    "ogImage": "/images/og/books/dorian-volume-1.jpg",
+    "amazonUrl": "https://www.amazon.com/Dorian-Tales-Labyrinth-Nebula-Dorians-ebook/dp/B0811FHP1L"
+  },
+
+  {
+    "slug": "dorian-volume-2",
+    "title": "Dorian – Volume 2",
+    "subtitle": "Tales of the Labyrinth Nebula · Book 3",
+    "description": "Distance changes everything—but destiny remains.",
+    "longDescription": "On the far side of the Earth Window Dorian Fox is standing watch as an officer for the Defense Alliance. Her friend and love, Adam Casey is on the Earth side of the window, working on the development of new Defense Alliance ships needed for their defense against the ever present, Tech threat. Dorian: Vol 2 begins after Dorian and Casey have been apart for several Earth years. It is clear that their lives are being pulled in different directions. The Labyrinth Nebula holds many secrets, and it seems to be Dorian’s destiny to unravel the mysteries.",
+    "coverImage": "/images/books/tln/dorian2.png",
+    "publishDate": "2021-05-03",
+    "status": "available",
+    "author": "C.R. Thompson",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 3
+    },
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/gp/product/B0942PHDX3"
+      },
+      {
+        "type": "paperback",
+        "label": "Paperback",
+        "url": "https://www.amazon.com/Dorian-2-C-R-Thompson/dp/B094281ZQ3"
+      }
+    ],
+    "excerpt": "TBD",
+    "related": {
+      "prequelSlug": "dorian-volume-1",
+      "nextSlug": "dorian-volume-3",
+      "previousSlug": "dorian-volume-1"
+    },
+    "badges": ["Space Opera"],
+    "tags": ["science fiction", "space opera", "earth window", "defense alliance", "tln"],
+    "ogImage": "/images/og/books/dorian-volume-2.jpg",
+    "amazonUrl": "https://www.amazon.com/gp/product/B0942PHDX3"
+  },
+
+  {
+    "slug": "dorian-volume-3",
+    "title": "Dorian – Volume 3",
+    "subtitle": "Tales of the Labyrinth Nebula · Book 4",
+    "description": "Coming soon: the next chapter in the Labyrinth Nebula saga.",
+    "longDescription": "TBD",
+    "coverImage": "/images/books/tln/dorian3.png",
+    "publishDate": "TBD",
+    "status": "coming_soon",
+    "author": "C.R. Thompson",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 4
+    },
+    "formats": [],
+    "excerpt": null,
+    "related": {
+      "prequelSlug": "dorian-volume-2",
+      "nextSlug": null,
+      "previousSlug": "dorian-volume-2"
+    },
+    "badges": ["Coming Soon"],
+    "tags": ["science fiction", "space opera", "tln"],
+    "ogImage": "/images/og/books/dorian-volume-3.jpg",
+    "amazonUrl": ""
   }
 ]

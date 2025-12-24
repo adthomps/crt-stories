@@ -1,6 +1,6 @@
 export const siteConfig = {
-  title: 'Author Name - Books, Worlds & Characters',
-  description: 'Explore the books, worlds, and characters created by Author Name.',
+  title: 'C. R. Thompson - Books, Worlds & Characters',
+  description: 'Explore the books, worlds, and characters created by C. R. Thompson.',
   baseUrl: 'https://crt-stories.pages.dev',
-  author: 'Author Name',
+  author: 'C. R. Thompson',
 };

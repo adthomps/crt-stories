@@ -19,11 +19,11 @@ function Head() {
 
   return (
     <>
-      <title>{world.title} | Author Name</title>
+      <title>{`${world.title} | Author Name`}</title>
       <meta name="description" content={world.description} />
       <meta property="og:title" content={world.title} />
       <meta property="og:description" content={world.description} />
-      <meta property="og:image" content={world.image} />
+      <meta property="og:image" content={world.heroImage} />
     </>
   );
 }

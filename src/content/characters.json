@@ -1,24 +1,72 @@
 [
   {
-    "slug": "elena-brightstar",
-    "name": "Elena Brightstar",
-    "title": "The Chosen One",
-    "description": "A young mage destined to save the world from darkness.",
-    "image": "/images/characters/elena-brightstar.jpg",
-    "backstory": "Born under a rare celestial alignment, Elena discovered her magical abilities at age seven.",
-    "abilities": ["Fire Magic", "Telepathy", "Healing"],
-    "worldSlug": "mystara",
-    "bookSlugs": ["the-awakening", "shadows-of-destiny"]
+    "slug": "alex-fox",
+    "name": "Alex Fox",
+    "roleTag": "Astronaut · Pioneer",
+    "bio": "A boyhood encounter with the alien C621 sets Alex on a path toward the stars. His choices—and sacrifices—shape the future of the Defense Alliance and the life of his daughter, Dorian.",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "appearsInBookSlugs": ["alex", "dorian-volume-1", "dorian-volume-2"],
+    "portraitImage": "/images/characters/tln/alex.png",
+    "tags": ["Fox family", "first contact", "legacy"]
   },
   {
-    "slug": "marcus-shadowbane",
-    "name": "Marcus Shadowbane",
-    "title": "The Dark Knight",
-    "description": "A warrior who walks the line between light and shadow.",
-    "image": "/images/characters/marcus-shadowbane.jpg",
-    "backstory": "Once a paladin of light, Marcus fell into darkness before finding redemption.",
-    "abilities": ["Shadow Manipulation", "Master Swordsman", "Stealth"],
-    "worldSlug": "mystara",
-    "bookSlugs": ["shadows-of-destiny"]
+    "slug": "dorian-fox",
+    "name": "Dorian Fox",
+    "roleTag": "Officer · Explorer",
+    "bio": "Driven by fragments of family history and unanswered questions, Dorian’s journey begins at Polaris and leads her into the secrets of the Earth Window and the Labyrinth Nebula.",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "appearsInBookSlugs": ["dorian-volume-1", "dorian-volume-2", "dorian-volume-3"],
+    "portraitImage": "/images/characters/tln/dorian.png",
+    "tags": ["Fox family", "earth window", "destiny"]
+  },
+  {
+    "slug": "adam-casey",
+    "name": "Adam Casey",
+    "roleTag": "Pilot · Anchor",
+    "bio": "A skilled and confident pilot, Adam becomes an unexpected source of stability for Dorian as their lives collide with discoveries that change everything.",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "appearsInBookSlugs": ["dorian-volume-1", "dorian-volume-2", "dorian-volume-3"],
+    "portraitImage": "/images/characters/tln/adam.png",
+    "tags": ["Defense Alliance", "pilot", "loyalty"]
+  },
+  {
+    "slug": "c621",
+    "name": "C621",
+    "roleTag": "Alien · Catalyst",
+    "bio": "A mysterious being whose brief encounter with Alex and Ryan triggers a lifelong pull toward the unknown—and a chain of events that reaches far beyond Earth.",
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "appearsInBookSlugs": ["alex"],
+    "portraitImage": "/images/characters/tln/c621.png",
+    "tags": ["first contact", "mystery"]
+  },
+  {
+    "slug": "david-stone",
+    "name": "David Stone",
+    "roleTag": "Investigator · Reluctant Hero",
+    "bio": "Assigned to investigate catastrophic events with no clear cause, David Stone uncovers evidence that suggests the world is facing a threat it cannot explain—or control.",
+    "worldSlug": "power-seven",
+    "appearsInBookSlugs": ["power-seven"],
+    "portraitImage": "/images/characters/powerseven/david.png",
+    "tags": ["investigation", "conspiracy", "global events"]
+  },
+  {
+    "slug": "george",
+    "name": "George",
+    "roleTag": "Resident · Observer",
+    "bio": "Living between the pull of history and the push of personal desire, George’s life in London and Ireland reveals that love and ambition can be as complicated as any famous battle.",
+    "worldSlug": "trafalgar",
+    "appearsInBookSlugs": ["true-story-of-trafalgar"],
+    "portraitImage": "/images/characters/trafalgar/george.png",
+    "tags": ["london", "ireland", "relationships"]
+  },
+  {
+    "slug": "riley",
+    "name": "Riley",
+    "roleTag": "Partner · Counterpoint",
+    "bio": "Riley navigates the same historical currents as George, showing how ordinary lives can carry extraordinary meaning alongside the events remembered by the world.",
+    "worldSlug": "trafalgar",
+    "appearsInBookSlugs": ["true-story-of-trafalgar"],
+    "portraitImage": "/images/characters/trafalgar/riley.png",
+    "tags": ["london", "ireland", "relationships"]
   }
 ]
