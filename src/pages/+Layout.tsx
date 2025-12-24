@@ -27,6 +27,9 @@ function Layout({ children }: { children: React.ReactNode }) {
           <span className="footer-site-link">
             <a href={siteConfig.baseUrl} target="_blank" rel="noopener noreferrer">{siteConfig.baseUrl.replace(/^https?:\/\//, '')}</a>
           </span>
+          <span className="footer-ai-note" style={{ fontSize: '0.97rem', color: '#aaa', marginTop: '0.5rem', display: 'block' }}>
+            Some images on this site were enhanced or generated with the help of AI.
+          </span>
         </div>
       </footer>
     </div>
