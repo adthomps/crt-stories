@@ -2,12 +2,13 @@ export { Page };
 
 import React from 'react';
 import { books, worlds, characters } from '../../content';
+import { siteConfig } from '../../config';
 
 function Page() {
   return (
     <>
       <div className="detail-header">
-        <h1 className="page-title">Welcome to Author Name's Universe</h1>
+        <h1 className="page-title">Welcome to {siteConfig.author}'s Universe</h1>
         <p className="page-description">
           Explore epic tales, immersive worlds, and unforgettable characters.
         </p>

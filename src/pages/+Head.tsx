@@ -1,6 +1,7 @@
 export { Head };
 
 import React from 'react';
+import { siteConfig } from '../config';
 
 interface HeadProps {
   title?: string;
@@ -10,14 +11,11 @@ interface HeadProps {
 }
 
 function Head({ title, description, image, url }: HeadProps) {
-  const siteTitle = 'Author Name - Books, Worlds & Characters';
-  const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
-  const defaultDescription = 'Explore the books, worlds, and characters created by Author Name.';
-  const metaDescription = description || defaultDescription;
+  const pageTitle = title ? `${title} | ${siteConfig.title}` : siteConfig.title;
+  const metaDescription = description || siteConfig.description;
   const defaultImage = '/og-image.jpg';
   const metaImage = image || defaultImage;
-  const baseUrl = 'https://crt-stories.pages.dev';
-  const metaUrl = url ? `${baseUrl}${url}` : baseUrl;
+  const metaUrl = url ? `${siteConfig.baseUrl}${url}` : siteConfig.baseUrl;
 
   return (
     <>

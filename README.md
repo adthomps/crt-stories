@@ -50,6 +50,19 @@ All content is stored in JSON files under `src/content/`. Each content type has:
 - **Type Definitions**: TypeScript interfaces
 - **Slug Validation**: Must be lowercase alphanumeric with hyphens
 
+### Site Configuration
+
+Edit `src/config.ts` to customize site-wide settings:
+
+```typescript
+export const siteConfig = {
+  title: 'Your Site Title',
+  description: 'Your site description',
+  baseUrl: 'https://your-domain.pages.dev',
+  author: 'Your Name',
+};
+```
+
 ### Adding Books
 
 Edit `src/content/books.json`:
