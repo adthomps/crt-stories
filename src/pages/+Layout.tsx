@@ -25,7 +25,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         <div className="footer-content">
           <span>&copy; {new Date().getFullYear()} {siteConfig.author}. All rights reserved.</span>
           <span className="footer-site-link">
-            <a href={siteConfig.baseUrl} target="_blank" rel="noopener noreferrer">{siteConfig.baseUrl.replace(/^https?:\/\//, '')}</a>
+            <a href="https://crthompson.net" target="_blank" rel="noopener noreferrer">crthompson.net</a>
           </span>
           <span className="footer-ai-note" style={{ fontSize: '0.97rem', color: '#aaa', marginTop: '0.5rem', display: 'block' }}>
             Some images on this site were enhanced or generated with the help of AI.
