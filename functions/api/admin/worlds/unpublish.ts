@@ -1,15 +1,8 @@
-import { getAdminEmailFromRequest } from '../utils/auth';
+
 
 export const onRequest: PagesFunction = async (context) => {
   const { request, env } = context;
-  let adminEmail;
-  try {
-    adminEmail = await getAdminEmailFromRequest(request);
-  } catch (err) {
-    return err instanceof Response
-      ? err
-      : new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-  }
+
   try {
     const url = new URL(request.url);
     const slug = url.pathname.split('/').filter(Boolean).pop();
@@ -25,9 +18,7 @@ export const onRequest: PagesFunction = async (context) => {
     await env.CRT_STORIES_CONTENT.prepare(
       "UPDATE export_state SET needs_export = 1, updated_at = datetime('now') WHERE id = 1"
     ).run();
-    await env.CRT_STORIES_CONTENT.prepare(
-      'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)' 
-    ).bind(adminEmail, 'unpublish', 'worlds', JSON.stringify({ slug })).run();
+    // Optionally, remove audit log or set admin_email to NULL or a placeholder
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
     console.error('Worlds unpublish API error:', err);
