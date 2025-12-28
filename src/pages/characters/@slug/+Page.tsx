@@ -3,40 +3,17 @@ export { Page };
 import React from 'react';
 import { usePageContext } from 'vike-react/usePageContext';
 // import { getCharacterBySlug, getWorldBySlug, books } from '../../../content'; // Legacy static import (commented for safety)
-import { fetchCharacters, fetchWorlds, fetchBooks } from '../../../content';
+import { characters, worlds, books } from '../../../content';
 import React from 'react';
 
 function Page() {
   const pageContext = usePageContext();
   const { slug } = pageContext.routeParams;
-  const [character, setCharacter] = React.useState<any>(null);
-  const [world, setWorld] = React.useState<any>(null);
-  const [characterBooks, setCharacterBooks] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  // SSG build: use static content
+  const character = characters.find((c: any) => c.slug === slug);
+  const world = character && character.worldSlug ? worlds.find((w: any) => w.slug === character.worldSlug) : null;
+  const characterBooks = character && character.appearsInBookSlugs ? books.filter((b: any) => character.appearsInBookSlugs.includes(b.slug)) : [];
 
-  React.useEffect(() => {
-    setLoading(true);
-    Promise.all([fetchCharacters(), fetchWorlds(), fetchBooks()])
-      .then(([characters, worlds, books]) => {
-        const foundCharacter = characters.find((c: any) => c.slug === slug);
-        setCharacter(foundCharacter);
-        if (foundCharacter && foundCharacter.worldSlug) {
-          setWorld(worlds.find((w: any) => w.slug === foundCharacter.worldSlug));
-        }
-        if (foundCharacter && foundCharacter.appearsInBookSlugs) {
-          setCharacterBooks(books.filter((b: any) => foundCharacter.appearsInBookSlugs.includes(b.slug)));
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to load character/world/books');
-        setLoading(false);
-      });
-  }, [slug]);
-
-  if (loading) return <div>Loading character...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
   if (!character) {
     return <div>Character not found</div>;
   }

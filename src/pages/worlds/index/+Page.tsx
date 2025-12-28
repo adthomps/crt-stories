@@ -2,29 +2,13 @@ export { Page };
 
 import React from 'react';
 // import { worlds } from '../../../content'; // Legacy static import (commented for safety)
-import { fetchWorlds } from '../../../content';
+import { worlds } from '../../../content';
 import React from 'react';
 
 function Page() {
-  const [worlds, setWorlds] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    setLoading(true);
-    fetchWorlds()
-      .then((data) => {
-        setWorlds(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to load worlds');
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div>Loading worlds...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
+  // Use static worlds for build
+  // Remove loading/error states for static data
 
   return (
     <>

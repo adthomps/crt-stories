@@ -2,29 +2,13 @@ export { Page };
 
 import React from 'react';
 // import { books } from '../../../content'; // Legacy static import (commented for safety)
-import { fetchBooks } from '../../../content';
+import { books } from '../../../content';
 import React from 'react';
 
 function Page() {
-  const [books, setBooks] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    setLoading(true);
-    fetchBooks()
-      .then((data) => {
-        setBooks(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to load books');
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div>Loading books...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
+  // Use static books for build
+  // Remove loading/error states for static data
 
   return (
     <>

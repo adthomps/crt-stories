@@ -3,36 +3,19 @@ export { Page };
 import React from 'react';
 import { usePageContext } from 'vike-react/usePageContext';
 // import { books } from '../../../content'; // Legacy static import (commented for safety)
-import { fetchBooks } from '../../../content';
+import { books } from '../../../content';
 import React from 'react';
 
 function Page() {
   const pageContext = usePageContext();
   const { seriesId } = pageContext.routeParams;
-  const [books, setBooks] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    setLoading(true);
-    fetchBooks()
-      .then((data) => {
-        setBooks(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to load books');
-        setLoading(false);
-      });
-  }, []);
+  // SSG build: use static books
 
   // Get all books in this series, ordered by bookNumber
   const seriesBooks = books
     .filter((book: any) => book.series && book.series.id === seriesId)
     .sort((a: any, b: any) => (a.series.bookNumber - b.series.bookNumber));
 
-  if (loading) return <div>Loading series...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
   if (seriesBooks.length === 0) {
     return <div>Series not found or no books in this series.</div>;
   }
