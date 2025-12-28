@@ -1,0 +1,15 @@
+[
+  {
+    "slug": "default-series",
+    "title": "Default Series",
+    "subtitle": "A sample series for grouping books",
+    "description": "This is a placeholder series. Replace or extend as needed.",
+    "longDescription": "This series demonstrates how books can be grouped. You can add more fields as needed.",
+    "badges": [],
+    "tags": [],
+    "ogImage": null,
+    "heroImage": null,
+    "formats": [],
+    "published": true
+  }
+]

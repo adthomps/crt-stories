@@ -18,6 +18,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
     "playwright": "^1.57.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vike": "^0.4.250",
     "vite": "^7.3.0"
@@ -25,6 +26,7 @@
   "dependencies": {
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "vike-react": "^0.6.18"
+    "vike-react": "^0.6.18",
+    "zod": "^4.2.1"
   }
 }

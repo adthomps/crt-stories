@@ -2,21 +2,44 @@ export { Page };
 
 import React from 'react';
 import { usePageContext } from 'vike-react/usePageContext';
-import { getCharacterBySlug, getWorldBySlug, books } from '../../../content';
+// import { getCharacterBySlug, getWorldBySlug, books } from '../../../content'; // Legacy static import (commented for safety)
+import { fetchCharacters, fetchWorlds, fetchBooks } from '../../../content';
+import React from 'react';
 
 function Page() {
   const pageContext = usePageContext();
   const { slug } = pageContext.routeParams;
-  const character = getCharacterBySlug(slug);
+  const [character, setCharacter] = React.useState<any>(null);
+  const [world, setWorld] = React.useState<any>(null);
+  const [characterBooks, setCharacterBooks] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    setLoading(true);
+    Promise.all([fetchCharacters(), fetchWorlds(), fetchBooks()])
+      .then(([characters, worlds, books]) => {
+        const foundCharacter = characters.find((c: any) => c.slug === slug);
+        setCharacter(foundCharacter);
+        if (foundCharacter && foundCharacter.worldSlug) {
+          setWorld(worlds.find((w: any) => w.slug === foundCharacter.worldSlug));
+        }
+        if (foundCharacter && foundCharacter.appearsInBookSlugs) {
+          setCharacterBooks(books.filter((b: any) => foundCharacter.appearsInBookSlugs.includes(b.slug)));
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load character/world/books');
+        setLoading(false);
+      });
+  }, [slug]);
+
+  if (loading) return <div>Loading character...</div>;
+  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
   if (!character) {
     return <div>Character not found</div>;
   }
-
-  const world = character.worldSlug ? getWorldBySlug(character.worldSlug) : null;
-  const characterBooks = character.appearsInBookSlugs
-    ? books.filter((book) => character.appearsInBookSlugs!.includes(book.slug))
-    : [];
 
   return (
     <>
@@ -24,7 +47,7 @@ function Page() {
         <h1 className="page-title">{character.name}</h1>
         {character.badges && character.badges.length > 0 && (
           <div className="badge-list">
-            {character.badges.map((badge, i) => (
+            {character.badges.map((badge: any, i: number) => (
               <span key={i} className="badge">{badge}</span>
             ))}
           </div>
@@ -70,7 +93,7 @@ function Page() {
             <div className="section">
               <h2>Tags</h2>
               <div className="tag-list">
-                {character.tags.map((tag, index) => (
+                {character.tags.map((tag: any, index: number) => (
                   <span key={index} className="tag">{tag}</span>
                 ))}
               </div>

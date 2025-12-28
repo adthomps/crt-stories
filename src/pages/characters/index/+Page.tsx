@@ -1,7 +1,8 @@
 export { Page };
 
 import { useState } from 'react';
-import { characters, worlds } from '../../../content';
+// import { characters, worlds } from '../../../content'; // Legacy static import (commented for safety)
+import { fetchCharacters, fetchWorlds } from '../../../content';
 
 import type { Character } from '../../../content';
 
@@ -14,16 +15,34 @@ function getAllTags(characters: Character[]): string[] {
 }
 
 function Page() {
+  const [characters, setCharacters] = useState([]);
+  const [worlds, setWorlds] = useState([]);
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    setLoading(true);
+    Promise.all([fetchCharacters(), fetchWorlds()])
+      .then(([charactersData, worldsData]) => {
+        setCharacters(charactersData);
+        setWorlds(worldsData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load characters/worlds');
+        setLoading(false);
+      });
+  }, []);
 
   // Group characters by worldSlug
-  const worldMap = worlds.reduce((acc, world) => {
+  const worldMap = worlds.reduce((acc: any, world: any) => {
     acc[world.slug] = world;
     return acc;
-  }, {} as Record<string, typeof worlds[0]>);
+  }, {} as Record<string, any>);
 
-  const charactersByWorld: Record<string, typeof characters> = {};
-  characters.forEach((character) => {
+  const charactersByWorld: Record<string, any[]> = {};
+  characters.forEach((character: any) => {
     const slug = character.worldSlug || 'unknown';
     if (!charactersByWorld[slug]) charactersByWorld[slug] = [];
     charactersByWorld[slug].push(character);
@@ -33,11 +52,21 @@ function Page() {
   const filteredCharactersByWorld: typeof charactersByWorld = {};
   Object.entries(charactersByWorld).forEach(([worldSlug, chars]) => {
     filteredCharactersByWorld[worldSlug] = activeTag
-      ? chars.filter((c) => c.tags && c.tags.includes(activeTag))
+      ? chars.filter((c: any) => c.tags && c.tags.includes(activeTag))
       : chars;
   });
 
+  function getAllTags(characters: any[]): string[] {
+    const tagSet = new Set<string>();
+    characters.forEach((c) => {
+      if (c.tags) c.tags.forEach((t: string) => tagSet.add(t));
+    });
+    return Array.from(tagSet).sort();
+  }
   const allTags = getAllTags(characters);
+
+  if (loading) return <div>Loading characters...</div>;
+  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
   return (
     <>
@@ -67,7 +96,7 @@ function Page() {
         </span>
       </div>
 
-      {Object.entries(filteredCharactersByWorld).map(([worldSlug, chars]: [string, Character[]]) => {
+      {Object.entries(filteredCharactersByWorld).map(([worldSlug, chars]: [string, any[]]) => {
         if (chars.length === 0) return null;
         const world = worldMap[worldSlug];
         return (
@@ -76,7 +105,7 @@ function Page() {
               {world ? world.title : 'Other'}
             </h2>
             <div className="grid">
-              {chars.map((character: Character) => (
+              {chars.map((character: any) => (
                 <div key={character.slug} className="card">
                   <img src={character.portraitImage} alt={character.name} />
                   <div className="card-content">
