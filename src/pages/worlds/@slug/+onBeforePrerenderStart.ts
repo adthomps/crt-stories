@@ -1,8 +1,8 @@
-export { onBeforePrerenderStart };
 
-import { worlds } from '../../../content';
+import { fetchWorlds } from '../../../content';
 
-function onBeforePrerenderStart() {
+export async function onBeforePrerenderStart() {
+  const worlds = await fetchWorlds();
   const urls = worlds.map((world) => `/worlds/${world.slug}`);
   return urls;
 }
