@@ -1,11 +1,32 @@
 export { Page };
 
 import React from 'react';
-import { books } from '../../../content';
+// import { books } from '../../../content'; // Legacy static import (commented for safety)
+import { fetchBooks } from '../../../content';
+import React from 'react';
 
 function Page() {
+  const [books, setBooks] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setLoading(true);
+    fetchBooks()
+      .then((data) => {
+        setBooks(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load books');
+        setLoading(false);
+      });
+  }, []);
+
   // Get all unique series IDs
-  const seriesIds = Array.from(new Set(books.filter(b => b.series).map(b => b.series!.id)));
+  const seriesIds = Array.from(new Set(books.filter((b: any) => b.series).map((b: any) => b.series.id)));
+  if (loading) return <div>Loading series...</div>;
+  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
   if (seriesIds.length === 0) {
     return <div>No series found.</div>;
   }
@@ -17,9 +38,8 @@ function Page() {
       </div>
       <div className="grid">
         {seriesIds.map(seriesId => {
-          const seriesBooks = books.filter(b => b.series && b.series.id === seriesId);
+          const seriesBooks = books.filter((b: any) => b.series && b.series.id === seriesId);
           const firstBook = seriesBooks[0];
-          // Shorten description to 140 chars
           const desc = firstBook.longDescription || firstBook.description || '';
           const shortDesc = desc.length > 140 ? desc.slice(0, 137) + '...' : desc;
           return (

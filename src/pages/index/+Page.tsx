@@ -1,13 +1,39 @@
 export { Page };
 
 
-import { books, worlds, characters } from '../../content';
+// import { books, worlds, characters } from '../../content'; // Legacy static import (commented for safety)
+import { fetchBooks, fetchWorlds, fetchCharacters } from '../../content';
 import { siteConfig } from '../../config';
 
+import React from 'react';
+
 function Page() {
+  const [books, setBooks] = React.useState([]);
+  const [worlds, setWorlds] = React.useState([]);
+  const [characters, setCharacters] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setLoading(true);
+    Promise.all([fetchBooks(), fetchWorlds(), fetchCharacters()])
+      .then(([booksData, worldsData, charactersData]) => {
+        setBooks(booksData);
+        setWorlds(worldsData);
+        setCharacters(charactersData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load content');
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Loading content...</div>;
+  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
+
   return (
     <>
-
       <div className="detail-header">
         <h1 className="page-title">Welcome to {siteConfig.author}'s Universe</h1>
         <p className="page-description">
@@ -22,8 +48,8 @@ function Page() {
       <section className="section">
         <h2>Book Series</h2>
         <div className="grid">
-          {Array.from(new Set(books.filter(b => b.series).map(b => b.series!.id))).map(seriesId => {
-            const seriesBooks = books.filter(b => b.series && b.series.id === seriesId);
+          {Array.from(new Set(books.filter((b: any) => b.series).map((b: any) => b.series.id))).map(seriesId => {
+            const seriesBooks = books.filter((b: any) => b.series && b.series.id === seriesId);
             const firstBook = seriesBooks[0];
             return (
               <div key={seriesId} className="card">
@@ -42,12 +68,10 @@ function Page() {
       <section className="section">
         <h2>Featured Books</h2>
         <div className="grid">
-          {books.slice(0, 3).map((book) => {
-            // Expand to 2-3 sentences (about 320 chars, end at sentence if possible)
+          {books.slice(0, 3).map((book: any) => {
             const desc = book.longDescription || book.description || '';
             let expanded = desc;
             if (desc.length > 320) {
-              // Try to end at the last period before 320 chars
               const periodIdx = desc.lastIndexOf('.', 320);
               if (periodIdx > 0) {
                 expanded = desc.slice(0, periodIdx + 1);
@@ -77,7 +101,7 @@ function Page() {
       <section className="section">
         <h2>Explore Worlds</h2>
         <div className="grid">
-          {worlds.slice(0, 3).map((world) => (
+          {worlds.slice(0, 3).map((world: any) => (
             <div key={world.slug} className="card">
               <img src={world.heroImage} alt={world.title} />
               <div className="card-content">
@@ -98,7 +122,7 @@ function Page() {
       <section className="section">
         <h2>Meet the Characters</h2>
         <div className="grid">
-          {characters.slice(0, 3).map((character) => (
+          {characters.slice(0, 3).map((character: any) => (
             <div key={character.slug} className="card">
               <img src={character.portraitImage} alt={character.name} />
               <div className="card-content">

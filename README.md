@@ -168,8 +168,6 @@ Each page includes:
 ISC
 ## Export-on-Publish Content Flow
 
-## Export-on-Publish Content Flow
-
 This project uses a semi-automatic export system to keep the public site’s JSON content in sync with published records in your Cloudflare D1 database. This ensures only published content is visible, and changes are tracked in git.
 
 ### How It Works
@@ -178,6 +176,7 @@ This project uses a semi-automatic export system to keep the public site’s JSO
 2. **Export flag is set**: The D1 table `export_state` is updated to indicate that an export is needed.
 3. **Export script runs** ([scripts/export-d1-to-json.ts](scripts/export-d1-to-json.ts)):
     - Reads only published records from D1
+    - Maps DB rows to the frontend JSON schema (including nested fields and relationships)
     - Writes to `src/content/series.json`, `books.json`, `worlds.json`, `characters.json`
     - Only writes if content changed (prevents noisy diffs)
     - Resets export flag if any file changed
@@ -191,7 +190,7 @@ Set these in your repository’s GitHub Actions secrets:
 
 - `CF_API_TOKEN`: Cloudflare API token with D1 read access (must have permission to query your D1 database)
 - `CF_ACCOUNT_ID`: Your Cloudflare account ID (find in Cloudflare dashboard)
-- `D1_DATABASE_ID`: The D1 database ID (set to `c1d373e5-667c-474b-9999-975fb0784820`)
+- `D1_DATABASE_ID`: The D1 database ID
 
 > **Tip:** The API token should have at least `D1:Edit` or `D1:Read` permissions for the target database.
 
