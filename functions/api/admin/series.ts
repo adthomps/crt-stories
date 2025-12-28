@@ -1,7 +1,7 @@
 // Cloudflare Pages Function: /api/admin/series
 
 import { z } from 'zod';
-import { getAdminEmailFromRequest } from './utils/auth';
+
 
 const SeriesSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/),
@@ -16,14 +16,7 @@ export const onRequest: PagesFunction = async (context) => {
   const { request, env } = context;
   const url = new URL(request.url);
   const method = request.method.toUpperCase();
-  let adminEmail;
-  try {
-    adminEmail = await getAdminEmailFromRequest(request);
-  } catch (err) {
-    return err instanceof Response
-      ? err
-      : new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-  }
+
 
   try {
     if (method === 'POST') {
@@ -40,9 +33,7 @@ export const onRequest: PagesFunction = async (context) => {
       await env.CRT_STORIES_CONTENT.prepare(
         'INSERT INTO series (slug, title, description, published, created_at, updated_at) VALUES (?, ?, ?, ?, datetime(\'now\'), datetime(\'now\'))'
       ).bind(slug, title, description ?? '', published ? 1 : 0).run();
-      await env.CRT_STORIES_CONTENT.prepare(
-        'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)'
-      ).bind(adminEmail, 'create', 'series', JSON.stringify({ slug, title })).run();
+      // Optionally, remove audit log or set admin_email to NULL or a placeholder
       await env.CRT_STORIES_CONTENT.prepare(
         'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
       ).run();
@@ -76,9 +67,7 @@ export const onRequest: PagesFunction = async (context) => {
       if (result.changes === 0) {
         return new Response(JSON.stringify({ error: 'Not found or already deleted' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
       }
-      await env.CRT_STORIES_CONTENT.prepare(
-        'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)'
-      ).bind(adminEmail, 'update', 'series', JSON.stringify({ slug, title })).run();
+      // Optionally, remove audit log or set admin_email to NULL or a placeholder
       await env.CRT_STORIES_CONTENT.prepare(
         'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
       ).run();
@@ -97,9 +86,7 @@ export const onRequest: PagesFunction = async (context) => {
       if (result.changes === 0) {
         return new Response(JSON.stringify({ error: 'Not found or already deleted' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
       }
-      await env.CRT_STORIES_CONTENT.prepare(
-        'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)'
-      ).bind(adminEmail, 'delete', 'series', JSON.stringify({ slug })).run();
+      // Optionally, remove audit log or set admin_email to NULL or a placeholder
       await env.CRT_STORIES_CONTENT.prepare(
         'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
       ).run();

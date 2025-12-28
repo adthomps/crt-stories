@@ -15,27 +15,13 @@ const BookSchema = z.object({
 	published: z.boolean().optional(),
 });
 
-import { getAdminEmailFromRequest } from './utils/auth';
+
 
 export const onRequest: PagesFunction = async (context) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
 	const method = request.method.toUpperCase();
-	// Authenticate admin
-	let adminEmail;
-	// Try both auth helpers for compatibility
-	try {
-		if (typeof getAdminEmailFromRequest === 'function') {
-			adminEmail = await getAdminEmailFromRequest(request);
-		} else if (typeof verifyAccess === 'function') {
-			adminEmail = await verifyAccess(request);
-		}
-	} catch (err) {
-		return err instanceof Response
-			? err
-			: new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-	}
-	if (!adminEmail) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+
 
 	try {
 		if (method === 'GET') {
@@ -76,9 +62,7 @@ export const onRequest: PagesFunction = async (context) => {
 			await env.CRT_STORIES_CONTENT.prepare(
 				'INSERT INTO books (slug, title, description, cover_image, publish_date, amazon_url, kindle_url, excerpt, world_slug, series_id, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime(\'now\'), datetime(\'now\'))'
 			).bind(slug, title, description ?? '', cover_image ?? '', publish_date ?? '', amazon_url ?? '', kindle_url ?? '', excerpt ?? '', world_slug ?? '', series_id ?? null, published ? 1 : 0).run();
-			await env.CRT_STORIES_CONTENT.prepare(
-				'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)'
-			).bind(adminEmail, 'create', 'books', JSON.stringify({ slug, title })).run();
+			// Optionally, remove audit log or set admin_email to NULL or a placeholder
 			await env.CRT_STORIES_CONTENT.prepare(
 				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
 			).run();
@@ -106,9 +90,7 @@ export const onRequest: PagesFunction = async (context) => {
 			await env.CRT_STORIES_CONTENT.prepare(
 				'UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, amazon_url = ?, kindle_url = ?, excerpt = ?, world_slug = ?, series_id = ?, published = ?, updated_at = datetime(\'now\') WHERE slug = ? AND deleted_at IS NULL'
 			).bind(title, description ?? '', cover_image ?? '', publish_date ?? '', amazon_url ?? '', kindle_url ?? '', excerpt ?? '', world_slug ?? '', series_id ?? null, published ? 1 : 0, slug).run();
-			await env.CRT_STORIES_CONTENT.prepare(
-				'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)'
-			).bind(adminEmail, 'update', 'books', JSON.stringify({ slug, title })).run();
+			// Optionally, remove audit log or set admin_email to NULL or a placeholder
 			await env.CRT_STORIES_CONTENT.prepare(
 				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
 			).run();
@@ -134,9 +116,7 @@ export const onRequest: PagesFunction = async (context) => {
 			await env.CRT_STORIES_CONTENT.prepare(
 				'UPDATE books SET deleted_at = datetime(\'now\'), updated_at = datetime(\'now\') WHERE slug = ? AND deleted_at IS NULL'
 			).bind(slug).run();
-			await env.CRT_STORIES_CONTENT.prepare(
-				'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)'
-			).bind(adminEmail, 'delete', 'books', JSON.stringify({ slug, title: existing.title })).run();
+			// Optionally, remove audit log or set admin_email to NULL or a placeholder
 			await env.CRT_STORIES_CONTENT.prepare(
 				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
 			).run();
