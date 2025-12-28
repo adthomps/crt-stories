@@ -1,8 +1,7 @@
 
-import { fetchWorlds } from '../../../content';
+import { worlds } from '../../../content';
 
-export async function onBeforePrerenderStart() {
-  const worlds = await fetchWorlds();
+export function onBeforePrerenderStart() {
   const urls = worlds.map((world) => `/worlds/${world.slug}`);
   return urls;
 }

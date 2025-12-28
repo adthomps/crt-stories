@@ -1,8 +1,7 @@
 
-import { fetchCharacters } from '../../../content';
+import { characters } from '../../../content';
 
-export async function onBeforePrerenderStart() {
-  const characters = await fetchCharacters();
+export function onBeforePrerenderStart() {
   const urls = characters.map((character) => `/characters/${character.slug}`);
   return urls;
 }

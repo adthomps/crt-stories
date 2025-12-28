@@ -1,8 +1,7 @@
 
-import { fetchBooks } from '../../../content';
+import { books } from '../../../content';
 
-export async function onBeforePrerenderStart() {
-  const books = await fetchBooks();
+export function onBeforePrerenderStart() {
   const urls = books.map((book) => `/books/${book.slug}`);
   return urls;
 }

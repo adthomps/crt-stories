@@ -2,7 +2,7 @@ export { Page };
 
 import { useState } from 'react';
 // import { characters, worlds } from '../../../content'; // Legacy static import (commented for safety)
-import { fetchCharacters, fetchWorlds } from '../../../content';
+import { characters, worlds } from '../../../content';
 
 import type { Character } from '../../../content';
 
@@ -15,25 +15,9 @@ function getAllTags(characters: Character[]): string[] {
 }
 
 function Page() {
-  const [characters, setCharacters] = useState([]);
-  const [worlds, setWorlds] = useState([]);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    setLoading(true);
-    Promise.all([fetchCharacters(), fetchWorlds()])
-      .then(([charactersData, worldsData]) => {
-        setCharacters(charactersData);
-        setWorlds(worldsData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to load characters/worlds');
-        setLoading(false);
-      });
-  }, []);
+  // Use static characters and worlds for build
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
   // Group characters by worldSlug
   const worldMap = worlds.reduce((acc: any, world: any) => {
@@ -65,8 +49,6 @@ function Page() {
   }
   const allTags = getAllTags(characters);
 
-  if (loading) return <div>Loading characters...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
   return (
     <>

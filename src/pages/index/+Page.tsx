@@ -2,35 +2,14 @@ export { Page };
 
 
 // import { books, worlds, characters } from '../../content'; // Legacy static import (commented for safety)
-import { fetchBooks, fetchWorlds, fetchCharacters } from '../../content';
+import { books, worlds, characters } from '../../content';
 import { siteConfig } from '../../config';
 
 import React from 'react';
 
 function Page() {
-  const [books, setBooks] = React.useState([]);
-  const [worlds, setWorlds] = React.useState([]);
-  const [characters, setCharacters] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    setLoading(true);
-    Promise.all([fetchBooks(), fetchWorlds(), fetchCharacters()])
-      .then(([booksData, worldsData, charactersData]) => {
-        setBooks(booksData);
-        setWorlds(worldsData);
-        setCharacters(charactersData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to load content');
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div>Loading content...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
+  // Use static books, worlds, characters for build
 
   return (
     <>

@@ -1,8 +1,7 @@
-import { fetchBooks } from '../../../content';
+import { books } from '../../../content';
 
 
-export default async function onBeforePrerenderStart() {
-  const books = await fetchBooks();
+export default function onBeforePrerenderStart() {
   // Get all unique series IDs from books
   const seriesIds = Array.from(
     new Set(
