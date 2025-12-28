@@ -94,6 +94,13 @@ export const onRequest: PagesFunction = async (context) => {
 		return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
 	} catch (err) {
 		console.error('Characters API error:', err);
-		return new Response(JSON.stringify({ error: 'Internal Server Error', details: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+		return new Response(
+			JSON.stringify({
+				error: 'Internal Server Error',
+				details: err instanceof Error ? err.message : String(err),
+				stack: err instanceof Error ? err.stack : undefined
+			}),
+			{ status: 500, headers: { 'Content-Type': 'application/json' } }
+		);
 	}
 };
