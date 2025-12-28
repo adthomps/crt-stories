@@ -6,16 +6,11 @@ const PublishSchema = z.object({
 	slug: z.string().regex(/^[a-z0-9-]+$/),
 });
 
-async function verifyAccess(request: Request): Promise<string | null> {
-	const jwt = request.headers.get('Cf-Access-Jwt-Assertion');
-	if (!jwt) return null;
-	return 'admin@example.com';
-}
+
 
 export const onRequest: PagesFunction = async (context) => {
 	const { request, env } = context;
-	const adminEmail = await verifyAccess(request);
-	if (!adminEmail) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+
 
 	if (request.method !== 'POST') {
 		return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
@@ -36,10 +31,7 @@ export const onRequest: PagesFunction = async (context) => {
 		return new Response(JSON.stringify({ error: 'Not found or already deleted' }), { status: 404 });
 	}
 
-	// Audit log
-	await env.CRT_STORIES_CONTENT.prepare(
-		'INSERT INTO audit_log (admin_email, action, entity_type, details) VALUES (?, ?, ?, ?)' 
-	).bind(adminEmail, 'publish', entity, JSON.stringify({ slug })).run();
+	// Optionally, remove audit log or set admin_email to NULL or a placeholder
 
 	// Set export_state.needs_export = 1
 	await env.CRT_STORIES_CONTENT.prepare(
