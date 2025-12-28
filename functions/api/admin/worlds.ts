@@ -9,7 +9,7 @@ const WorldSchema = z.object({
 	published: z.boolean().optional(),
 });
 
-export async function onRequest(context) {
+export const onRequest: PagesFunction = async (context) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
 	const method = request.method.toUpperCase();
