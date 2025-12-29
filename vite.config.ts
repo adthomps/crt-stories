@@ -3,5 +3,5 @@ import vike from 'vike/plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [react(), vike({ prerender: true })],
+  plugins: [react(), vike()],
 });

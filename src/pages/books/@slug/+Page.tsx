@@ -120,7 +120,7 @@ function Page() {
           <div className="section">
             <h2>Get Your Copy</h2>
             <div className="cta-container" style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap' }}>
-              {book.formats && book.formats.length > 0 ? (
+              {book.formats && book.formats.length > 0 &&
                 book.formats.map((fmt, i) => (
                   <a
                     key={i}
@@ -132,13 +132,7 @@ function Page() {
                     {fmt.label}
                   </a>
                 ))
-              ) : (
-                book.amazonUrl && (
-                  <a href={book.amazonUrl} target="_blank" rel="noopener noreferrer" className="button">
-                    Buy on Amazon
-                  </a>
-                )
-              )}
+              }
             </div>
           </div>
 

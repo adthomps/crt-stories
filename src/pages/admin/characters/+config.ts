@@ -1,6 +1,6 @@
 import type { Config } from 'vike/types';
 
 export default {
-  route: '/admin',
-  prerender: false,
+	route: '/admin/characters',
+	prerender: false,
 } as Config;

@@ -215,3 +215,82 @@ If content is not exporting (e.g., `needs_export` is stuck at 1):
 - Images remain static in `/public/images` and are managed via git.
 - All export logic is in [`scripts/export-d1-to-json.ts`](scripts/export-d1-to-json.ts).
 - Automation is handled by [`export-content.yml`](.github/workflows/export-content.yml).
+
+# CRT Stories Admin & Content Model
+
+## Overview
+CRT Stories is a static author website built with Vite, React, TypeScript, and Vike. All content (books, series, worlds, characters) is managed via JSON and a Cloudflare D1 database, with strict validation and a modern admin UI.
+
+## Data Model & Relationships
+
+### Entity Relationship Diagram
+
+```
+[Series] 1---* [Books] *---1 [Worlds]
+                    |
+                    * 
+                [Characters]
+```
+
+- **[Series] 1---* [Books]**: One series can have many books; a book can belong to one series or none.
+- **[Worlds] 1---* [Books]**: One world can have many books; a book can belong to one world or none.
+- **[Worlds] 1---* [Characters]**: One world can have many characters; a character can belong to one world or none.
+- **[Books] *---* [Characters]**: No direct enforced relationship, but characters and books can be linked via world.
+
+### Field Requirements Table
+
+| Entity     | Field         | Required | Notes                                 |
+|------------|--------------|----------|---------------------------------------|
+| Series     | slug         | Yes      | Unique, lowercase, hyphens            |
+|            | title        | Yes      |                                       |
+|            | description  | No       |                                       |
+|            | published    | No       | Boolean                               |
+| Book       | slug         | Yes      | Unique, lowercase, hyphens            |
+|            | title        | Yes      |                                       |
+|            | description  | No       |                                       |
+|            | cover_image  | No       | URL or path                           |
+|            | publish_date | No       | YYYY-MM-DD                            |
+|            | amazon_url   | No       |                                       |
+|            | kindle_url   | No       |                                       |
+|            | excerpt      | No       |                                       |
+|            | world_slug   | No       | FK to worlds.slug                     |
+|            | series_id    | No       | FK to series.id                       |
+|            | published    | No       | Boolean                               |
+| World      | slug         | Yes      | Unique, lowercase, hyphens            |
+|            | title        | Yes      |                                       |
+|            | description  | No       |                                       |
+|            | published    | No       | Boolean                               |
+| Character  | slug         | Yes      | Unique, lowercase, hyphens            |
+|            | name         | Yes      |                                       |
+|            | description  | No       |                                       |
+|            | world_slug   | No       | FK to worlds.slug                     |
+|            | published    | No       | Boolean                               |
+
+## Admin UI Features
+- Modal-based CRUD for all entities
+- Helper text, examples, and placeholders for all fields
+- Responsive, scrollable, and columnar modals for long forms
+- Navigation between admin sections
+
+## Content Validation
+- All content is validated at build time and on API submission
+- Slugs must be unique, lowercase, alphanumeric, hyphens only
+- Required fields enforced for each entity
+
+## Deployment
+- Static site output, pre-rendered for Cloudflare Pages
+- D1 database for admin CRUD and content management
+
+## Development
+- `npm install` to install dependencies
+- `npm run dev` to start the dev server
+- `npm run build` to build and validate content
+- `npm run preview` to serve the built site
+
+---
+
+## Visual Diagram
+
+![Entity Relationship Diagram](docs/entity-relationship.png)
+
+> See the ASCII diagram above for a quick reference. For a visual PNG/SVG, see `docs/entity-relationship.png` (to be added).
