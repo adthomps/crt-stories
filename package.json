@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rimraf dist",
-    "postbuild": "copy public\\_redirects dist\\client\\_redirects"
+    "postbuild": "shx cp public/_redirects dist/client/_redirects"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
     "@vitejs/plugin-react": "^5.1.2",
     "playwright": "^1.57.0",
     "rimraf": "^6.1.2",
+    "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vike": "^0.4.250",
