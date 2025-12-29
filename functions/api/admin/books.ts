@@ -7,8 +7,9 @@ const BookSchema = z.object({
 	description: z.string().optional(),
 	cover_image: z.string().optional(),
 	publish_date: z.string().optional(),
-	amazon_url: z.string().optional(),
 	kindle_url: z.string().optional(),
+	audio_url: z.string().optional(),
+	paperback_url: z.string().optional(),
 	excerpt: z.string().optional(),
 	world_slug: z.string().optional(),
 	series_id: z.number().optional(),
@@ -42,31 +43,45 @@ export const onRequest: PagesFunction = async (context) => {
 		}
 
 		if (method === 'POST') {
-			// Create book
-			let body;
-			try {
-				body = await request.json();
-			} catch {
-				return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-			}
-			const parse = BookSchema.safeParse(body);
-			if (!parse.success) {
-				return new Response(JSON.stringify({ error: 'Validation failed', details: parse.error.errors }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-			}
-			const { slug, title, description, cover_image, publish_date, amazon_url, kindle_url, excerpt, world_slug, series_id, published } = parse.data;
-			// Check for duplicate slug
-			const existing = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM books WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
-			if (existing) {
-				return new Response(JSON.stringify({ error: 'Slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
-			}
-			await env.CRT_STORIES_CONTENT.prepare(
-				'INSERT INTO books (slug, title, description, cover_image, publish_date, amazon_url, kindle_url, excerpt, world_slug, series_id, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime(\'now\'), datetime(\'now\'))'
-			).bind(slug, title, description ?? '', cover_image ?? '', publish_date ?? '', amazon_url ?? '', kindle_url ?? '', excerpt ?? '', world_slug ?? '', series_id ?? null, published ? 1 : 0).run();
-			// Optionally, remove audit log or set admin_email to NULL or a placeholder
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
-			).run();
-			return new Response(JSON.stringify({ ok: true }), { status: 201, headers: { 'Content-Type': 'application/json' } });
+						// Create book
+						let body;
+						try {
+							body = await request.json();
+						} catch {
+							return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+						}
+						const parse = BookSchema.safeParse(body);
+						if (!parse.success) {
+							return new Response(JSON.stringify({ error: 'Validation failed', details: parse.error.errors }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+						}
+						const { slug, title, description, cover_image, publish_date, kindle_url, audio_url, paperback_url, excerpt, world_slug, series_id, published } = parse.data;
+						// Check for duplicate slug
+						const existing = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM books WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+						if (existing) {
+							return new Response(JSON.stringify({ error: 'Slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
+						}
+						// Validate world_slug if provided
+						if (world_slug) {
+							const world = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(world_slug).first();
+							if (!world) {
+								return new Response(JSON.stringify({ error: 'Invalid world_slug: no such world' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+							}
+						}
+						// Validate series_id if provided
+						if (series_id !== undefined && series_id !== null) {
+							const series = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM series WHERE id = ? AND deleted_at IS NULL').bind(series_id).first();
+							if (!series) {
+								return new Response(JSON.stringify({ error: 'Invalid series_id: no such series' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+							}
+						}
+						await env.CRT_STORIES_CONTENT.prepare(
+							'INSERT INTO books (slug, title, description, cover_image, publish_date, kindle_url, audio_url, paperback_url, excerpt, world_slug, series_id, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime(\'now\'), datetime(\'now\'))'
+						).bind(slug, title, description ?? '', cover_image ?? '', publish_date ?? '', kindle_url ?? '', audio_url ?? '', paperback_url ?? '', excerpt ?? '', world_slug ?? '', series_id ?? null, published ? 1 : 0).run();
+						// Optionally, remove audit log or set admin_email to NULL or a placeholder
+						await env.CRT_STORIES_CONTENT.prepare(
+							'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
+						).run();
+						return new Response(JSON.stringify({ ok: true }), { status: 201, headers: { 'Content-Type': 'application/json' } });
 		}
 
 		if (method === 'PUT') {
@@ -81,15 +96,29 @@ export const onRequest: PagesFunction = async (context) => {
 			if (!parse.success) {
 				return new Response(JSON.stringify({ error: 'Validation failed', details: parse.error.errors }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 			}
-			const { slug, title, description, cover_image, publish_date, amazon_url, kindle_url, excerpt, world_slug, series_id, published } = parse.data;
+			const { slug, title, description, cover_image, publish_date, kindle_url, audio_url, paperback_url, excerpt, world_slug, series_id, published } = parse.data;
 			// Check if book exists
 			const existing = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM books WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
 			if (!existing) {
 				return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 			}
+			// Validate world_slug if provided
+			if (world_slug) {
+				const world = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(world_slug).first();
+				if (!world) {
+					return new Response(JSON.stringify({ error: 'Invalid world_slug: no such world' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+				}
+			}
+			// Validate series_id if provided
+			if (series_id !== undefined && series_id !== null) {
+				const series = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM series WHERE id = ? AND deleted_at IS NULL').bind(series_id).first();
+				if (!series) {
+					return new Response(JSON.stringify({ error: 'Invalid series_id: no such series' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+				}
+			}
 			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, amazon_url = ?, kindle_url = ?, excerpt = ?, world_slug = ?, series_id = ?, published = ?, updated_at = datetime(\'now\') WHERE slug = ? AND deleted_at IS NULL'
-			).bind(title, description ?? '', cover_image ?? '', publish_date ?? '', amazon_url ?? '', kindle_url ?? '', excerpt ?? '', world_slug ?? '', series_id ?? null, published ? 1 : 0, slug).run();
+				'UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, kindle_url = ?, audio_url = ?, paperback_url = ?, excerpt = ?, world_slug = ?, series_id = ?, published = ?, updated_at = datetime(\'now\') WHERE slug = ? AND deleted_at IS NULL'
+			).bind(title, description ?? '', cover_image ?? '', publish_date ?? '', kindle_url ?? '', audio_url ?? '', paperback_url ?? '', excerpt ?? '', world_slug ?? '', series_id ?? null, published ? 1 : 0, slug).run();
 			// Optionally, remove audit log or set admin_email to NULL or a placeholder
 			await env.CRT_STORIES_CONTENT.prepare(
 				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'

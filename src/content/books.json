@@ -35,8 +35,7 @@
     },
     "badges": ["Historical Fiction"],
     "tags": ["historical fiction", "london", "ireland", "trafalgar", "character-driven"],
-    "ogImage": "/images/og/books/true-story-of-trafalgar.jpg",
-    "amazonUrl": "https://www.amazon.com/True-Story-Trafalgar-One-ebook/dp/B0FK1XDKD5"
+    "ogImage": "/images/og/books/true-story-of-trafalgar.jpg"
   },
 
   {
@@ -80,8 +79,7 @@
     },
     "badges": ["Sci-Fi Thriller"],
     "tags": ["science fiction", "thriller", "mystery", "global catastrophe", "conspiracy"],
-    "ogImage": "/images/og/books/power-seven.jpg",
-    "amazonUrl": "https://www.amazon.com/Power-Seven-C-R-Thompson-ebook/dp/B0D6YZWRJP"
+    "ogImage": "/images/og/books/power-seven.jpg"
   },
 
   {
@@ -125,8 +123,7 @@
     },
     "badges": ["Space Opera", "Kindle Vella"],
     "tags": ["science fiction", "space opera", "first contact", "origin story", "tln"],
-    "ogImage": "/images/og/books/alex.jpg",
-    "amazonUrl": "https://www.amazon.com/gp/product/B0BNLSLCMH"
+    "ogImage": "/images/og/books/alex.jpg"
   },
 
   {
@@ -170,8 +167,7 @@
     },
     "badges": ["Space Opera"],
     "tags": ["science fiction", "space opera", "lunar base", "mystery", "earth window", "tln"],
-    "ogImage": "/images/og/books/dorian-volume-1.jpg",
-    "amazonUrl": "https://www.amazon.com/Dorian-Tales-Labyrinth-Nebula-Dorians-ebook/dp/B0811FHP1L"
+    "ogImage": "/images/og/books/dorian-volume-1.jpg"
   },
 
   {
@@ -210,8 +206,7 @@
     },
     "badges": ["Space Opera"],
     "tags": ["science fiction", "space opera", "earth window", "defense alliance", "tln"],
-    "ogImage": "/images/og/books/dorian-volume-2.jpg",
-    "amazonUrl": "https://www.amazon.com/gp/product/B0942PHDX3"
+    "ogImage": "/images/og/books/dorian-volume-2.jpg"
   },
 
   {
@@ -239,7 +234,6 @@
     },
     "badges": ["Coming Soon"],
     "tags": ["science fiction", "space opera", "tln"],
-    "ogImage": "/images/og/books/dorian-volume-3.jpg",
-    "amazonUrl": ""
+    "ogImage": "/images/og/books/dorian-volume-3.jpg"
   }
 ]

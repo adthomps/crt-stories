@@ -1,5 +1,4 @@
 
-
 // Navigation bar for admin sections
 
 function BackToAdmin() {
@@ -10,74 +9,62 @@ function BackToAdmin() {
   );
 }
 
-interface Book {
+interface Character {
   slug: string;
-  title: string;
+  name: string;
   description?: string;
-  cover_image?: string;
-  publish_date?: string;
-  kindle_url?: string;
-  audio_url?: string;
-  paperback_url?: string;
-  excerpt?: string;
   world_slug?: string;
-  series_id?: number;
   published?: boolean;
 }
 
-export default function AdminBooksPage() {
-  const [books, setBooks] = useState<Book[]>([]);
+export default function AdminCharactersPage() {
+  const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  // Removed unused editingBook state
+  const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchBooks = () => {
+  const fetchCharacters = () => {
     setLoading(true);
-    fetch('/api/admin/books', {
+    fetch('/api/admin/characters', {
       headers: { 'Accept': 'application/json' },
       credentials: 'include',
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error('Failed to fetch books');
+        if (!res.ok) throw new Error('Failed to fetch characters');
         return res.json();
       })
-      .then(setBooks)
+      .then(setCharacters)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   };
-  useEffect(fetchBooks, []);
+  useEffect(fetchCharacters, []);
 
   // Modal form state
-  const [form, setForm] = useState<Book>({ slug: '', title: '', description: '', cover_image: '', publish_date: '', kindle_url: '', audio_url: '', paperback_url: '', excerpt: '', world_slug: '', series_id: undefined, published: false });
-  // Dropdown data for worlds and series
+  const [form, setForm] = useState<Character>({ slug: '', name: '', description: '', world_slug: '', published: false });
+  // Dropdown data for worlds
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
-  const [series, setSeries] = useState<{ slug: string; title: string }[]>([]);
-
-  // Load worlds and series for dropdowns
+  // Load worlds for dropdown
   useEffect(() => {
     fetch('/src/content/worlds.json')
       .then(res => res.json())
       .then(data => setWorlds(data.map((w: any) => ({ slug: w.slug, title: w.title }))));
-    fetch('/src/content/series.json')
-      .then(res => res.json())
-      .then(data => setSeries(data.map((s: any) => ({ slug: s.slug, title: s.title }))));
   }, []);
 
   // Open modal for add/edit
-  const openModal = (mode: 'add' | 'edit', book?: Book) => {
+  const openModal = (mode: 'add' | 'edit', c?: Character) => {
     setModalMode(mode);
-    // setEditingBook removed
-    setForm(book ? { ...book } : { slug: '', title: '', description: '', cover_image: '', publish_date: '', kindle_url: '', audio_url: '', paperback_url: '', excerpt: '', world_slug: '', series_id: undefined, published: false });
+    setEditingCharacter(c || null);
+    setForm(c ? { ...c } : { slug: '', name: '', description: '', world_slug: '', published: false });
     setModalOpen(true);
   };
   const closeModal = () => {
     setModalOpen(false);
-    // setEditingBook removed
+    setEditingCharacter(null);
   };
 
   // Handle form changes
@@ -85,8 +72,6 @@ export default function AdminBooksPage() {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       setForm((f) => ({ ...f, [name]: (e.target as HTMLInputElement).checked }));
-    } else if (name === 'series_id') {
-      setForm((f) => ({ ...f, series_id: value ? Number(value) : undefined }));
     } else {
       setForm((f) => ({ ...f, [name]: value }));
     }
@@ -99,18 +84,18 @@ export default function AdminBooksPage() {
     setFeedback(null);
     try {
       const method = modalMode === 'add' ? 'POST' : 'PUT';
-      const res = await fetch('/api/admin/books', {
+      const res = await fetch('/api/admin/characters', {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
         credentials: 'include',
       });
-      if (!res.ok) throw new Error('Failed to save book');
-      setFeedback('Book saved successfully.');
+      if (!res.ok) throw new Error('Failed to save character');
+      setFeedback('Character saved successfully.');
       closeModal();
-      fetchBooks();
+      fetchCharacters();
     } catch (err: any) {
-      setFeedback(err.message || 'Error saving book');
+      setFeedback(err.message || 'Error saving character');
     } finally {
       setSubmitting(false);
     }
@@ -122,18 +107,18 @@ export default function AdminBooksPage() {
     setSubmitting(true);
     setFeedback(null);
     try {
-      const res = await fetch('/api/admin/books', {
+      const res = await fetch('/api/admin/characters', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slug: deleteSlug }),
         credentials: 'include',
       });
-      if (!res.ok) throw new Error('Failed to delete book');
-      setFeedback('Book deleted.');
+      if (!res.ok) throw new Error('Failed to delete character');
+      setFeedback('Character deleted.');
       setDeleteSlug(null);
-      fetchBooks();
+      fetchCharacters();
     } catch (err: any) {
-      setFeedback(err.message || 'Error deleting book');
+      setFeedback(err.message || 'Error deleting character');
     } finally {
       setSubmitting(false);
     }
@@ -148,7 +133,7 @@ export default function AdminBooksPage() {
   return (
     <div style={{ maxWidth: 900, margin: '2rem auto', padding: '2rem', background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0002', fontFamily: 'inherit' }}>
       <BackToAdmin />
-      <h1 style={{ fontWeight: 700, fontSize: '2rem', marginBottom: 8, color: accent }}>Manage Books</h1>
+      <h1 style={{ fontWeight: 700, fontSize: '2rem', marginBottom: 8, color: accent }}>Manage Characters</h1>
       <button
         style={{
           marginBottom: 20,
@@ -167,7 +152,7 @@ export default function AdminBooksPage() {
         onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
         onMouseOut={e => (e.currentTarget.style.background = accent)}
       >
-        Add Book
+        Add Character
       </button>
       {feedback && <div style={{ margin: '1rem 0', color: feedback.toLowerCase().includes('error') ? errorColor : successColor, fontWeight: 500 }}>{feedback}</div>}
       {loading && <p>Loading...</p>}
@@ -177,16 +162,17 @@ export default function AdminBooksPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1rem' }}>
             <thead>
               <tr style={{ background: accent, color: '#fff' }}>
-                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Title</th>
+                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Name</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Slug</th>
+                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>World Slug</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Published</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {books.map((book, i) => (
+              {characters.map((c, i) => (
                 <tr
-                  key={book.slug}
+                  key={c.slug}
                   style={{
                     background: i % 2 === 0 ? '#fff' : accentLight,
                     transition: 'background 0.2s',
@@ -194,9 +180,10 @@ export default function AdminBooksPage() {
                   onMouseOver={e => (e.currentTarget.style.background = '#f3f4f6')}
                   onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
                 >
-                  <td style={{ padding: 12 }}>{book.title}</td>
-                  <td style={{ padding: 12 }}>{book.slug}</td>
-                  <td style={{ padding: 12 }}>{book.published ? 'Yes' : 'No'}</td>
+                  <td style={{ padding: 12 }}>{c.name}</td>
+                  <td style={{ padding: 12 }}>{c.slug}</td>
+                  <td style={{ padding: 12 }}>{c.world_slug}</td>
+                  <td style={{ padding: 12 }}>{c.published ? 'Yes' : 'No'}</td>
                   <td style={{ padding: 12 }}>
                     <button
                       style={{
@@ -210,7 +197,7 @@ export default function AdminBooksPage() {
                         cursor: 'pointer',
                         transition: 'background 0.2s',
                       }}
-                      onClick={() => openModal('edit', book)}
+                      onClick={() => openModal('edit', c)}
                       onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
                       onMouseOut={e => (e.currentTarget.style.background = accent)}
                     >Edit</button>
@@ -225,7 +212,7 @@ export default function AdminBooksPage() {
                         cursor: 'pointer',
                         transition: 'background 0.2s',
                       }}
-                      onClick={() => setDeleteSlug(book.slug)}
+                      onClick={() => setDeleteSlug(c.slug)}
                       onMouseOver={e => (e.currentTarget.style.background = '#991b1b')}
                       onMouseOut={e => (e.currentTarget.style.background = errorColor)}
                     >Delete</button>
@@ -240,40 +227,17 @@ export default function AdminBooksPage() {
       {/* Modal for Add/Edit */}
       {modalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#0008', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <form onSubmit={handleSubmit} style={{ background: '#fff', padding: 36, borderRadius: 14, minWidth: 350, maxWidth: 700, width: '100%', boxShadow: '0 4px 24px #0003', position: 'relative', fontFamily: 'inherit', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h2 style={{ fontWeight: 700, fontSize: '1.4rem', marginBottom: 18, color: accent }}>{modalMode === 'add' ? 'Add Book' : 'Edit Book'}</h2>
+          <form onSubmit={handleSubmit} style={{ background: '#fff', padding: 36, borderRadius: 14, minWidth: 350, maxWidth: 500, boxShadow: '0 4px 24px #0003', position: 'relative', fontFamily: 'inherit' }}>
+            <h2 style={{ fontWeight: 700, fontSize: '1.4rem', marginBottom: 18, color: accent }}>{modalMode === 'add' ? 'Add Character' : 'Edit Character'}</h2>
             {/* Basic Info */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Basic Info</legend>
-              <label style={{ fontWeight: 500 }}>Title
-                <input name="title" value={form.title} onChange={handleFormChange} required style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. Power Seven" />
+              <label style={{ fontWeight: 500 }}>Name
+                <input name="name" value={form.name} onChange={handleFormChange} required style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. Alex Fox" />
               </label>
               <label style={{ fontWeight: 500 }}>Slug
-                <input name="slug" value={form.slug} onChange={handleFormChange} required disabled={modalMode === 'edit'} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. power-seven" pattern="^[a-z0-9-]+$" maxLength={64} />
-                <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>power-seven</code></div>
-              </label>
-            </fieldset>
-
-            {/* Series & World */}
-            <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
-              <legend style={{ fontWeight: 600, color: accent }}>Series &amp; World</legend>
-              <label style={{ fontWeight: 500 }}>Series
-                <select name="series_id" value={form.series_id ?? ''} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }}>
-                  <option value="">-- None --</option>
-                  {series.map((s, idx) => (
-                    <option key={s.slug} value={idx + 1}>{s.title} (ID {idx + 1})</option>
-                  ))}
-                </select>
-                <div style={{ fontSize: 12, color: '#888' }}>Select the series this book belongs to (optional). Series ID is assigned by order in series.json.</div>
-              </label>
-              <label style={{ fontWeight: 500 }}>World
-                <select name="world_slug" value={form.world_slug || ''} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }}>
-                  <option value="">-- None --</option>
-                  {worlds.map(w => (
-                    <option key={w.slug} value={w.slug}>{w.title} ({w.slug})</option>
-                  ))}
-                </select>
-                <div style={{ fontSize: 12, color: '#888' }}>Select the world this book belongs to (optional).</div>
+                <input name="slug" value={form.slug} onChange={handleFormChange} required disabled={modalMode === 'edit'} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. alex-fox" pattern="^[a-z0-9-]+$" maxLength={64} />
+                <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>alex-fox</code></div>
               </label>
             </fieldset>
 
@@ -285,49 +249,25 @@ export default function AdminBooksPage() {
               </label>
             </fieldset>
 
-            {/* Media */}
+            {/* World */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
-              <legend style={{ fontWeight: 600, color: accent }}>Media</legend>
-              <label style={{ fontWeight: 500 }}>Cover Image URL
-                <input name="cover_image" value={form.cover_image} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="/images/books/power-seven.jpg or https://..." />
-                <div style={{ fontSize: 12, color: '#888' }}>Relative to <code>/public/images/books/</code> or a full URL.</div>
-              </label>
-            </fieldset>
-
-            {/* Purchase Links */}
-            <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
-              <legend style={{ fontWeight: 600, color: accent }}>Purchase Links</legend>
-              <label style={{ fontWeight: 500 }}>Kindle URL
-                <input name="kindle_url" value={form.kindle_url} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="https://amazon.com/kindle-dp/XXXXXXXX" />
-                <div style={{ fontSize: 12, color: '#888' }}>Direct link to Kindle edition (optional).</div>
-              </label>
-              <label style={{ fontWeight: 500 }}>Audio URL
-                <input name="audio_url" value={form.audio_url} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="https://amazon.com/audio-dp/XXXXXXXX" />
-                <div style={{ fontSize: 12, color: '#888' }}>Direct link to Audible or audio edition (optional).</div>
-              </label>
-              <label style={{ fontWeight: 500 }}>Paperback URL
-                <input name="paperback_url" value={form.paperback_url} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="https://amazon.com/paperback-dp/XXXXXXXX" />
-                <div style={{ fontSize: 12, color: '#888' }}>Direct link to paperback or print edition (optional).</div>
-              </label>
-            </fieldset>
-
-            {/* Excerpt */}
-            <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
-              <legend style={{ fontWeight: 600, color: accent }}>Excerpt</legend>
-              <label style={{ fontWeight: 500 }}>Excerpt
-                <input name="excerpt" value={form.excerpt} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="Optional excerpt or sample text" />
+              <legend style={{ fontWeight: 600, color: accent }}>World</legend>
+              <label style={{ fontWeight: 500 }}>World
+                <select name="world_slug" value={form.world_slug || ''} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }}>
+                  <option value="">-- None --</option>
+                  {worlds.map(w => (
+                    <option key={w.slug} value={w.slug}>{w.title} ({w.slug})</option>
+                  ))}
+                </select>
+                <div style={{ fontSize: 12, color: '#888' }}>Select the world this character belongs to (optional).</div>
               </label>
             </fieldset>
 
             {/* Publication */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Publication</legend>
-              <label style={{ fontWeight: 500 }}>Publish Date
-                <input name="publish_date" value={form.publish_date} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="YYYY-MM-DD" />
-                <div style={{ fontSize: 12, color: '#888' }}>Format: <code>YYYY-MM-DD</code> (e.g. 2025-12-28)</div>
-              </label>
               <label style={{ fontWeight: 500 }}><input type="checkbox" name="published" checked={!!form.published} onChange={handleFormChange} style={{ marginRight: 6 }} /> Published
-                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: Book is visible on the public site. Unchecked: Book is hidden (draft).</div>
+                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: Character is visible on the public site. Unchecked: Character is hidden (draft).</div>
               </label>
             </fieldset>
 
@@ -344,7 +284,7 @@ export default function AdminBooksPage() {
       {deleteSlug && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#0008', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#fff', padding: 36, borderRadius: 14, minWidth: 300, boxShadow: '0 4px 24px #0003', textAlign: 'center', fontFamily: 'inherit' }}>
-            <p style={{ fontWeight: 500, fontSize: '1.1rem', marginBottom: 18 }}>Are you sure you want to delete this book?</p>
+            <p style={{ fontWeight: 500, fontSize: '1.1rem', marginBottom: 18 }}>Are you sure you want to delete this character?</p>
             <div style={{ marginTop: 16, display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button onClick={handleDelete} disabled={submitting} style={{ background: errorColor, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}>{submitting ? 'Deleting...' : 'Delete'}</button>
               <button onClick={() => setDeleteSlug(null)} style={{ background: '#fff', color: accent, border: `1px solid ${border}`, borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}>Cancel</button>
