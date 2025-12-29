@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rimraf dist",
-    "postbuild": "cp public/_redirects dist/client/_redirects"
+    "postbuild": "copy public\\_redirects dist\\client\\_redirects"
   },
   "keywords": [],
   "author": "",
