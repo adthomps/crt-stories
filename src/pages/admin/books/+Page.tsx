@@ -148,93 +148,121 @@ export default function AdminBooksPage() {
   return (
     <div style={{ maxWidth: 900, margin: '2rem auto', padding: '2rem', background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0002', fontFamily: 'inherit' }}>
       <BackToAdmin />
-      <h1 style={{ fontWeight: 700, fontSize: '2rem', marginBottom: 8, color: accent }}>Manage Books</h1>
-      <button
-        style={{
-          marginBottom: 20,
-          background: accent,
-          color: '#fff',
-          border: 'none',
-          borderRadius: 6,
-          padding: '8px 20px',
-          fontWeight: 600,
-          fontSize: '1rem',
-          cursor: 'pointer',
-          boxShadow: '0 1px 4px #0001',
-          transition: 'background 0.2s',
-        }}
-        onClick={() => openModal('add')}
-        onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
-        onMouseOut={e => (e.currentTarget.style.background = accent)}
-      >
-        Add Book
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+        <h1 style={{ fontWeight: 700, fontSize: '2rem', color: accent, margin: 0 }}>Manage Books</h1>
+        <button
+          style={{
+            background: accent,
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            padding: '10px 28px',
+            fontWeight: 700,
+            fontSize: '1.1rem',
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px #0001',
+            transition: 'background 0.2s',
+            outline: 'none',
+            letterSpacing: 0.5,
+          }}
+          onClick={() => openModal('add')}
+          onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
+          onMouseOut={e => (e.currentTarget.style.background = accent)}
+        >
+          + Add Book
+        </button>
+      </div>
       {feedback && <div style={{ margin: '1rem 0', color: feedback.toLowerCase().includes('error') ? errorColor : successColor, fontWeight: 500 }}>{feedback}</div>}
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: errorColor }}>{error}</p>}
       {!loading && !error && (
-        <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 8px #0001', background: accentLight }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1rem' }}>
-            <thead>
-              <tr style={{ background: accent, color: '#fff' }}>
-                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Title</th>
-                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Slug</th>
-                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Published</th>
-                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {books.map((book, i) => (
-                <tr
-                  key={book.slug}
-                  style={{
-                    background: i % 2 === 0 ? '#fff' : accentLight,
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseOver={e => (e.currentTarget.style.background = '#f3f4f6')}
-                  onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
-                >
-                  <td style={{ padding: 12 }}>{book.title}</td>
-                  <td style={{ padding: 12 }}>{book.slug}</td>
-                  <td style={{ padding: 12 }}>{book.published ? 'Yes' : 'No'}</td>
-                  <td style={{ padding: 12 }}>
-                    <button
-                      style={{
-                        marginRight: 8,
-                        background: accent,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 4,
-                        padding: '4px 14px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onClick={() => openModal('edit', book)}
-                      onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
-                      onMouseOut={e => (e.currentTarget.style.background = accent)}
-                    >Edit</button>
-                    <button
-                      style={{
-                        background: errorColor,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 4,
-                        padding: '4px 14px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onClick={() => setDeleteSlug(book.slug)}
-                      onMouseOver={e => (e.currentTarget.style.background = '#991b1b')}
-                      onMouseOut={e => (e.currentTarget.style.background = errorColor)}
-                    >Delete</button>
-                  </td>
+        books.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: '#888', fontSize: '1.1rem', background: accentLight, borderRadius: 12, marginTop: 24 }}>
+            No books found. Click <b>+ Add Book</b> to create your first book.
+          </div>
+        ) : (
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 8px #0001', background: accentLight }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1rem' }}>
+              <thead>
+                <tr style={{ background: accent, color: '#fff' }}>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Title</th>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Series</th>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Published Date</th>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Published</th>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Edit</th>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {books.map((book, i) => {
+                  let seriesTitle = '';
+                  if (book.series_id && Array.isArray(series)) {
+                    const s = series[book.series_id - 1];
+                    if (s) seriesTitle = s.title;
+                  }
+                  return (
+                    <tr
+                      key={book.slug}
+                      style={{
+                        background: i % 2 === 0 ? '#fff' : accentLight,
+                        transition: 'background 0.2s',
+                      }}
+                      onMouseOver={e => (e.currentTarget.style.background = '#f3f4f6')}
+                      onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
+                    >
+                      <td style={{ padding: 14 }}>{book.title}</td>
+                      <td style={{ padding: 14 }}>{seriesTitle || <span style={{ color: '#bbb' }}>—</span>}</td>
+                      <td style={{ padding: 14 }}>{book.publish_date || <span style={{ color: '#bbb' }}>—</span>}</td>
+                      <td style={{ padding: 14 }}>{book.published ? 'Yes' : 'No'}</td>
+                      <td style={{ padding: 14 }}>
+                        <button
+                          style={{
+                            background: accent,
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 4,
+                            padding: '6px 18px',
+                            fontWeight: 600,
+                            fontSize: '1rem',
+                            cursor: 'pointer',
+                            transition: 'background 0.2s',
+                            outline: 'none',
+                          }}
+                          onClick={() => openModal('edit', book)}
+                          onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
+                          onMouseOut={e => (e.currentTarget.style.background = accent)}
+                          tabIndex={0}
+                          aria-label={`Edit ${book.title}`}
+                        >Edit</button>
+                      </td>
+                      <td style={{ padding: 14 }}>
+                        <button
+                          style={{
+                            background: errorColor,
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 4,
+                            padding: '6px 18px',
+                            fontWeight: 600,
+                            fontSize: '1rem',
+                            cursor: 'pointer',
+                            transition: 'background 0.2s',
+                            outline: 'none',
+                          }}
+                          onClick={() => setDeleteSlug(book.slug)}
+                          onMouseOver={e => (e.currentTarget.style.background = '#991b1b')}
+                          onMouseOut={e => (e.currentTarget.style.background = errorColor)}
+                          tabIndex={0}
+                          aria-label={`Delete ${book.title}`}
+                        >Delete</button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
       )}
 
       {/* Modal for Add/Edit */}
