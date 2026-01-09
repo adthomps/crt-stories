@@ -16,8 +16,13 @@ export default function WorkerPage() {
   }
 
   if (auth === 'unknown') {
-    // SSR or hydration: don't render either view
-    return null;
+    // Always show a loading spinner while checking auth
+    return (
+      <div style={{ maxWidth: 400, margin: '4rem auto', padding: 24, textAlign: 'center', color: '#888' }}>
+        <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
+        Checking authentication...
+      </div>
+    );
   }
   if (auth === 'no') {
     return <WorkerLogin />;
