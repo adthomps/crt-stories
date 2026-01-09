@@ -1,6 +1,6 @@
 import type { Config } from 'vike/types';
 
 export default {
-  route: '/worker',
+  route: '/test-worker',
   prerender: false,
 } as Config;
