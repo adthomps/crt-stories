@@ -143,31 +143,51 @@ The build process automatically validates all content:
 **The build will fail if any validation errors are found.**
 
 ## Deployment
-
-This site is optimized for Cloudflare Pages:
-
+ ✅ **Admin/Worker Area**: Secure admin UI and API endpoints under `/worker` for managing content (books, worlds, series, characters)
 1. Connect your repository to Cloudflare Pages
 2. Set build command: `npm run build`
-3. Set output directory: `dist/client`
+ ## Admin/Worker API Endpoints
+ 
+ All admin CRUD operations are now handled via the `/api/worker/` endpoints:
+ 
+ - `/api/worker/books` (CRUD for books)
+ - `/api/worker/worlds` (CRUD for worlds)
+ - `/api/worker/series` (CRUD for series)
+ - `/api/worker/characters` (CRUD for characters)
+ 
+ > **Note:** The legacy `/api/admin/` endpoints are deprecated and return a 410 Gone response. Update all integrations to use `/api/worker/`.
 4. Deploy!
 
-All routes are pre-rendered at build time, so no server-side rendering is needed.
-
-## SEO
-
+ ## Admin UI & Worker Area
+ 
+ The admin UI is fully separated from public pages and lives under `/worker`. It is protected by authentication and only accessible to authorized users. All admin tools (books, worlds, series, characters) and their API endpoints are isolated from the public site.
+ 
+ **Key points:**
+ - All admin API calls must use `/api/worker/` endpoints
+ - The `/api/admin/` endpoints are deprecated and will be removed in a future release
+ - Admin UI is protected and not accessible to the public
 Each page includes:
 
-- Title tags
-- Meta descriptions
+ ## Deployment
+ 
+ ### Cloudflare Pages & Worker API
+ 
+ The static site is deployed to Cloudflare Pages. All admin/worker API endpoints are implemented as Cloudflare Pages Functions under `/api/worker/`. No server-side rendering is used at runtime; all pages are pre-rendered.
 - Open Graph tags
 - Twitter Card tags
-- Canonical URLs
-
-## License
-
+ ## Development
+ 
+ ### Running the Worker/Admin Area Locally
+ 
+ To develop or test the admin/worker area:
+ - Start the dev server: `npm run dev`
+ - Access the admin UI at `/worker`
+ - All API calls for admin tools go to `/api/worker/`
 ISC
 ## Export-on-Publish Content Flow
-
+ ## API Endpoint Migration
+ 
+ As of January 2026, all admin API endpoints have moved from `/api/admin/` to `/api/worker/`. The old endpoints now return a 410 Gone response. Update any scripts, integrations, or bookmarks to use the new `/worker` endpoints.
 This project uses a semi-automatic export system to keep the public site’s JSON content in sync with published records in your Cloudflare D1 database. This ensures only published content is visible, and changes are tracked in git.
 
 ### How It Works
