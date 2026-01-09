@@ -47,15 +47,10 @@ var onRequestPost2 = /* @__PURE__ */ __name2(async ({ request, env, cf }) => {
   const body = `Your one-time login code is: ${code}
 
 This code expires in 10 minutes.`;
-  const sendResult = await fetch("https://api.mailchannels.net/tx/v1/send", {
+  const sendResult = await fetch("https://send-mgaic-link-email.apt-account.workers.dev/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      personalizations: [{ to: [{ email: email3 }] }],
-      from: { email: env.ADMIN_EMAIL_FROM || "admin@yourdomain.com", name: "CRT Stories Admin" },
-      subject,
-      content: [{ type: "text/plain", value: body }]
-    })
+    body: JSON.stringify({ email: email3, code })
   });
   if (!sendResult.ok) {
     const errorText = await sendResult.text();
