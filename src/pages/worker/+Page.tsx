@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { isWorkerAdmin } from './auth';
 import WorkerLogin from './Login';
 
 export default function WorkerPage() {
-  if (!isWorkerAdmin()) {
-    return <WorkerLogin />;
-  }
+  const [auth, setAuth] = useState<'unknown' | 'yes' | 'no'>('unknown');
+
+  useEffect(() => {
+    setAuth(isWorkerAdmin() ? 'yes' : 'no');
+  }, []);
 
   function handleLogout() {
-    // Avoid returning a Promise from event handler
     fetch('/api/worker/logout').then(() => {
       window.location.reload();
     });
+  }
+
+  if (auth === 'unknown') {
+    // SSR or hydration: don't render either view
+    return null;
+  }
+  if (auth === 'no') {
+    return <WorkerLogin />;
   }
 
   return (

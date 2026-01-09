@@ -314,3 +314,5 @@ CRT Stories is a static author website built with Vite, React, TypeScript, and V
 ![Entity Relationship Diagram](docs/entity-relationship.png)
 
 > See the ASCII diagram above for a quick reference. For a visual PNG/SVG, see `docs/entity-relationship.png` (to be added).
+
+----------
