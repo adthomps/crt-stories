@@ -39,16 +39,11 @@ export const onRequestPost: PagesFunction = async ({ request, env, cf }) => {
   const subject = 'Your CRT Stories Admin Login Code';
   const body = `Your one-time login code is: ${code}\n\nThis code expires in 10 minutes.`;
 
-  // Send email using Cloudflare Email Worker
-  const sendResult = await fetch('https://api.mailchannels.net/tx/v1/send', {
+  // Send email using Cloudflare Worker
+  const sendResult = await fetch('https://send-mgaic-link-email.apt-account.workers.dev/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      personalizations: [{ to: [{ email }] }],
-      from: { email: env.ADMIN_EMAIL_FROM || 'admin@yourdomain.com', name: 'CRT Stories Admin' },
-      subject,
-      content: [{ type: 'text/plain', value: body }],
-    }),
+    body: JSON.stringify({ email, code }),
   });
 
   if (!sendResult.ok) {
