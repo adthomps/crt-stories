@@ -58,8 +58,10 @@ This code expires in 10 minutes.`;
     })
   });
   if (!sendResult.ok) {
+    const errorText = await sendResult.text();
     console.log(`[AUTH] [${(/* @__PURE__ */ new Date()).toISOString()}] [${ip}] Failed to send code to: ${email3}`);
-    return new Response(JSON.stringify({ error: "Failed to send email" }), { status: 500, headers: { "Content-Type": "application/json" } });
+    console.log(`[AUTH] [${(/* @__PURE__ */ new Date()).toISOString()}] [${ip}] MailChannels error: ${errorText}`);
+    return new Response(JSON.stringify({ error: "Failed to send email", details: errorText }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
   console.log(`[AUTH] [${(/* @__PURE__ */ new Date()).toISOString()}] [${ip}] Sent code to: ${email3}`);
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { "Content-Type": "application/json" } });

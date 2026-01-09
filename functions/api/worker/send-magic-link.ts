@@ -53,8 +53,10 @@ export const onRequestPost: PagesFunction = async ({ request, env, cf }) => {
 
   if (!sendResult.ok) {
     // Audit log: failed email send
+    const errorText = await sendResult.text();
     console.log(`[AUTH] [${new Date().toISOString()}] [${ip}] Failed to send code to: ${email}`);
-    return new Response(JSON.stringify({ error: 'Failed to send email' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    console.log(`[AUTH] [${new Date().toISOString()}] [${ip}] MailChannels error: ${errorText}`);
+    return new Response(JSON.stringify({ error: 'Failed to send email', details: errorText }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 
   // Audit log: successful code send
