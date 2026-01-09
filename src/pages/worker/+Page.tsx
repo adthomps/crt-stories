@@ -6,10 +6,14 @@ export default function WorkerPage() {
   if (!isWorkerAdmin()) {
     return <WorkerLogin />;
   }
-  async function handleLogout() {
-    await fetch('/api/worker/logout');
-    window.location.reload();
+
+  function handleLogout() {
+    // Avoid returning a Promise from event handler
+    fetch('/api/worker/logout').then(() => {
+      window.location.reload();
+    });
   }
+
   return (
     <div style={{ maxWidth: 600, margin: '2rem auto', padding: '2rem', background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px #0001' }}>
       <h1>Worker Admin Dashboard</h1>
