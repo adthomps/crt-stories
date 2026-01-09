@@ -2,12 +2,7 @@ import React from 'react';
 import { isWorkerAdmin } from './auth';
 
 export default function WorkerLayout({ children }: { children: React.ReactNode }) {
-  // Only check authentication client-side; fallback to login UI if not authenticated
-  if (typeof window !== 'undefined' && !isWorkerAdmin()) {
-    window.location.href = '/worker';
-    return null;
-  }
-
+  // This layout is only used for authenticated worker sub-pages
   return (
     <div style={{ minHeight: '100vh', background: '#f7f7f7' }}>
       <header style={{ padding: '1rem', background: '#222', color: '#fff' }}>
