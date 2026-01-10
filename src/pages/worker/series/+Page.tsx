@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 function BackToWorker() {
   return (
     <div style={{ marginBottom: 24 }}>
-      <a href="/worker" style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500, fontSize: '1.1rem' }}>&larr; Back to Worker Dashboard</a>
+      <a href="/worker/dashboard" style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500, fontSize: '1.1rem' }}>&larr; Back to Worker Dashboard</a>
     </div>
   );
 }

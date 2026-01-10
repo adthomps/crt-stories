@@ -2,16 +2,23 @@ export { Page };
 
 import React from 'react';
 // import { books } from '../../../content'; // Legacy static import (commented for safety)
-import { books } from '../../../content';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 function Page() {
-  // Use static books for build
-  // Remove loading/error states for static data
-  const seriesIds = Array.from(new Set(books.filter((b: any) => b.series).map((b: any) => b.series.id)));
-  if (seriesIds.length === 0) {
-    return <div>No series found.</div>;
-  }
+  const [series, setSeries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch('/api/worker/series')
+      .then(res => res.json())
+      .then(data => {
+        setSeries(data);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Loading series...</div>;
+  if (!series || series.length === 0) return <div>No series found.</div>;
+
   return (
     <>
       <div className="detail-header">
@@ -19,18 +26,16 @@ function Page() {
         <p className="page-description">Explore all book series and their reading order.</p>
       </div>
       <div className="grid">
-        {seriesIds.map(seriesId => {
-          const seriesBooks = books.filter((b: any) => b.series && b.series.id === seriesId);
-          const firstBook = seriesBooks[0];
-          const desc = firstBook.longDescription || firstBook.description || '';
+        {series.map(s => {
+          const desc = s.longDescription || s.description || '';
           const shortDesc = desc.length > 140 ? desc.slice(0, 137) + '...' : desc;
           return (
-            <div key={seriesId} className="card">
-              <img src={firstBook.coverImage} alt={firstBook.series?.name || seriesId} />
+            <div key={s.slug} className="card">
+              <img src={s.heroImage} alt={s.title} />
               <div className="card-content">
-                <h3 className="card-title">{firstBook.series?.name || seriesId}</h3>
+                <h3 className="card-title">{s.title}</h3>
                 <p className="card-description">{shortDesc}</p>
-                <a href={`/series/${seriesId}`} className="button">View Series</a>
+                <a href={`/series/${s.slug}`} className="button">View Series</a>
               </div>
             </div>
           );

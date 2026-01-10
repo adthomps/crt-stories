@@ -1,15 +1,109 @@
 [
   {
-    "slug": "default-series",
-    "title": "Default Series",
-    "subtitle": "A sample series for grouping books",
-    "description": "This is a placeholder series. Replace or extend as needed.",
-    "longDescription": "This series demonstrates how books can be grouped. You can add more fields as needed.",
-    "badges": [],
-    "tags": [],
-    "ogImage": null,
-    "heroImage": null,
-    "formats": [],
+    "slug": "trafalgar",
+    "title": "The True Story of Trafalgar",
+    "subtitle": "Volume One",
+    "description": "A famous square. A legendary battle. The untold lives behind the history.",
+    "longDescription": "Today we can travel to London and experience the many historical sites, including beautiful Trafalgar Square, in the area known as Charing Cross. We think that the statue of Admiral Nelson that stands watch on top of the tall column represents the Battle of Trafalgar and the naming of the square, but it is only a small part of a greater story that involves the lives of many people. The True Story of Trafalgar reveals the names and details of many persons recorded in history and many others who lived their lives in relative anonymity, but perhaps enjoying life every bit as much as their famous counterparts. Welcome to volume one taking place primarily in London and Garristown, Ireland, where George and Riley show us that life and love can be very complicated.",
+    "badges": [
+      "Historical Fiction"
+    ],
+    "tags": [
+      "historical fiction",
+      "london",
+      "ireland",
+      "trafalgar",
+      "character-driven"
+    ],
+    "ogImage": "/images/og/books/true-story-of-trafalgar.jpg",
+    "heroImage": "/images/books/trafalgar/trafalgar1.png",
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/True-Story-Trafalgar-One-ebook/dp/B0FK1XDKD5"
+      },
+      {
+        "type": "audiobook",
+        "label": "Audiobook",
+        "url": "https://www.amazon.com/True-Story-Trafalgar-One/dp/B0FMKHFDB6"
+      }
+    ],
+    "published": true
+  },
+  {
+    "slug": "power-seven",
+    "title": "Power Seven",
+    "subtitle": "",
+    "description": "When catastrophe strikes, the truth hides in plain sight.",
+    "longDescription": "Strange phenomena are observed during chaotic and catastrophic events around the world. Efforts to discover the cause are finding nothing. David Stone is assigned to investigate one of the scenes, where he found violent actions seen only on the worst battlefields. Politics seem to be thwarting his best efforts to solve the mystery. The truth is hard to find and harder to accept. Hoping to stop a worldwide catastrophe, Stone needs help and it seems to come from the most unlikely sources.",
+    "badges": [
+      "Sci-Fi Thriller"
+    ],
+    "tags": [
+      "science fiction",
+      "thriller",
+      "mystery",
+      "global catastrophe",
+      "conspiracy"
+    ],
+    "ogImage": "/images/og/books/power-seven.jpg",
+    "heroImage": "/images/books/powerseven/powerseven1.png",
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/Power-Seven-C-R-Thompson-ebook/dp/B0D6YZWRJP"
+      },
+      {
+        "type": "audiobook",
+        "label": "Audiobook",
+        "url": "https://www.amazon.com/Audible-Power-Seven/dp/B0CZ4N4LZV"
+      },
+      {
+        "type": "paperback",
+        "label": "Paperback",
+        "url": "https://www.amazon.com/Power-Seven-C-R-Thompson/dp/B0D7QNX41K"
+      }
+    ],
+    "published": true
+  },
+  {
+    "slug": "tln",
+    "title": "Tales of the Labyrinth Nebula",
+    "subtitle": "Tales of the Labyrinth Nebula · Book 1",
+    "description": "A single encounter can change the course of a life—and a universe.",
+    "longDescription": "As young boys, growing up on Earth, Alex and his brother Ryan have a brief encounter with the strange alien, C621. From that moment on, Alex knows that his destiny is in the stars. The path is not always clear or easy, but it is definitely life changing. Alex was originally published on Kindle Vella as one of the Top Faved Science Fiction stories. Alex is the prequel to the even larger story that continues with Alex’s daughter, Dorian in the Tales of the Labyrinth Nebula series by C. R. Thompson, published on Amazon, for Kindle eBooks and in paperback. Dorian: Volume 3 is coming soon (previously on Vella).",
+    "badges": [
+      "Space Opera",
+      "Kindle Vella"
+    ],
+    "tags": [
+      "science fiction",
+      "space opera",
+      "first contact",
+      "origin story",
+      "tln"
+    ],
+    "ogImage": "/images/og/books/alex.jpg",
+    "heroImage": "/images/books/tln/alex1.png",
+    "formats": [
+      {
+        "type": "kindle",
+        "label": "Kindle",
+        "url": "https://www.amazon.com/gp/product/B0BNLSLCMH"
+      },
+      {
+        "type": "audiobook",
+        "label": "Audiobook",
+        "url": "https://www.amazon.com/Audible-Alex/dp/B0CY4YLQW9"
+      },
+      {
+        "type": "paperback",
+        "label": "Paperback",
+        "url": "https://www.amazon.com/Alex-Tales-Labyrinth-Nebula-Thompson/dp/B0BMZ85NBF"
+      }
+    ],
     "published": true
   }
 ]
