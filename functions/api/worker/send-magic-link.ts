@@ -21,12 +21,12 @@ export const onRequestPost: PagesFunction = async ({ request, env, cf }) => {
 
   // Brute-force protection: limit to 5 requests per 10 min per IP
     const rateKey = `magic-req:${ip}`;
-    const count = parseInt((await env.RATE_LIMIT.get(rateKey)) || '0', 10);
+    const count = parseInt((await env.RATE_LIMIT_KV.get(rateKey)) || '0', 10);
     if (count >= 5) {
       console.log(`[AUTH] [${new Date().toISOString()}] [${ip}] Rate limit exceeded for email: ${email}`);
       return new Response(JSON.stringify({ error: 'Too many requests, try again later.' }), { status: 429, headers: { 'Content-Type': 'application/json' } });
     }
-    await env.RATE_LIMIT.put(rateKey, (count + 1).toString(), { expirationTtl: 600 });
+    await env.RATE_LIMIT_KV.put(rateKey, (count + 1).toString(), { expirationTtl: 600 });
 
   // Generate a one-time code (6 digits) and expiry (10 min)
   const code = Math.floor(100000 + Math.random() * 900000).toString();
