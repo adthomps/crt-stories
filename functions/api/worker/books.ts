@@ -39,6 +39,11 @@ export const onRequest: PagesFunction = async (context) => {
 				book.seriesSlugs = seriesRows.results.map(r => r.slug);
 				book.worldSlugs = worldRows.results.map(r => r.slug);
 				book.characterSlugs = characterRows.results.map(r => r.slug);
+				// Reconstruct formats array
+				book.formats = [];
+				if (book.kindleUrl) book.formats.push({ type: 'kindle', label: 'Kindle', url: book.kindleUrl });
+				if (book.audioUrl) book.formats.push({ type: 'audiobook', label: 'Audiobook', url: book.audioUrl });
+				if (book.paperbackUrl) book.formats.push({ type: 'paperback', label: 'Paperback', url: book.paperbackUrl });
 				return new Response(JSON.stringify(book), { headers: { 'Content-Type': 'application/json' } });
 			} else {
 				const books = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM books WHERE deleted_at IS NULL ORDER BY publish_date DESC, id DESC').all();
@@ -52,6 +57,11 @@ export const onRequest: PagesFunction = async (context) => {
 					book.seriesSlugs = seriesRows.results.map(r => r.slug);
 					book.worldSlugs = worldRows.results.map(r => r.slug);
 					book.characterSlugs = characterRows.results.map(r => r.slug);
+					// Reconstruct formats array
+					book.formats = [];
+					if (book.kindleUrl) book.formats.push({ type: 'kindle', label: 'Kindle', url: book.kindleUrl });
+					if (book.audioUrl) book.formats.push({ type: 'audiobook', label: 'Audiobook', url: book.audioUrl });
+					if (book.paperbackUrl) book.formats.push({ type: 'paperback', label: 'Paperback', url: book.paperbackUrl });
 					return book;
 				}));
 				return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
@@ -62,17 +72,20 @@ export const onRequest: PagesFunction = async (context) => {
 			let body;
 			try {
 				body = await request.json();
-			} catch {
-				return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+			} catch (err) {
+				console.error('Invalid JSON in POST /books:', err);
+				return new Response(JSON.stringify({ error: 'Invalid JSON', details: err instanceof Error ? err.message : String(err) }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 			}
 			const parse = BookSchema.safeParse(body);
 			if (!parse.success) {
+				console.error('Validation failed in POST /books:', { body, errors: parse.error.errors });
 				return new Response(JSON.stringify({ error: 'Validation failed', details: parse.error.errors }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 			}
 			const { slug, title, description, coverImage, publishDate, kindleUrl, audioUrl, paperbackUrl, excerpt, worldSlugs, seriesSlugs, characterSlugs, published } = parse.data;
 			const existing = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM books WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
 			if (existing) {
-				return new Response(JSON.stringify({ error: 'Slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
+				console.error('Slug already exists in POST /books:', slug);
+				return new Response(JSON.stringify({ error: 'Slug already exists', slug }), { status: 409, headers: { 'Content-Type': 'application/json' } });
 			}
 			// Insert book
 			await env.CRT_STORIES_CONTENT.prepare(
@@ -115,17 +128,20 @@ export const onRequest: PagesFunction = async (context) => {
 			let body;
 			try {
 				body = await request.json();
-			} catch {
-				return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+			} catch (err) {
+				console.error('Invalid JSON in PUT /books:', err);
+				return new Response(JSON.stringify({ error: 'Invalid JSON', details: err instanceof Error ? err.message : String(err) }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 			}
 			const parse = BookSchema.safeParse(body);
 			if (!parse.success) {
+				console.error('Validation failed in PUT /books:', { body, errors: parse.error.errors });
 				return new Response(JSON.stringify({ error: 'Validation failed', details: parse.error.errors }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 			}
 			const { slug, title, description, coverImage, publishDate, kindleUrl, audioUrl, paperbackUrl, excerpt, worldSlugs, seriesSlugs, characterSlugs, published } = parse.data;
 			const book = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM books WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
 			if (!book) {
-				return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+				console.error('Book not found in PUT /books:', slug);
+				return new Response(JSON.stringify({ error: 'Not found', slug }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 			}
 			await env.CRT_STORIES_CONTENT.prepare(
 				'UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, kindle_url = ?, audio_url = ?, paperback_url = ?, excerpt = ?, published = ?, updated_at = datetime(\'now\') WHERE slug = ? AND deleted_at IS NULL'

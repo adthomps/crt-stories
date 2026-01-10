@@ -53,13 +53,13 @@ export default function AdminCharactersPage() {
 
   // Load worlds, books, and series for tag display
   useEffect(() => {
-    fetch('/src/content/worlds.json')
+    fetch('/api/worker/worlds', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setWorlds(data.map((w: any) => ({ slug: w.slug, title: w.title }))));
-    fetch('/src/content/books.json')
+    fetch('/api/worker/books', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setBooks(data.map((b: any) => ({ slug: b.slug, title: b.title }))));
-    fetch('/src/content/series.json')
+    fetch('/api/worker/series', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setSeries(data.map((s: any) => ({ slug: s.slug, title: s.title }))));
   }, []);
