@@ -14,6 +14,8 @@ interface Series {
   title: string;
   description?: string;
   published?: boolean;
+  bookSlugs?: string[];
+  characterSlugs?: string[];
 }
 
 export default function AdminSeriesPage() {
@@ -45,6 +47,20 @@ export default function AdminSeriesPage() {
 
   // Modal form state
   const [form, setForm] = useState<Series>({ slug: '', title: '', description: '', published: false });
+
+  // Dropdown data for books and characters
+  const [books, setBooks] = useState<{ slug: string; title: string }[]>([]);
+  const [characters, setCharacters] = useState<{ slug: string; name: string }[]>([]);
+
+  // Load books and characters for tag display
+  useEffect(() => {
+    fetch('/src/content/books.json')
+      .then(res => res.json())
+      .then(data => setBooks(data.map((b: any) => ({ slug: b.slug, title: b.title }))));
+    fetch('/src/content/characters.json')
+      .then(res => res.json())
+      .then(data => setCharacters(data.map((c: any) => ({ slug: c.slug, name: c.name }))));
+  }, []);
 
   // Open modal for add/edit
   const openModal = (mode: 'add' | 'edit', s?: Series) => {
@@ -151,59 +167,83 @@ export default function AdminSeriesPage() {
               <tr style={{ background: accent, color: '#fff' }}>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Title</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Slug</th>
+                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Books</th>
+                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Characters</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Published</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {series.map((s, i) => (
-                <tr
-                  key={s.slug}
-                  style={{
-                    background: i % 2 === 0 ? '#fff' : accentLight,
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseOver={e => (e.currentTarget.style.background = '#f3f4f6')}
-                  onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
-                >
-                  <td style={{ padding: 12 }}>{s.title}</td>
-                  <td style={{ padding: 12 }}>{s.slug}</td>
-                  <td style={{ padding: 12 }}>{s.published ? 'Yes' : 'No'}</td>
-                  <td style={{ padding: 12 }}>
-                    <button
-                      style={{
-                        marginRight: 8,
-                        background: accent,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 4,
-                        padding: '4px 14px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onClick={() => openModal('edit', s)}
-                      onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
-                      onMouseOut={e => (e.currentTarget.style.background = accent)}
-                    >Edit</button>
-                    <button
-                      style={{
-                        background: errorColor,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 4,
-                        padding: '4px 14px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onClick={() => setDeleteSlug(s.slug)}
-                      onMouseOver={e => (e.currentTarget.style.background = '#991b1b')}
-                      onMouseOut={e => (e.currentTarget.style.background = errorColor)}
-                    >Delete</button>
-                  </td>
-                </tr>
-              ))}
+              {series.map((s, i) => {
+                // Get book titles
+                const bookTitles = (s.bookSlugs || []).map(slug => {
+                  const b = books.find(b => b.slug === slug);
+                  return b ? b.title : slug;
+                });
+                // Get character names
+                const characterNames = (s.characterSlugs || []).map(slug => {
+                  const c = characters.find(c => c.slug === slug);
+                  return c ? c.name : slug;
+                });
+                return (
+                  <tr
+                    key={s.slug}
+                    style={{
+                      background: i % 2 === 0 ? '#fff' : accentLight,
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.background = '#f3f4f6')}
+                    onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
+                  >
+                    <td style={{ padding: 12 }}>{s.title}</td>
+                    <td style={{ padding: 12 }}>{s.slug}</td>
+                    <td style={{ padding: 12 }}>
+                      {bookTitles.length > 0 ? bookTitles.map(title => (
+                        <span key={title} style={{ background: '#e0e7ff', color: '#3730a3', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      )) : <span style={{ color: '#bbb' }}>—</span>}
+                    </td>
+                    <td style={{ padding: 12 }}>
+                      {characterNames.length > 0 ? characterNames.map(name => (
+                        <span key={name} style={{ background: '#d1fae5', color: '#065f46', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{name}</span>
+                      )) : <span style={{ color: '#bbb' }}>—</span>}
+                    </td>
+                    <td style={{ padding: 12 }}>{s.published ? 'Yes' : 'No'}</td>
+                    <td style={{ padding: 12 }}>
+                      <button
+                        style={{
+                          marginRight: 8,
+                          background: accent,
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 4,
+                          padding: '4px 14px',
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                        }}
+                        onClick={() => openModal('edit', s)}
+                        onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
+                        onMouseOut={e => (e.currentTarget.style.background = accent)}
+                      >Edit</button>
+                      <button
+                        style={{
+                          background: errorColor,
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 4,
+                          padding: '4px 14px',
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                        }}
+                        onClick={() => setDeleteSlug(s.slug)}
+                        onMouseOver={e => (e.currentTarget.style.background = '#991b1b')}
+                        onMouseOut={e => (e.currentTarget.style.background = errorColor)}
+                      >Delete</button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

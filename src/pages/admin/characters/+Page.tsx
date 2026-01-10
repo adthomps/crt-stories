@@ -13,7 +13,9 @@ interface Character {
   slug: string;
   name: string;
   description?: string;
-  world_slug?: string;
+  worldSlugs?: string[];
+  appearsInBookSlugs?: string[];
+  seriesSlugs?: string[];
   published?: boolean;
 }
 
@@ -44,15 +46,22 @@ export default function AdminCharactersPage() {
   };
   useEffect(fetchCharacters, []);
 
-  // Modal form state
-  const [form, setForm] = useState<Character>({ slug: '', name: '', description: '', world_slug: '', published: false });
-  // Dropdown data for worlds
+  // Dropdown data for worlds, books, and series
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
-  // Load worlds for dropdown
+  const [books, setBooks] = useState<{ slug: string; title: string }[]>([]);
+  const [series, setSeries] = useState<{ slug: string; title: string }[]>([]);
+
+  // Load worlds, books, and series for tag display
   useEffect(() => {
     fetch('/src/content/worlds.json')
       .then(res => res.json())
       .then(data => setWorlds(data.map((w: any) => ({ slug: w.slug, title: w.title }))));
+    fetch('/src/content/books.json')
+      .then(res => res.json())
+      .then(data => setBooks(data.map((b: any) => ({ slug: b.slug, title: b.title }))));
+    fetch('/src/content/series.json')
+      .then(res => res.json())
+      .then(data => setSeries(data.map((s: any) => ({ slug: s.slug, title: s.title }))));
   }, []);
 
   // Open modal for add/edit
@@ -164,61 +173,94 @@ export default function AdminCharactersPage() {
               <tr style={{ background: accent, color: '#fff' }}>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Name</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Slug</th>
-                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>World Slug</th>
+                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Worlds</th>
+                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Books</th>
+                <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Series</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Published</th>
                 <th style={{ padding: 12, borderBottom: `2px solid ${border}`, textAlign: 'left' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {characters.map((c, i) => (
-                <tr
-                  key={c.slug}
-                  style={{
-                    background: i % 2 === 0 ? '#fff' : accentLight,
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseOver={e => (e.currentTarget.style.background = '#f3f4f6')}
-                  onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
-                >
-                  <td style={{ padding: 12 }}>{c.name}</td>
-                  <td style={{ padding: 12 }}>{c.slug}</td>
-                  <td style={{ padding: 12 }}>{c.world_slug}</td>
-                  <td style={{ padding: 12 }}>{c.published ? 'Yes' : 'No'}</td>
-                  <td style={{ padding: 12 }}>
-                    <button
-                      style={{
-                        marginRight: 8,
-                        background: accent,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 4,
-                        padding: '4px 14px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onClick={() => openModal('edit', c)}
-                      onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
-                      onMouseOut={e => (e.currentTarget.style.background = accent)}
-                    >Edit</button>
-                    <button
-                      style={{
-                        background: errorColor,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 4,
-                        padding: '4px 14px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onClick={() => setDeleteSlug(c.slug)}
-                      onMouseOver={e => (e.currentTarget.style.background = '#991b1b')}
-                      onMouseOut={e => (e.currentTarget.style.background = errorColor)}
-                    >Delete</button>
-                  </td>
-                </tr>
-              ))}
+              {characters.map((c, i) => {
+                // Get world titles
+                const worldTitles = (c.worldSlugs || []).map(slug => {
+                  const w = worlds.find(w => w.slug === slug);
+                  return w ? w.title : slug;
+                });
+                // Get book titles
+                const bookTitles = (c.appearsInBookSlugs || []).map(slug => {
+                  const b = books.find(b => b.slug === slug);
+                  return b ? b.title : slug;
+                });
+                // Get series titles
+                const seriesTitles = (c.seriesSlugs || []).map(slug => {
+                  const s = series.find(s => s.slug === slug);
+                  return s ? s.title : slug;
+                });
+                return (
+                  <tr
+                    key={c.slug}
+                    style={{
+                      background: i % 2 === 0 ? '#fff' : accentLight,
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.background = '#f3f4f6')}
+                    onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
+                  >
+                    <td style={{ padding: 12 }}>{c.name}</td>
+                    <td style={{ padding: 12 }}>{c.slug}</td>
+                    <td style={{ padding: 12 }}>
+                      {worldTitles.length > 0 ? worldTitles.map(title => (
+                        <span key={title} style={{ background: '#fef9c3', color: '#92400e', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      )) : <span style={{ color: '#bbb' }}>—</span>}
+                    </td>
+                    <td style={{ padding: 12 }}>
+                      {bookTitles.length > 0 ? bookTitles.map(title => (
+                        <span key={title} style={{ background: '#e0e7ff', color: '#3730a3', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      )) : <span style={{ color: '#bbb' }}>—</span>}
+                    </td>
+                    <td style={{ padding: 12 }}>
+                      {seriesTitles.length > 0 ? seriesTitles.map(title => (
+                        <span key={title} style={{ background: '#f3e8ff', color: '#7c3aed', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      )) : <span style={{ color: '#bbb' }}>—</span>}
+                    </td>
+                    <td style={{ padding: 12 }}>{c.published ? 'Yes' : 'No'}</td>
+                    <td style={{ padding: 12 }}>
+                      <button
+                        style={{
+                          marginRight: 8,
+                          background: accent,
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 4,
+                          padding: '4px 14px',
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                        }}
+                        onClick={() => openModal('edit', c)}
+                        onMouseOver={e => (e.currentTarget.style.background = '#1a2230')}
+                        onMouseOut={e => (e.currentTarget.style.background = accent)}
+                      >Edit</button>
+                      <button
+                        style={{
+                          background: errorColor,
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 4,
+                          padding: '4px 14px',
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                        }}
+                        onClick={() => setDeleteSlug(c.slug)}
+                        onMouseOver={e => (e.currentTarget.style.background = '#991b1b')}
+                        onMouseOut={e => (e.currentTarget.style.background = errorColor)}
+                      >Delete</button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

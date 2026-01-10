@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "slug": "trafalgar",
     "title": "The True Story of Trafalgar",
     "subtitle": "Volume One",
@@ -29,9 +30,12 @@
         "url": "https://www.amazon.com/True-Story-Trafalgar-One/dp/B0FMKHFDB6"
       }
     ],
-    "published": true
+    "published": true,
+    "bookSlugs": ["true-story-of-trafalgar"],
+    "characterSlugs": ["george", "riley"]
   },
   {
+    "id": 2,
     "slug": "power-seven",
     "title": "Power Seven",
     "subtitle": "",
@@ -66,9 +70,12 @@
         "url": "https://www.amazon.com/Power-Seven-C-R-Thompson/dp/B0D7QNX41K"
       }
     ],
-    "published": true
+    "published": true,
+    "bookSlugs": ["power-seven"],
+    "characterSlugs": ["david-stone"]
   },
   {
+    "id": 3,
     "slug": "tln",
     "title": "Tales of the Labyrinth Nebula",
     "subtitle": "Tales of the Labyrinth Nebula · Book 1",
@@ -104,6 +111,8 @@
         "url": "https://www.amazon.com/Alex-Tales-Labyrinth-Nebula-Thompson/dp/B0BMZ85NBF"
       }
     ],
-    "published": true
+    "published": true,
+    "bookSlugs": ["alex", "dorian-volume-1", "dorian-volume-2", "dorian-volume-3"],
+    "characterSlugs": ["alex-fox", "dorian-fox", "adam-casey", "c621"]
   }
 ]

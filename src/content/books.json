@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "slug": "true-story-of-trafalgar",
     "title": "The True Story of Trafalgar",
     "subtitle": "Volume One",
@@ -9,12 +10,9 @@
     "publishDate": "2025-07-25",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlug": "trafalgar",
-    "series": {
-      "id": "trafalgar",
-      "name": "The True Story of Trafalgar",
-      "bookNumber": 1
-    },
+    "worldSlugs": ["trafalgar"],
+    "seriesSlugs": ["trafalgar"],
+    "characterSlugs": ["george", "riley"],
     "formats": [
       {
         "type": "kindle",
@@ -37,8 +35,8 @@
     "tags": ["historical fiction", "london", "ireland", "trafalgar", "character-driven"],
     "ogImage": "/images/og/books/true-story-of-trafalgar.jpg"
   },
-
   {
+    "id": 2,
     "slug": "power-seven",
     "title": "Power Seven",
     "subtitle": null,
@@ -48,12 +46,9 @@
     "publishDate": "2024-06-12",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlug": "power-seven",
-    "series": {
-      "id": "power-seven",
-      "name": "Power Seven",
-      "bookNumber": 1
-    },
+    "worldSlugs": ["power-seven"],
+    "seriesSlugs": ["power-seven"],
+    "characterSlugs": ["david-stone"],
     "formats": [
       {
         "type": "kindle",
@@ -81,8 +76,8 @@
     "tags": ["science fiction", "thriller", "mystery", "global catastrophe", "conspiracy"],
     "ogImage": "/images/og/books/power-seven.jpg"
   },
-
   {
+    "id": 3,
     "slug": "alex",
     "title": "Alex",
     "subtitle": "Tales of the Labyrinth Nebula · Book 1",
@@ -92,12 +87,9 @@
     "publishDate": "2022-11-28",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlug": "tales-of-the-labyrinth-nebula",
-    "series": {
-      "id": "tln",
-      "name": "Tales of the Labyrinth Nebula",
-      "bookNumber": 1
-    },
+    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
+    "seriesSlugs": ["tln"],
+    "characterSlugs": ["alex-fox", "c621"],
     "formats": [
       {
         "type": "kindle",
@@ -125,8 +117,8 @@
     "tags": ["science fiction", "space opera", "first contact", "origin story", "tln"],
     "ogImage": "/images/og/books/alex.jpg"
   },
-
   {
+    "id": 4,
     "slug": "dorian-volume-1",
     "title": "Dorian – Volume 1",
     "subtitle": "Tales of the Labyrinth Nebula · Book 2",
@@ -136,12 +128,9 @@
     "publishDate": "2019-11-04",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlug": "tales-of-the-labyrinth-nebula",
-    "series": {
-      "id": "tln",
-      "name": "Tales of the Labyrinth Nebula",
-      "bookNumber": 2
-    },
+    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
+    "seriesSlugs": ["tln"],
+    "characterSlugs": ["dorian-fox", "adam-casey"],
     "formats": [
       {
         "type": "kindle",
@@ -169,8 +158,8 @@
     "tags": ["science fiction", "space opera", "lunar base", "mystery", "earth window", "tln"],
     "ogImage": "/images/og/books/dorian-volume-1.jpg"
   },
-
   {
+    "id": 5,
     "slug": "dorian-volume-2",
     "title": "Dorian – Volume 2",
     "subtitle": "Tales of the Labyrinth Nebula · Book 3",
@@ -180,12 +169,9 @@
     "publishDate": "2021-05-03",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlug": "tales-of-the-labyrinth-nebula",
-    "series": {
-      "id": "tln",
-      "name": "Tales of the Labyrinth Nebula",
-      "bookNumber": 3
-    },
+    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
+    "seriesSlugs": ["tln"],
+    "characterSlugs": ["dorian-fox", "adam-casey"],
     "formats": [
       {
         "type": "kindle",
@@ -208,8 +194,8 @@
     "tags": ["science fiction", "space opera", "earth window", "defense alliance", "tln"],
     "ogImage": "/images/og/books/dorian-volume-2.jpg"
   },
-
   {
+    "id": 6,
     "slug": "dorian-volume-3",
     "title": "Dorian – Volume 3",
     "subtitle": "Tales of the Labyrinth Nebula · Book 4",
@@ -219,12 +205,9 @@
     "publishDate": "TBD",
     "status": "coming_soon",
     "author": "C.R. Thompson",
-    "worldSlug": "tales-of-the-labyrinth-nebula",
-    "series": {
-      "id": "tln",
-      "name": "Tales of the Labyrinth Nebula",
-      "bookNumber": 4
-    },
+    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
+    "seriesSlugs": ["tln"],
+    "characterSlugs": ["dorian-fox", "adam-casey"],
     "formats": [],
     "excerpt": null,
     "related": {

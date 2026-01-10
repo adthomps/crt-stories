@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "slug": "tales-of-the-labyrinth-nebula",
     "title": "Tales of the Labyrinth Nebula",
     "description": "A sweeping space opera of first contact, impossible gateways, and mysteries buried in the Labyrinth Nebula.",
@@ -14,9 +15,11 @@
     "image3Caption": "Star map showing the Labyrinth Nebula and key locations.",
     "themeTags": ["Space Opera", "First Contact", "Mystery", "Lunar Frontier", "Defense Alliance"],
     "bookSlugs": ["alex", "dorian-volume-1", "dorian-volume-2", "dorian-volume-3"],
+    "characterSlugs": ["alex-fox", "dorian-fox", "adam-casey", "c621"],
     "startHereBookSlug": "alex"
   },
   {
+    "id": 2,
     "slug": "power-seven",
     "title": "Power Seven",
     "description": "A sci-fi thriller where catastrophic events reveal a hidden truth—and the cost of learning it.",
@@ -31,9 +34,11 @@
     "image3Caption": "Critical locations linked by an invisible threat.",
     "themeTags": ["Sci-Fi Thriller", "Global Mystery", "Conspiracy", "Catastrophe"],
     "bookSlugs": ["power-seven"],
+    "characterSlugs": ["david-stone"],
     "startHereBookSlug": "power-seven"
   },
   {
+    "id": 3,
     "slug": "trafalgar",
     "title": "The True Story of Trafalgar",
     "description": "Historical fiction that brings the overlooked lives behind Trafalgar Square into focus.",
@@ -48,6 +53,7 @@
     "image3Caption": "The journey between London and Garristown.",
     "themeTags": ["Historical Fiction", "London", "Ireland", "Character-Driven", "History Reimagined"],
     "bookSlugs": ["true-story-of-trafalgar"],
+    "characterSlugs": ["george", "riley"],
     "startHereBookSlug": "true-story-of-trafalgar"
   }
 ]
