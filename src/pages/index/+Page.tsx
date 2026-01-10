@@ -23,12 +23,53 @@ function Page() {
         </div>
       </div>
 
-      {/* Series Section FIRST - new relational model */}
+      {/* Worlds Section FIRST */}
+      <section className="section">
+        <h2>Explore Worlds</h2>
+        <div className="grid">
+          {worlds.slice(0, 5).map((world: any) => {
+            // Relationship tags
+            const bookTags = Array.from(new Set((world.bookSlugs || []).map((slug: string) => {
+              const b = books.find((b: any) => b.slug === slug);
+              return b ? b.title : slug;
+            })));
+            const characterTags = Array.from(new Set((world.characterSlugs || []).map((slug: string) => {
+              const c = characters.find((c: any) => c.slug === slug);
+              return c ? c.name : slug;
+            })));
+            return (
+              <div key={world.slug} className="card">
+                <img src={world.heroImage} alt={world.title} />
+                <div className="card-content">
+                  <h3 className="card-title">{world.title}</h3>
+                  <p className="card-description">{world.description}</p>
+                  <div style={{ margin: '0.5rem 0' }}>
+                    {bookTags.length > 0 && bookTags.map(title => (
+                      <span key={title} style={{ background: '#e0e7ff', color: '#3730a3', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                    ))}
+                    {characterTags.length > 0 && characterTags.map(name => (
+                      <span key={name} style={{ background: '#d1fae5', color: '#065f46', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{name}</span>
+                    ))}
+                  </div>
+                  <a href={`/worlds/${world.slug}`} className="button">Explore</a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {worlds.length > 5 && (
+          <div style={{ marginTop: '2rem' }}>
+            <a href="/worlds" className="button">View All Worlds</a>
+          </div>
+        )}
+      </section>
+
+      {/* Series Section SECOND */}
       <section className="section">
         <h2>Book Series</h2>
         <div className="grid">
           {series.slice(0, 5).map((s: any) => {
-            const seriesBooks = (s.bookSlugs || []).map((slug: string) => books.find((b: any) => b.slug === slug)).filter(Boolean);
+            const seriesBooks = Array.from(new Set((s.bookSlugs || []).map((slug: string) => books.find((b: any) => b.slug === slug)).filter(Boolean)));
             const firstBook = seriesBooks[0];
             return (
               <div key={s.slug} className="card">
@@ -57,6 +98,7 @@ function Page() {
         )}
       </section>
 
+      {/* Books Section THIRD */}
       <section className="section">
         <h2>Featured Books</h2>
         <div className="grid">
@@ -71,15 +113,25 @@ function Page() {
                 expanded = desc.slice(0, 317) + '...';
               }
             }
-            // Relationship tags
-            const seriesTags = (book.seriesSlugs || []).map((slug: string) => {
-              const s = series.find((s: any) => s.slug === slug);
-              return s ? s.title : slug;
-            });
-            const worldTags = (book.worldSlugs || []).map((slug: string) => {
-              const w = worlds.find((w: any) => w.slug === slug);
-              return w ? w.title : slug;
-            });
+            // Relationship tags (deduplicate by slug, then by title)
+            const seriesTags = Array.from(
+              new Map(
+                (book.seriesSlugs || [])
+                  .map((slug: string) => {
+                    const s = series.find((s: any) => s.slug === slug);
+                    return s ? [s.slug, s.title] : [slug, slug];
+                  })
+              ).values()
+            );
+            const worldTags = Array.from(
+              new Map(
+                (book.worldSlugs || [])
+                  .map((slug: string) => {
+                    const w = worlds.find((w: any) => w.slug === slug);
+                    return w ? [w.slug, w.title] : [slug, slug];
+                  })
+              ).values()
+            );
             return (
               <div key={book.slug} className="card">
                 <img src={book.coverImage} alt={book.title} />
@@ -88,10 +140,10 @@ function Page() {
                   <p className="card-description">{expanded}</p>
                   <div style={{ margin: '0.5rem 0' }}>
                     {seriesTags.length > 0 && seriesTags.map(title => (
-                      <span key={title} style={{ background: '#f3e8ff', color: '#7c3aed', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      <span key={title[0]} style={{ background: '#f3e8ff', color: '#7c3aed', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title[1]}</span>
                     ))}
                     {worldTags.length > 0 && worldTags.map(title => (
-                      <span key={title} style={{ background: '#fef9c3', color: '#92400e', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      <span key={title[0]} style={{ background: '#fef9c3', color: '#92400e', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title[1]}</span>
                     ))}
                   </div>
                   <a href={`/books/${book.slug}`} className="button">Learn More</a>
@@ -107,63 +159,39 @@ function Page() {
         )}
       </section>
 
-      <section className="section">
-        <h2>Explore Worlds</h2>
-        <div className="grid">
-          {worlds.slice(0, 5).map((world: any) => {
-            // Relationship tags
-            const bookTags = (world.bookSlugs || []).map((slug: string) => {
-              const b = books.find((b: any) => b.slug === slug);
-              return b ? b.title : slug;
-            });
-            const characterTags = (world.characterSlugs || []).map((slug: string) => {
-              const c = characters.find((c: any) => c.slug === slug);
-              return c ? c.name : slug;
-            });
-            return (
-              <div key={world.slug} className="card">
-                <img src={world.heroImage} alt={world.title} />
-                <div className="card-content">
-                  <h3 className="card-title">{world.title}</h3>
-                  <p className="card-description">{world.description}</p>
-                  <div style={{ margin: '0.5rem 0' }}>
-                    {bookTags.length > 0 && bookTags.map(title => (
-                      <span key={title} style={{ background: '#e0e7ff', color: '#3730a3', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
-                    ))}
-                    {characterTags.length > 0 && characterTags.map(name => (
-                      <span key={name} style={{ background: '#d1fae5', color: '#065f46', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{name}</span>
-                    ))}
-                  </div>
-                  <a href={`/worlds/${world.slug}`} className="button">Explore</a>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {worlds.length > 5 && (
-          <div style={{ marginTop: '2rem' }}>
-            <a href="/worlds" className="button">View All Worlds</a>
-          </div>
-        )}
-      </section>
-
+      {/* Characters Section LAST */}
       <section className="section">
         <h2>Meet the Characters</h2>
         <div className="grid">
           {characters.slice(0, 5).map((character: any) => {
-            // Relationship tags
-            const worldTags = (character.worldSlugs || []).map((slug: string) => {
-              const w = worlds.find((w: any) => w.slug === slug);
-              return w ? w.title : slug;
-            });
-            const bookTags = (character.appearsInBookSlugs || []).map((slug: string) => {
-              const b = books.find((b: any) => b.slug === slug);
-              return b ? b.title : slug;
-            });
-            const seriesTags = (character.seriesSlugs || []).map((slug: string) => {
-              const s = series.find((s: any) => s.slug === slug);
-              return s ? s.title : slug;
-            });
+            // Relationship tags (deduplicate by slug, then by title)
+            const worldTags = Array.from(
+              new Map(
+                (character.worldSlugs || [])
+                  .map((slug: string) => {
+                    const w = worlds.find((w: any) => w.slug === slug);
+                    return w ? [w.slug, w.title] : [slug, slug];
+                  })
+              ).values()
+            );
+            const bookTags = Array.from(
+              new Map(
+                (character.appearsInBookSlugs || [])
+                  .map((slug: string) => {
+                    const b = books.find((b: any) => b.slug === slug);
+                    return b ? [b.slug, b.title] : [slug, slug];
+                  })
+              ).values()
+            );
+            const seriesTags = Array.from(
+              new Map(
+                (character.seriesSlugs || [])
+                  .map((slug: string) => {
+                    const s = series.find((s: any) => s.slug === slug);
+                    return s ? [s.slug, s.title] : [slug, slug];
+                  })
+              ).values()
+            );
             return (
               <div key={character.slug} className="card">
                 <img src={character.portraitImage} alt={character.name} />
@@ -172,13 +200,13 @@ function Page() {
                   <p className="card-description">{character.bio ? character.bio.slice(0, 120) + (character.bio.length > 120 ? '...' : '') : ''}</p>
                   <div style={{ margin: '0.5rem 0' }}>
                     {worldTags.length > 0 && worldTags.map(title => (
-                      <span key={title} style={{ background: '#fef9c3', color: '#92400e', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      <span key={title[0]} style={{ background: '#fef9c3', color: '#92400e', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title[1]}</span>
                     ))}
                     {bookTags.length > 0 && bookTags.map(title => (
-                      <span key={title} style={{ background: '#e0e7ff', color: '#3730a3', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      <span key={title[0]} style={{ background: '#e0e7ff', color: '#3730a3', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title[1]}</span>
                     ))}
                     {seriesTags.length > 0 && seriesTags.map(title => (
-                      <span key={title} style={{ background: '#f3e8ff', color: '#7c3aed', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                      <span key={title[0]} style={{ background: '#f3e8ff', color: '#7c3aed', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title[1]}</span>
                     ))}
                   </div>
                   <a href={`/characters/${character.slug}`} className="button">View Profile</a>

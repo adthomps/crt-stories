@@ -37,14 +37,14 @@ function Page() {
               }
             }
             // Relationship tags
-            const worldTags = (book.worldSlugs || []).map((slug) => {
+            const worldTags = Array.from(new Set((book.worldSlugs || []).map((slug) => {
               const w = worlds.find((w) => w.slug === slug);
               return w ? w.title : slug;
-            });
-            const characterTags = (book.characterSlugs || []).map((slug) => {
+            })));
+            const characterTags = Array.from(new Set((book.characterSlugs || []).map((slug) => {
               const c = characters.find((c) => c.slug === slug);
               return c ? c.name : slug;
-            });
+            })));
             return (
               <div key={book.slug} className="card">
                 <img src={book.coverImage} alt={book.title} />

@@ -11,9 +11,9 @@ function Layout({ children }: { children: React.ReactNode }) {
         <div className="nav-content">
           <a href="/" className="nav-logo">{siteConfig.author}</a>
           <div className="nav-links">
+            <a href="/worlds">Worlds</a>
             <a href="/series">Series</a>
             <a href="/books">Books</a>
-            <a href="/worlds">Worlds</a>
             <a href="/characters">Characters</a>
           </div>
         </div>

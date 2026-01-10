@@ -1,5 +1,4 @@
-
-
+import { BookSchema } from '../../../content/validationSchemas';
 // Navigation bar for admin sections
 
 function BackToAdmin() {
@@ -118,21 +117,57 @@ export default function AdminBooksPage() {
     e.preventDefault();
     setSubmitting(true);
     setFeedback(null);
+    // Duplicate slug/title check
+    const isDuplicateSlug = books.some(b => b.slug === form.slug && (modalMode === 'add' || (modalMode === 'edit' && b.slug !== form.slug)));
+    const isDuplicateTitle = books.some(b => b.title.trim().toLowerCase() === form.title.trim().toLowerCase() && (modalMode === 'add' || (modalMode === 'edit' && b.slug !== form.slug)));
+    if (isDuplicateSlug) {
+      setErrors(prev => ({ ...prev, slug: 'A book with this slug already exists.' }));
+      setFeedback('Please fix the highlighted errors.');
+      setSubmitting(false);
+      return;
+    }
+    if (isDuplicateTitle) {
+      setErrors(prev => ({ ...prev, title: 'A book with this title already exists.' }));
+      setFeedback('Please fix the highlighted errors.');
+      setSubmitting(false);
+      return;
+    }
     try {
       // Map individual fields back to formats array
-      const { kindle_url, audio_url, paperback_url, series_id, world_slug, created_at, updated_at, deleted_at, id, amazon_url, ...rest } = form;
+      // Map snake_case to camelCase for backend
+      const {
+        kindle_url, audio_url, paperback_url, series_id, world_slug, created_at, updated_at, deleted_at, id, amazon_url,
+        cover_image, publish_date, ...rest
+      } = form;
       const formats = [];
       if (kindle_url) formats.push({ type: 'kindle', label: 'Kindle', url: kindle_url });
       if (audio_url) formats.push({ type: 'audiobook', label: 'Audiobook', url: audio_url });
       if (paperback_url) formats.push({ type: 'paperback', label: 'Paperback', url: paperback_url });
-      // Only send fields expected by backend schema
-      const submitData: any = { ...rest, formats };
-      // Remove any undefined or null fields
+      // Only send fields expected by backend schema, in camelCase
+      const submitData: any = {
+        ...rest,
+        coverImage: cover_image,
+        publishDate: publish_date,
+        formats,
+      };
+      // Remove any undefined, null, or empty string fields
       Object.keys(submitData).forEach(key => {
         if (submitData[key] === undefined || submitData[key] === null || submitData[key] === '') {
           delete submitData[key];
         }
       });
+
+      // --- Zod validation ---
+      const result = BookSchema.safeParse(submitData);
+      if (!result.success) {
+        // Collect all error messages
+        const errorMessages = result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('; ');
+        setFeedback('Validation error: ' + errorMessages);
+        setSubmitting(false);
+        return;
+      }
+      // --- End Zod validation ---
+
       const method = modalMode === 'add' ? 'POST' : 'PUT';
       const res = await fetch('/api/admin/books', {
         method,
@@ -151,6 +186,8 @@ export default function AdminBooksPage() {
                 msg += ': ' + data.details.map((d: any) => d.message || JSON.stringify(d)).join('; ');
               } else if (typeof data.details === 'string') {
                 msg += ': ' + data.details;
+              } else if (typeof data.details === 'object') {
+                msg += ': ' + JSON.stringify(data.details);
               }
             }
           }
@@ -351,97 +388,118 @@ export default function AdminBooksPage() {
             {/* Basic Info */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Basic Info</legend>
-              <label style={{ fontWeight: 500 }}>Title
-                <input name="title" value={form.title} onChange={handleFormChange} required style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. Power Seven" />
-              </label>
-              <label style={{ fontWeight: 500 }}>Slug
-                <input name="slug" value={form.slug} onChange={handleFormChange} required disabled={modalMode === 'edit'} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. power-seven" pattern="^[a-z0-9-]+$" maxLength={64} />
-                <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>power-seven</code></div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="title">Title *</label>
+              <input id="title" name="title" value={form.title} onChange={handleFormChange} onBlur={handleBlur} required aria-invalid={!!errors.title} aria-describedby={errors.title ? 'title-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.title ? errorColor : border}` }} placeholder="e.g. Power Seven" />
+              {errors.title && <div id="title-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.title}</div>}
+
+              <label style={{ fontWeight: 500 }} htmlFor="slug">Slug *</label>
+              <input id="slug" name="slug" value={form.slug} onChange={handleFormChange} onBlur={handleBlur} required disabled={modalMode === 'edit'} aria-invalid={!!errors.slug} aria-describedby={errors.slug ? 'slug-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.slug ? errorColor : border}` }} placeholder="e.g. power-seven" pattern="^[a-z0-9-]+$" maxLength={64} />
+              <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>power-seven</code></div>
+              {errors.slug && <div id="slug-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.slug}</div>}
             </fieldset>
 
             {/* Series & World */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Series &amp; World</legend>
-              <label style={{ fontWeight: 500 }}>Series
-                <select name="series_id" value={form.series_id ?? ''} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }}>
-                  <option value="">-- None --</option>
-                  {series.map((s, idx) => (
-                    <option key={s.slug} value={idx + 1}>{s.title} (ID {idx + 1})</option>
-                  ))}
-                </select>
-                <div style={{ fontSize: 12, color: '#888' }}>Select the series this book belongs to (optional). Series ID is assigned by order in series.json.</div>
-              </label>
-              <label style={{ fontWeight: 500 }}>World
-                <select name="world_slug" value={form.world_slug || ''} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }}>
-                  <option value="">-- None --</option>
-                  {worlds.map(w => (
-                    <option key={w.slug} value={w.slug}>{w.title} ({w.slug})</option>
-                  ))}
-                </select>
-                <div style={{ fontSize: 12, color: '#888' }}>Select the world this book belongs to (optional).</div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="series_id">Series</label>
+              <select id="series_id" name="series_id" value={form.series_id ?? ''} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.series_id} aria-describedby={errors.series_id ? 'series-id-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.series_id ? errorColor : border}` }}>
+                <option value="">-- None --</option>
+                {series.map((s, idx) => (
+                  <option key={s.slug} value={idx + 1}>{s.title} (ID {idx + 1})</option>
+                ))}
+              </select>
+              <div style={{ fontSize: 12, color: '#888' }}>Select the series this book belongs to (optional). Series ID is assigned by order in series.json.</div>
+              {errors.series_id && <div id="series-id-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.series_id}</div>}
+
+              <label style={{ fontWeight: 500 }} htmlFor="world_slug">World</label>
+              <select id="world_slug" name="world_slug" value={form.world_slug || ''} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.world_slug} aria-describedby={errors.world_slug ? 'world-slug-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.world_slug ? errorColor : border}` }}>
+                <option value="">-- None --</option>
+                {worlds.map(w => (
+                  <option key={w.slug} value={w.slug}>{w.title} ({w.slug})</option>
+                ))}
+              </select>
+              <div style={{ fontSize: 12, color: '#888' }}>Select the world this book belongs to (optional).</div>
+              {errors.world_slug && <div id="world-slug-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.world_slug}</div>}
             </fieldset>
 
             {/* Description */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Description</legend>
-              <label style={{ fontWeight: 500 }}>Description
-                <textarea name="description" value={form.description} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="Short summary or blurb" />
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="description">Description</label>
+              <textarea id="description" name="description" value={form.description} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.description} aria-describedby={errors.description ? 'description-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.description ? errorColor : border}` }} placeholder="Short summary or blurb" />
+              {errors.description && <div id="description-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.description}</div>}
             </fieldset>
 
             {/* Media */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Media</legend>
-              <label style={{ fontWeight: 500 }}>Cover Image URL
-                <input name="cover_image" value={form.cover_image} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="/images/books/power-seven.jpg or https://..." />
-                <div style={{ fontSize: 12, color: '#888' }}>Relative to <code>/public/images/books/</code> or a full URL.</div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="cover_image">Cover Image URL</label>
+              <input id="cover_image" name="cover_image" value={form.cover_image} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.cover_image} aria-describedby={errors.cover_image ? 'cover-image-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.cover_image ? errorColor : border}` }} placeholder="/images/books/power-seven.jpg or https://..." />
+              <div style={{ fontSize: 12, color: '#888' }}>Relative to <code>/public/images/books/</code> or a full URL.</div>
+              {errors.cover_image && <div id="cover-image-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.cover_image}</div>}
             </fieldset>
 
             {/* Purchase Links */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Purchase Links</legend>
-              <label style={{ fontWeight: 500 }}>Kindle URL
-                <input name="kindle_url" value={form.kindle_url} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="https://amazon.com/kindle-dp/XXXXXXXX" />
-                <div style={{ fontSize: 12, color: '#888' }}>Direct link to Kindle edition (optional).</div>
-              </label>
-              <label style={{ fontWeight: 500 }}>Audio URL
-                <input name="audio_url" value={form.audio_url} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="https://amazon.com/audio-dp/XXXXXXXX" />
-                <div style={{ fontSize: 12, color: '#888' }}>Direct link to Audible or audio edition (optional).</div>
-              </label>
-              <label style={{ fontWeight: 500 }}>Paperback URL
-                <input name="paperback_url" value={form.paperback_url} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="https://amazon.com/paperback-dp/XXXXXXXX" />
-                <div style={{ fontSize: 12, color: '#888' }}>Direct link to paperback or print edition (optional).</div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="kindle_url">Kindle URL</label>
+              <input id="kindle_url" name="kindle_url" value={form.kindle_url} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.kindle_url} aria-describedby={errors.kindle_url ? 'kindle-url-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.kindle_url ? errorColor : border}` }} placeholder="https://amazon.com/kindle-dp/XXXXXXXX" />
+              <div style={{ fontSize: 12, color: '#888' }}>Direct link to Kindle edition (optional).</div>
+              {errors.kindle_url && <div id="kindle-url-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.kindle_url}</div>}
+
+              <label style={{ fontWeight: 500 }} htmlFor="audio_url">Audio URL</label>
+              <input id="audio_url" name="audio_url" value={form.audio_url} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.audio_url} aria-describedby={errors.audio_url ? 'audio-url-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.audio_url ? errorColor : border}` }} placeholder="https://amazon.com/audio-dp/XXXXXXXX" />
+              <div style={{ fontSize: 12, color: '#888' }}>Direct link to Audible or audio edition (optional).</div>
+              {errors.audio_url && <div id="audio-url-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.audio_url}</div>}
+
+              <label style={{ fontWeight: 500 }} htmlFor="paperback_url">Paperback URL</label>
+              <input id="paperback_url" name="paperback_url" value={form.paperback_url} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.paperback_url} aria-describedby={errors.paperback_url ? 'paperback-url-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.paperback_url ? errorColor : border}` }} placeholder="https://amazon.com/paperback-dp/XXXXXXXX" />
+              <div style={{ fontSize: 12, color: '#888' }}>Direct link to paperback or print edition (optional).</div>
+              {errors.paperback_url && <div id="paperback-url-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.paperback_url}</div>}
             </fieldset>
 
             {/* Excerpt */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Excerpt</legend>
-              <label style={{ fontWeight: 500 }}>Excerpt
-                <input name="excerpt" value={form.excerpt} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="Optional excerpt or sample text" />
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="excerpt">Excerpt</label>
+              <input id="excerpt" name="excerpt" value={form.excerpt} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.excerpt} aria-describedby={errors.excerpt ? 'excerpt-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.excerpt ? errorColor : border}` }} placeholder="Optional excerpt or sample text" />
+              {errors.excerpt && <div id="excerpt-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.excerpt}</div>}
             </fieldset>
 
             {/* Publication */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Publication</legend>
-              <label style={{ fontWeight: 500 }}>Publish Date
-                <input name="publish_date" value={form.publish_date} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="YYYY-MM-DD" />
-                <div style={{ fontSize: 12, color: '#888' }}>Format: <code>YYYY-MM-DD</code> (e.g. 2025-12-28)</div>
-              </label>
-              <label style={{ fontWeight: 500 }}><input type="checkbox" name="published" checked={!!form.published} onChange={handleFormChange} style={{ marginRight: 6 }} /> Published
-                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: Book is visible on the public site. Unchecked: Book is hidden (draft).</div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="publish_date">Publish Date</label>
+              <input id="publish_date" name="publish_date" value={form.publish_date} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.publish_date} aria-describedby={errors.publish_date ? 'publish-date-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.publish_date ? errorColor : border}` }} placeholder="YYYY-MM-DD" />
+              <div style={{ fontSize: 12, color: '#888' }}>Format: <code>YYYY-MM-DD</code> (e.g. 2025-12-28)</div>
+              {errors.publish_date && <div id="publish-date-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.publish_date}</div>}
+
+              <label style={{ fontWeight: 500 }} htmlFor="published"><input id="published" type="checkbox" name="published" checked={!!form.published} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.published} aria-describedby={errors.published ? 'published-error' : undefined} style={{ marginRight: 6 }} /> Published</label>
+              <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: Book is visible on the public site. Unchecked: Book is hidden (draft).</div>
+              {errors.published && <div id="published-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.published}</div>}
             </fieldset>
 
-            <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-              <button type="submit" disabled={submitting} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 1px 4px #0001', transition: 'background 0.2s' }}>{submitting ? 'Saving...' : 'Save'}</button>
+            <div style={{ marginTop: 24, display: 'flex', gap: 12, alignItems: 'center' }}>
+              <button type="submit" disabled={submitting} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 1px 4px #0001', transition: 'background 0.2s', position: 'relative' }}>
+                {submitting ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <span className="spinner" style={{ width: 18, height: 18, border: '2px solid #fff', borderTop: `2px solid ${accentLight}`, borderRadius: '50%', display: 'inline-block', marginRight: 8, animation: 'spin 1s linear infinite' }} />
+                    Saving...
+                  </span>
+                ) : 'Save'}
+              </button>
               <button type="button" onClick={closeModal} style={{ background: '#fff', color: accent, border: `1px solid ${border}`, borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}>Cancel</button>
             </div>
-            {feedback && <div style={{ color: errorColor, marginTop: 12 }}>{feedback}</div>}
+            {feedback && !feedback.toLowerCase().includes('successfully') && (
+              <div style={{ color: errorColor, marginTop: 12 }}>{feedback}</div>
+            )}
+            {feedback && feedback.toLowerCase().includes('successfully') && (
+              <div style={{ color: successColor, marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>{feedback}</span>
+                <button type="button" aria-label="Dismiss" onClick={() => setFeedback(null)} style={{ background: 'none', border: 'none', color: successColor, fontWeight: 700, fontSize: 18, cursor: 'pointer', marginLeft: 8 }}>&times;</button>
+              </div>
+            )}
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
           </form>
         </div>
       )}
