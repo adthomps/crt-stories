@@ -2,19 +2,21 @@ export { Page };
 
 import React, { useState } from 'react';
 import { usePageContext } from 'vike-react/usePageContext';
-import { getWorldBySlug, getBooksByWorld, getCharactersByWorld } from '../../../content';
+import { worlds, books, characters } from '../../../content';
 
 function Page() {
   const pageContext = usePageContext();
   const { slug } = pageContext.routeParams;
-  const world = getWorldBySlug(slug);
-
+  const world = worlds.find((w) => w.slug === slug);
   if (!world) {
     return <div>World not found</div>;
   }
-
-  const books = getBooksByWorld(world.slug);
-  const characters = getCharactersByWorld(world.slug);
+  const relatedBooks = (world.bookSlugs || [])
+    .map((slug) => books.find((b) => b.slug === slug))
+    .filter(Boolean);
+  const relatedCharacters = (world.characterSlugs || [])
+    .map((slug) => characters.find((c) => c.slug === slug))
+    .filter(Boolean);
 
   // Modal state for image preview
   const [modalImg, setModalImg] = useState<string | null>(null);
@@ -90,12 +92,12 @@ function Page() {
             </div>
           )}
 
-          {books.length > 0 && (
+          {relatedBooks.length > 0 && (
             <div className="section">
               <h2>Books Set in {world.title}</h2>
-              <div className={books.length === 1 ? 'single-card-grid' : 'grid'}>
-                {books.map((book) => (
-                  <div key={book.slug} className={books.length === 1 ? 'card card-large' : 'card'}>
+              <div className={relatedBooks.length === 1 ? 'single-card-grid' : 'grid'}>
+                {relatedBooks.slice(0, 5).map((book) => (
+                  <div key={book.slug} className={relatedBooks.length === 1 ? 'card card-large' : 'card'}>
                     <img src={book.coverImage} alt={book.title} />
                     <div className="card-content">
                       <h3 className="card-title">{book.title}</h3>
@@ -112,15 +114,20 @@ function Page() {
                     </div>
                   </div>
                 ))}
+                {relatedBooks.length > 5 && (
+                  <div style={{ gridColumn: '1/-1', marginTop: '1rem', textAlign: 'center' }}>
+                    <a href="/books" className="button">+{relatedBooks.length - 5} more books</a>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {characters.length > 0 && (
+          {relatedCharacters.length > 0 && (
             <div className="section">
               <h2>Characters from {world.title}</h2>
               <div className="grid">
-                {characters.map((character) => (
+                {relatedCharacters.slice(0, 5).map((character) => (
                   <div key={character.slug} className="card">
                     <img src={character.portraitImage} alt={character.name} />
                     <div className="card-content">
@@ -140,6 +147,11 @@ function Page() {
                     </div>
                   </div>
                 ))}
+                {relatedCharacters.length > 5 && (
+                  <div style={{ gridColumn: '1/-1', marginTop: '1rem', textAlign: 'center' }}>
+                    <a href="/characters" className="button">+{relatedCharacters.length - 5} more characters</a>
+                  </div>
+                )}
               </div>
             </div>
           )}

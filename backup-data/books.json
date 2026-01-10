@@ -1,6 +1,5 @@
 [
   {
-    "id": 1,
     "slug": "true-story-of-trafalgar",
     "title": "The True Story of Trafalgar",
     "subtitle": "Volume One",
@@ -10,9 +9,12 @@
     "publishDate": "2025-07-25",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlugs": ["trafalgar"],
-    "seriesSlugs": ["trafalgar"],
-    "characterSlugs": ["george", "riley"],
+    "worldSlug": "trafalgar",
+    "series": {
+      "id": "trafalgar",
+      "name": "The True Story of Trafalgar",
+      "bookNumber": 1
+    },
     "formats": [
       {
         "type": "kindle",
@@ -33,10 +35,11 @@
     },
     "badges": ["Historical Fiction"],
     "tags": ["historical fiction", "london", "ireland", "trafalgar", "character-driven"],
-    "ogImage": "/images/og/books/true-story-of-trafalgar.jpg"
+    "ogImage": "/images/og/books/true-story-of-trafalgar.jpg",
+    "amazonUrl": "https://www.amazon.com/True-Story-Trafalgar-One-ebook/dp/B0FK1XDKD5"
   },
+
   {
-    "id": 2,
     "slug": "power-seven",
     "title": "Power Seven",
     "subtitle": null,
@@ -46,9 +49,12 @@
     "publishDate": "2024-06-12",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlugs": ["power-seven"],
-    "seriesSlugs": ["power-seven"],
-    "characterSlugs": ["david-stone"],
+    "worldSlug": "power-seven",
+    "series": {
+      "id": "power-seven",
+      "name": "Power Seven",
+      "bookNumber": 1
+    },
     "formats": [
       {
         "type": "kindle",
@@ -74,10 +80,11 @@
     },
     "badges": ["Sci-Fi Thriller"],
     "tags": ["science fiction", "thriller", "mystery", "global catastrophe", "conspiracy"],
-    "ogImage": "/images/og/books/power-seven.jpg"
+    "ogImage": "/images/og/books/power-seven.jpg",
+    "amazonUrl": "https://www.amazon.com/Power-Seven-C-R-Thompson-ebook/dp/B0D6YZWRJP"
   },
+
   {
-    "id": 3,
     "slug": "alex",
     "title": "Alex",
     "subtitle": "Tales of the Labyrinth Nebula · Book 1",
@@ -87,9 +94,12 @@
     "publishDate": "2022-11-28",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
-    "seriesSlugs": ["tln"],
-    "characterSlugs": ["alex-fox", "c621"],
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 1
+    },
     "formats": [
       {
         "type": "kindle",
@@ -115,10 +125,11 @@
     },
     "badges": ["Space Opera", "Kindle Vella"],
     "tags": ["science fiction", "space opera", "first contact", "origin story", "tln"],
-    "ogImage": "/images/og/books/alex.jpg"
+    "ogImage": "/images/og/books/alex.jpg",
+    "amazonUrl": "https://www.amazon.com/gp/product/B0BNLSLCMH"
   },
+
   {
-    "id": 4,
     "slug": "dorian-volume-1",
     "title": "Dorian – Volume 1",
     "subtitle": "Tales of the Labyrinth Nebula · Book 2",
@@ -128,9 +139,12 @@
     "publishDate": "2019-11-04",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
-    "seriesSlugs": ["tln"],
-    "characterSlugs": ["dorian-fox", "adam-casey"],
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 2
+    },
     "formats": [
       {
         "type": "kindle",
@@ -151,15 +165,15 @@
     "excerpt": "TBD",
     "related": {
       "prequelSlug": "alex",
-      "nextSlug": "dorian-volume-2",
-      "previousSlug": null
+      "nextSlug": "dorian-volume-2"
     },
     "badges": ["Space Opera"],
     "tags": ["science fiction", "space opera", "lunar base", "mystery", "earth window", "tln"],
-    "ogImage": "/images/og/books/dorian-volume-1.jpg"
+    "ogImage": "/images/og/books/dorian-volume-1.jpg",
+    "amazonUrl": "https://www.amazon.com/Dorian-Tales-Labyrinth-Nebula-Dorians-ebook/dp/B0811FHP1L"
   },
+
   {
-    "id": 5,
     "slug": "dorian-volume-2",
     "title": "Dorian – Volume 2",
     "subtitle": "Tales of the Labyrinth Nebula · Book 3",
@@ -169,9 +183,12 @@
     "publishDate": "2021-05-03",
     "status": "available",
     "author": "C.R. Thompson",
-    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
-    "seriesSlugs": ["tln"],
-    "characterSlugs": ["dorian-fox", "adam-casey"],
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 3
+    },
     "formats": [
       {
         "type": "kindle",
@@ -186,16 +203,17 @@
     ],
     "excerpt": "TBD",
     "related": {
-      "prequelSlug": "alex",
+      "prequelSlug": "dorian-volume-1",
       "nextSlug": "dorian-volume-3",
       "previousSlug": "dorian-volume-1"
     },
     "badges": ["Space Opera"],
     "tags": ["science fiction", "space opera", "earth window", "defense alliance", "tln"],
-    "ogImage": "/images/og/books/dorian-volume-2.jpg"
+    "ogImage": "/images/og/books/dorian-volume-2.jpg",
+    "amazonUrl": "https://www.amazon.com/gp/product/B0942PHDX3"
   },
+
   {
-    "id": 6,
     "slug": "dorian-volume-3",
     "title": "Dorian – Volume 3",
     "subtitle": "Tales of the Labyrinth Nebula · Book 4",
@@ -205,18 +223,22 @@
     "publishDate": "TBD",
     "status": "coming_soon",
     "author": "C.R. Thompson",
-    "worldSlugs": ["tales-of-the-labyrinth-nebula"],
-    "seriesSlugs": ["tln"],
-    "characterSlugs": ["dorian-fox", "adam-casey"],
+    "worldSlug": "tales-of-the-labyrinth-nebula",
+    "series": {
+      "id": "tln",
+      "name": "Tales of the Labyrinth Nebula",
+      "bookNumber": 4
+    },
     "formats": [],
     "excerpt": null,
     "related": {
-      "prequelSlug": "alex",
+      "prequelSlug": "dorian-volume-2",
       "nextSlug": null,
       "previousSlug": "dorian-volume-2"
     },
     "badges": ["Coming Soon"],
     "tags": ["science fiction", "space opera", "tln"],
-    "ogImage": "/images/og/books/dorian-volume-3.jpg"
+    "ogImage": "/images/og/books/dorian-volume-3.jpg",
+    "amazonUrl": ""
   }
 ]

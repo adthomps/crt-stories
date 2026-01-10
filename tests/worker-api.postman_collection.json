@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "CRT Stories Worker API",
+    "description": "API collection for testing admin endpoints for Series, Books, Worlds, and Characters.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Series",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/series",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "series"]
+        }
+      }
+    },
+    {
+      "name": "Create Series",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-series\",\n  \"title\": \"New Series\",\n  \"description\": \"A new series for testing.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/series",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "series"]
+        }
+      }
+    },
+    {
+      "name": "Edit Series",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-series\",\n  \"title\": \"Updated Series Title\",\n  \"description\": \"Updated description.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/series",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "series"]
+        }
+      }
+    },
+    {
+      "name": "Get All Worlds",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/worlds",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "worlds"]
+        }
+      }
+    },
+    {
+      "name": "Create World",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-world\",\n  \"title\": \"New World\",\n  \"description\": \"A new world for testing.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/worlds",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "worlds"]
+        }
+      }
+    },
+    {
+      "name": "Edit World",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-world\",\n  \"title\": \"Updated World Title\",\n  \"description\": \"Updated description.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/worlds",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "worlds"]
+        }
+      }
+    },
+    {
+      "name": "Get All Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/books",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "books"]
+        }
+      }
+    },
+    {
+      "name": "Create Book",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-book\",\n  \"title\": \"New Book\",\n  \"description\": \"A new book for testing.\",\n  \"world_slug\": \"tales-of-the-labyrinth-nebula\",\n  \"series_id\": 1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/books",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "books"]
+        }
+      }
+    },
+    {
+      "name": "Edit Book",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-book\",\n  \"title\": \"Updated Book Title\",\n  \"description\": \"Updated description.\",\n  \"world_slug\": \"tales-of-the-labyrinth-nebula\",\n  \"series_id\": 1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/books",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "books"]
+        }
+      }
+    },
+    {
+      "name": "Get All Characters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/characters",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "characters"]
+        }
+      }
+    },
+    {
+      "name": "Create Character",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-character\",\n  \"name\": \"New Character\",\n  \"description\": \"A new character for testing.\",\n  \"world_slug\": \"tales-of-the-labyrinth-nebula\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/characters",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "characters"]
+        }
+      }
+    },
+    {
+      "name": "Edit Character",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"new-character\",\n  \"name\": \"Updated Character Name\",\n  \"description\": \"Updated description.\",\n  \"world_slug\": \"tales-of-the-labyrinth-nebula\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/worker/characters",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "worker", "characters"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://crtstories.com"
+    }
+  ]
+}

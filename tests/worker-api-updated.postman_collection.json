@@ -1,0 +1,178 @@
+{
+  "info": {
+    "name": "CRT Stories Worker API (Updated)",
+    "description": "Updated API collection for testing all endpoints for Series, Books, Worlds, Characters, and Auth.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth: Send Magic Link",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"email\": \"admin@example.com\"\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/send-magic-link", "host": ["{{baseUrl}}"], "path": ["api", "worker", "send-magic-link"]}
+      }
+    },
+    {
+      "name": "Auth: Verify Magic Code",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"email\": \"admin@example.com\",\n  \"code\": \"123456\"\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/verify-magic-code", "host": ["{{baseUrl}}"], "path": ["api", "worker", "verify-magic-code"]}
+      }
+    },
+    {
+      "name": "Auth: Logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {"raw": "{{baseUrl}}/api/worker/logout", "host": ["{{baseUrl}}"], "path": ["api", "worker", "logout"]}
+      }
+    },
+    {
+      "name": "Get All Series",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/series", "host": ["{{baseUrl}}"], "path": ["api", "worker", "series"]}}
+    },
+    {
+      "name": "Get Series by Slug",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/series?slug=new-series", "host": ["{{baseUrl}}"], "path": ["api", "worker", "series"], "query": [{"key": "slug", "value": "new-series"}]}}
+    },
+    {
+      "name": "Create Series",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-series\",\n  \"title\": \"New Series\",\n  \"description\": \"A new series for testing.\",\n  \"bookSlugs\": [\"new-book\"],\n  \"worldSlugs\": [\"new-world\"],\n  \"characterSlugs\": [\"new-character\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/series", "host": ["{{baseUrl}}"], "path": ["api", "worker", "series"]}
+      }
+    },
+    {
+      "name": "Edit Series",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-series\",\n  \"title\": \"Updated Series Title\",\n  \"description\": \"Updated description.\",\n  \"bookSlugs\": [\"new-book\"],\n  \"worldSlugs\": [\"new-world\"],\n  \"characterSlugs\": [\"new-character\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/series", "host": ["{{baseUrl}}"], "path": ["api", "worker", "series"]}
+      }
+    },
+    {
+      "name": "Delete Series",
+      "request": {
+        "method": "DELETE",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-series\"\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/series", "host": ["{{baseUrl}}"], "path": ["api", "worker", "series"]}
+      }
+    },
+    {
+      "name": "Get All Worlds",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/worlds", "host": ["{{baseUrl}}"], "path": ["api", "worker", "worlds"]}}
+    },
+    {
+      "name": "Get World by Slug",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/worlds?slug=new-world", "host": ["{{baseUrl}}"], "path": ["api", "worker", "worlds"], "query": [{"key": "slug", "value": "new-world"}]}}
+    },
+    {
+      "name": "Create World",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-world\",\n  \"title\": \"New World\",\n  \"description\": \"A new world for testing.\",\n  \"seriesSlugs\": [\"new-series\"],\n  \"bookSlugs\": [\"new-book\"],\n  \"characterSlugs\": [\"new-character\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/worlds", "host": ["{{baseUrl}}"], "path": ["api", "worker", "worlds"]}
+      }
+    },
+    {
+      "name": "Edit World",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-world\",\n  \"title\": \"Updated World Title\",\n  \"description\": \"Updated description.\",\n  \"seriesSlugs\": [\"new-series\"],\n  \"bookSlugs\": [\"new-book\"],\n  \"characterSlugs\": [\"new-character\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/worlds", "host": ["{{baseUrl}}"], "path": ["api", "worker", "worlds"]}
+      }
+    },
+    {
+      "name": "Delete World",
+      "request": {
+        "method": "DELETE",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-world\"\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/worlds", "host": ["{{baseUrl}}"], "path": ["api", "worker", "worlds"]}
+      }
+    },
+    {
+      "name": "Get All Books",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/books", "host": ["{{baseUrl}}"], "path": ["api", "worker", "books"]}}
+    },
+    {
+      "name": "Get Book by Slug",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/books?slug=new-book", "host": ["{{baseUrl}}"], "path": ["api", "worker", "books"], "query": [{"key": "slug", "value": "new-book"}]}}
+    },
+    {
+      "name": "Create Book",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-book\",\n  \"title\": \"New Book\",\n  \"description\": \"A new book for testing.\",\n  \"seriesSlugs\": [\"new-series\"],\n  \"worldSlugs\": [\"new-world\"],\n  \"characterSlugs\": [\"new-character\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/books", "host": ["{{baseUrl}}"], "path": ["api", "worker", "books"]}
+      }
+    },
+    {
+      "name": "Edit Book",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-book\",\n  \"title\": \"Updated Book Title\",\n  \"description\": \"Updated description.\",\n  \"seriesSlugs\": [\"new-series\"],\n  \"worldSlugs\": [\"new-world\"],\n  \"characterSlugs\": [\"new-character\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/books", "host": ["{{baseUrl}}"], "path": ["api", "worker", "books"]}
+      }
+    },
+    {
+      "name": "Delete Book",
+      "request": {
+        "method": "DELETE",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-book\"\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/books", "host": ["{{baseUrl}}"], "path": ["api", "worker", "books"]}
+      }
+    },
+    {
+      "name": "Get All Characters",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/characters", "host": ["{{baseUrl}}"], "path": ["api", "worker", "characters"]}}
+    },
+    {
+      "name": "Get Character by Slug",
+      "request": {"method": "GET", "header": [], "url": {"raw": "{{baseUrl}}/api/worker/characters?slug=new-character", "host": ["{{baseUrl}}"], "path": ["api", "worker", "characters"], "query": [{"key": "slug", "value": "new-character"}]}}
+    },
+    {
+      "name": "Create Character",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-character\",\n  \"name\": \"New Character\",\n  \"description\": \"A new character for testing.\",\n  \"worldSlugs\": [\"new-world\"],\n  \"seriesSlugs\": [\"new-series\"],\n  \"bookSlugs\": [\"new-book\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/characters", "host": ["{{baseUrl}}"], "path": ["api", "worker", "characters"]}
+      }
+    },
+    {
+      "name": "Edit Character",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-character\",\n  \"name\": \"Updated Character Name\",\n  \"description\": \"Updated description.\",\n  \"worldSlugs\": [\"new-world\"],\n  \"seriesSlugs\": [\"new-series\"],\n  \"bookSlugs\": [\"new-book\"]\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/characters", "host": ["{{baseUrl}}"], "path": ["api", "worker", "characters"]}
+      }
+    },
+    {
+      "name": "Delete Character",
+      "request": {
+        "method": "DELETE",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"slug\": \"new-character\"\n}"},
+        "url": {"raw": "{{baseUrl}}/api/worker/characters", "host": ["{{baseUrl}}"], "path": ["api", "worker", "characters"]}
+      }
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "https://crtstories.com"}
+  ]
+}

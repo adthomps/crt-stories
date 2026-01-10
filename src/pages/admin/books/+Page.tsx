@@ -14,14 +14,19 @@ interface Book {
   slug: string;
   title: string;
   description?: string;
-  cover_image?: string;
-  publish_date?: string;
-  kindle_url?: string;
-  audio_url?: string;
-  paperback_url?: string;
+  coverImage?: string;
+  publishDate?: string;
+  status?: string;
+  author?: string;
+  worldSlugs?: string[];
+  seriesSlugs?: string[];
+  characterSlugs?: string[];
+  formats?: { type: string; label: string; url: string }[];
   excerpt?: string;
-  world_slug?: string;
-  series_id?: number;
+  related?: Record<string, string | null>;
+  badges?: string[];
+  tags?: string[];
+  ogImage?: string;
   published?: boolean;
 }
 
@@ -54,11 +59,12 @@ export default function AdminBooksPage() {
 
   // Modal form state
   const [form, setForm] = useState<Book>({ slug: '', title: '', description: '', cover_image: '', publish_date: '', kindle_url: '', audio_url: '', paperback_url: '', excerpt: '', world_slug: '', series_id: undefined, published: false });
-  // Dropdown data for worlds and series
+  // Dropdown data for worlds, series, and characters
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
   const [series, setSeries] = useState<{ slug: string; title: string }[]>([]);
+  const [characters, setCharacters] = useState<{ slug: string; name: string }[]>([]);
 
-  // Load worlds and series for dropdowns
+  // Load worlds, series, and characters for dropdowns and tag display
   useEffect(() => {
     fetch('/src/content/worlds.json')
       .then(res => res.json())
@@ -66,6 +72,9 @@ export default function AdminBooksPage() {
     fetch('/src/content/series.json')
       .then(res => res.json())
       .then(data => setSeries(data.map((s: any) => ({ slug: s.slug, title: s.title }))));
+    fetch('/src/content/characters.json')
+      .then(res => res.json())
+      .then(data => setCharacters(data.map((c: any) => ({ slug: c.slug, name: c.name }))));
   }, []);
 
   // Open modal for add/edit
@@ -187,6 +196,8 @@ export default function AdminBooksPage() {
                 <tr style={{ background: accent, color: '#fff' }}>
                   <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Title</th>
                   <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Series</th>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Worlds</th>
+                  <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Characters</th>
                   <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Published Date</th>
                   <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Published</th>
                   <th style={{ padding: 14, borderBottom: `2px solid ${border}`, textAlign: 'left', fontSize: '1.05rem' }}>Edit</th>
@@ -195,11 +206,21 @@ export default function AdminBooksPage() {
               </thead>
               <tbody>
                 {books.map((book, i) => {
-                  let seriesTitle = '';
-                  if (book.series_id && Array.isArray(series)) {
-                    const s = series[book.series_id - 1];
-                    if (s) seriesTitle = s.title;
-                  }
+                  // Get series titles
+                  const seriesTitles = (book.seriesSlugs || []).map(slug => {
+                    const s = series.find(s => s.slug === slug);
+                    return s ? s.title : slug;
+                  });
+                  // Get world titles
+                  const worldTitles = (book.worldSlugs || []).map(slug => {
+                    const w = worlds.find(w => w.slug === slug);
+                    return w ? w.title : slug;
+                  });
+                  // Get character names
+                  const characterNames = (book.characterSlugs || []).map(slug => {
+                    const c = characters.find(c => c.slug === slug);
+                    return c ? c.name : slug;
+                  });
                   return (
                     <tr
                       key={book.slug}
@@ -211,8 +232,22 @@ export default function AdminBooksPage() {
                       onMouseOut={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : accentLight)}
                     >
                       <td style={{ padding: 14 }}>{book.title}</td>
-                      <td style={{ padding: 14 }}>{seriesTitle || <span style={{ color: '#bbb' }}>—</span>}</td>
-                      <td style={{ padding: 14 }}>{book.publish_date || <span style={{ color: '#bbb' }}>—</span>}</td>
+                      <td style={{ padding: 14 }}>
+                        {seriesTitles.length > 0 ? seriesTitles.map(title => (
+                          <span key={title} style={{ background: '#e0e7ff', color: '#3730a3', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                        )) : <span style={{ color: '#bbb' }}>—</span>}
+                      </td>
+                      <td style={{ padding: 14 }}>
+                        {worldTitles.length > 0 ? worldTitles.map(title => (
+                          <span key={title} style={{ background: '#fef9c3', color: '#92400e', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{title}</span>
+                        )) : <span style={{ color: '#bbb' }}>—</span>}
+                      </td>
+                      <td style={{ padding: 14 }}>
+                        {characterNames.length > 0 ? characterNames.map(name => (
+                          <span key={name} style={{ background: '#d1fae5', color: '#065f46', borderRadius: 6, padding: '2px 8px', marginRight: 4, fontSize: 13 }}>{name}</span>
+                        )) : <span style={{ color: '#bbb' }}>—</span>}
+                      </td>
+                      <td style={{ padding: 14 }}>{book.publishDate || <span style={{ color: '#bbb' }}>—</span>}</td>
                       <td style={{ padding: 14 }}>{book.published ? 'Yes' : 'No'}</td>
                       <td style={{ padding: 14 }}>
                         <button

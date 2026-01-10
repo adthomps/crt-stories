@@ -1,0 +1,22 @@
+{
+  "slug": "about-the-author",
+  "name": "C. R. Thompson",
+  "portraitImage": "/images/author/cr-thompson.jpg",
+  "portraitCaption": "Author of historical fiction, science fiction, and speculative thrillers.",
+  "bio": [
+    "C. R. Thompson grew up during the post–World War II aerospace boom, immersed in technology and stories of flight. His father was an engineer at the dawn of the Space Race, contributing to groundbreaking programs including the Atlas rocket engine and unmanned design work at JPL during the 1960s.",
+    "As a teenager, Thompson worked as an intern engineer, later contributing to major defense and space systems such as Minuteman, Polaris, and early Peacekeeper projects—experiences that strongly shaped his approach to science fiction and speculative storytelling.",
+    "Inspired by Robert A. Heinlein, Thompson developed a lifelong fascination with space science fiction and humanity’s push beyond known boundaries. That passion led to the creation of the Tales of the Labyrinth Nebula, beginning with Alex and continuing through the story of Dorian.",
+    "Power Seven was Thompson’s first completed novel. Originally unpublished, the story found new life through Kindle Vella and is now available in eBook, paperback, and audiobook formats."
+  ],
+  "themes": [
+    "Space exploration",
+    "First contact",
+    "Historical perspective",
+    "Technology and humanity",
+    "Character-driven storytelling"
+  ],
+  "links": {
+    "amazonAuthor": "https://www.amazon.com/stores/author/B09453M444"
+  }
+}

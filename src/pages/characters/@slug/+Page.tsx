@@ -4,15 +4,18 @@ import React from 'react';
 import { usePageContext } from 'vike-react/usePageContext';
 // import { getCharacterBySlug, getWorldBySlug, books } from '../../../content'; // Legacy static import (commented for safety)
 import { characters, worlds, books } from '../../../content';
-import React from 'react';
 
 function Page() {
   const pageContext = usePageContext();
   const { slug } = pageContext.routeParams;
   // SSG build: use static content
   const character = characters.find((c: any) => c.slug === slug);
-  const world = character && character.worldSlug ? worlds.find((w: any) => w.slug === character.worldSlug) : null;
-  const characterBooks = character && character.appearsInBookSlugs ? books.filter((b: any) => character.appearsInBookSlugs.includes(b.slug)) : [];
+  const relatedWorlds = (character.worldSlugs || [])
+    .map((slug: string) => worlds.find((w: any) => w.slug === slug))
+    .filter(Boolean);
+  const relatedBooks = (character.appearsInBookSlugs || [])
+    .map((slug: string) => books.find((b: any) => b.slug === slug))
+    .filter(Boolean);
 
   if (!character) {
     return <div>Character not found</div>;
@@ -53,16 +56,26 @@ function Page() {
             </div>
           )}
 
-          {world && (
+          {relatedWorlds.length > 0 && (
             <div className="section">
-              <h2>World</h2>
-              <p>
-                {character.name} hails from{' '}
-                <a href={`/worlds/${world.slug}`} className="link">
-                  {world.title}
-                </a>
-                .
-              </p>
+              <h2>World{relatedWorlds.length > 1 ? 's' : ''}</h2>
+              <div className={relatedWorlds.length === 1 ? 'single-card-grid' : 'grid'}>
+                {relatedWorlds.slice(0, 5).map((world: any) => (
+                  <div key={world.slug} className={relatedWorlds.length === 1 ? 'card card-large' : 'card'}>
+                    <img src={world.heroImage || world.image1} alt={world.title} />
+                    <div className="card-content">
+                      <h3 className="card-title">{world.title}</h3>
+                      <p className="card-description">{world.description}</p>
+                      <a href={`/worlds/${world.slug}`} className="button">Learn More</a>
+                    </div>
+                  </div>
+                ))}
+                {relatedWorlds.length > 5 && (
+                  <div style={{ gridColumn: '1/-1', marginTop: '1rem', textAlign: 'center' }}>
+                    <a href="/worlds" className="button">+{relatedWorlds.length - 5} more worlds</a>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -77,16 +90,16 @@ function Page() {
             </div>
           )}
 
-          {characterBooks.length > 0 && (
+          {relatedBooks.length > 0 && (
             <div className="section">
               <h2>Appears In</h2>
               <div className="grid">
-                {characterBooks.map((book) => (
+                {relatedBooks.slice(0, 5).map((book: any) => (
                   <div key={book.slug} className="card">
                     <img src={book.coverImage} alt={book.title} />
                     <div className="card-content">
                       <div style={{ marginBottom: '0.5rem' }}>
-                        {book.badges && book.badges.map((badge, i) => (
+                        {book.badges && book.badges.map((badge: any, i: number) => (
                           <span key={i} className="badge">{badge}</span>
                         ))}
                       </div>
@@ -98,6 +111,11 @@ function Page() {
                     </div>
                   </div>
                 ))}
+                {relatedBooks.length > 5 && (
+                  <div style={{ gridColumn: '1/-1', marginTop: '1rem', textAlign: 'center' }}>
+                    <a href="/books" className="button">+{relatedBooks.length - 5} more books</a>
+                  </div>
+                )}
               </div>
             </div>
           )}

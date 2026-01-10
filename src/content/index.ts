@@ -7,9 +7,11 @@ export function getCharacterBySlug(slug: string) {
 import booksData from './books.json';
 import charactersData from './characters.json';
 import worldsData from './worlds.json';
+import seriesData from './series.json';
 export const books = booksData;
 export const characters = charactersData;
 export const worlds = worldsData;
+export const series = seriesData;
 
 // Synchronous helpers for static data
 export function getBookBySlug(slug: string) {

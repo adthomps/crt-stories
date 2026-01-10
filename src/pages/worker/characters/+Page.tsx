@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 function BackToWorker() {
   return (
     <div style={{ marginBottom: 24 }}>
-      <a href="/worker" style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500, fontSize: '1.1rem' }}>&larr; Back to Worker Dashboard</a>
+      <a href="/worker/dashboard" style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500, fontSize: '1.1rem' }}>&larr; Back to Worker Dashboard</a>
     </div>
   );
 }
@@ -46,7 +46,7 @@ export default function WorkerCharactersPage() {
   const [form, setForm] = useState<Character>({ slug: '', name: '', description: '', world_slug: '', published: false });
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
   useEffect(() => {
-    fetch('/src/content/worlds.json')
+    fetch('/content/worlds.json')
       .then(res => res.json())
       .then(data => setWorlds(data.map((w: any) => ({ slug: w.slug, title: w.title }))));
   }, []);
