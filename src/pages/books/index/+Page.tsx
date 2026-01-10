@@ -36,7 +36,14 @@ function Page() {
                 <h3 className="card-title">{book.title}</h3>
                 <p className="card-description">{expanded}</p>
                 <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
-                  Published: {new Date(book.publishDate).toLocaleDateString()}
+                  Published: {(() => {
+                    const d = new Date(book.publishDate);
+                    // Check for valid date and not 'TBD' or blank
+                    if (!book.publishDate || book.publishDate === 'TBD' || isNaN(d.getTime())) {
+                      return book.publishDate || 'TBD';
+                    }
+                    return d.toLocaleDateString();
+                  })()}
                 </p>
                 {relatedWorlds.length > 0 && (
                   <div className="tag-list" style={{ margin: '0.5rem 0' }}>

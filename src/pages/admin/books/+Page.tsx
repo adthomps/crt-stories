@@ -66,13 +66,13 @@ export default function AdminBooksPage() {
 
   // Load worlds, series, and characters for dropdowns and tag display
   useEffect(() => {
-    fetch('/src/content/worlds.json')
+    fetch('/api/worker/worlds', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setWorlds(data.map((w: any) => ({ slug: w.slug, title: w.title }))));
-    fetch('/src/content/series.json')
+    fetch('/api/worker/series', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setSeries(data.map((s: any) => ({ slug: s.slug, title: s.title }))));
-    fetch('/src/content/characters.json')
+    fetch('/api/worker/characters', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setCharacters(data.map((c: any) => ({ slug: c.slug, name: c.name }))));
   }, []);
@@ -80,8 +80,20 @@ export default function AdminBooksPage() {
   // Open modal for add/edit
   const openModal = (mode: 'add' | 'edit', book?: Book) => {
     setModalMode(mode);
-    // setEditingBook removed
-    setForm(book ? { ...book } : { slug: '', title: '', description: '', cover_image: '', publish_date: '', kindle_url: '', audio_url: '', paperback_url: '', excerpt: '', world_slug: '', series_id: undefined, published: false });
+    if (book) {
+      // Map formats array to individual fields
+      let kindle_url = '', audio_url = '', paperback_url = '';
+      if (Array.isArray(book.formats)) {
+        for (const f of book.formats) {
+          if (f.type === 'kindle') kindle_url = f.url;
+          if (f.type === 'audiobook' || f.type === 'audio') audio_url = f.url;
+          if (f.type === 'paperback') paperback_url = f.url;
+        }
+      }
+      setForm({ ...book, kindle_url, audio_url, paperback_url });
+    } else {
+      setForm({ slug: '', title: '', description: '', cover_image: '', publish_date: '', kindle_url: '', audio_url: '', paperback_url: '', excerpt: '', world_slug: '', series_id: undefined, published: false });
+    }
     setModalOpen(true);
   };
   const closeModal = () => {
@@ -107,14 +119,45 @@ export default function AdminBooksPage() {
     setSubmitting(true);
     setFeedback(null);
     try {
+      // Map individual fields back to formats array
+      const { kindle_url, audio_url, paperback_url, series_id, world_slug, created_at, updated_at, deleted_at, id, amazon_url, ...rest } = form;
+      const formats = [];
+      if (kindle_url) formats.push({ type: 'kindle', label: 'Kindle', url: kindle_url });
+      if (audio_url) formats.push({ type: 'audiobook', label: 'Audiobook', url: audio_url });
+      if (paperback_url) formats.push({ type: 'paperback', label: 'Paperback', url: paperback_url });
+      // Only send fields expected by backend schema
+      const submitData: any = { ...rest, formats };
+      // Remove any undefined or null fields
+      Object.keys(submitData).forEach(key => {
+        if (submitData[key] === undefined || submitData[key] === null || submitData[key] === '') {
+          delete submitData[key];
+        }
+      });
       const method = modalMode === 'add' ? 'POST' : 'PUT';
       const res = await fetch('/api/admin/books', {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(submitData),
         credentials: 'include',
       });
-      if (!res.ok) throw new Error('Failed to save book');
+      if (!res.ok) {
+        let msg = 'Failed to save book';
+        try {
+          const data = await res.json();
+          if (data && data.error) {
+            msg = data.error;
+            if (data.details) {
+              if (Array.isArray(data.details)) {
+                msg += ': ' + data.details.map((d: any) => d.message || JSON.stringify(d)).join('; ');
+              } else if (typeof data.details === 'string') {
+                msg += ': ' + data.details;
+              }
+            }
+          }
+        } catch {}
+        setFeedback(msg);
+        return;
+      }
       setFeedback('Book saved successfully.');
       closeModal();
       fetchBooks();

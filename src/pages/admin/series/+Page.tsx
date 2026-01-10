@@ -54,10 +54,10 @@ export default function AdminSeriesPage() {
 
   // Load books and characters for tag display
   useEffect(() => {
-    fetch('/src/content/books.json')
+    fetch('/api/worker/books', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setBooks(data.map((b: any) => ({ slug: b.slug, title: b.title }))));
-    fetch('/src/content/characters.json')
+    fetch('/api/worker/characters', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setCharacters(data.map((c: any) => ({ slug: c.slug, name: c.name }))));
   }, []);
