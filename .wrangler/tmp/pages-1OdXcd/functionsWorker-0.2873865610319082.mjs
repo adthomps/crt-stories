@@ -34,15 +34,15 @@ var onRequestPost2 = /* @__PURE__ */ __name(async ({ request, env, cf }) => {
     return new Response(JSON.stringify({ error: "Not authorized" }), { status: 403, headers: { "Content-Type": "application/json" } });
   }
   const rateKey = `magic-req:${ip}`;
-  const count = parseInt(await env.RATE_LIMIT_KV_CRT.get(rateKey) || "0", 10);
+  const count = parseInt(await env.RATE_LIMIT.get(rateKey) || "0", 10);
   if (count >= 5) {
     console.log(`[AUTH] [${(/* @__PURE__ */ new Date()).toISOString()}] [${ip}] Rate limit exceeded for email: ${email3}`);
     return new Response(JSON.stringify({ error: "Too many requests, try again later." }), { status: 429, headers: { "Content-Type": "application/json" } });
   }
-  await env.RATE_LIMIT_KV_CRT.put(rateKey, (count + 1).toString(), { expirationTtl: 600 });
+  await env.RATE_LIMIT.put(rateKey, (count + 1).toString(), { expirationTtl: 600 });
   const code = Math.floor(1e5 + Math.random() * 9e5).toString();
   const expires = Date.now() + 10 * 60 * 1e3;
-  await env.MAGIC_CODES_CRT.put(`magic:${email3}`, JSON.stringify({ code, expires }), { expirationTtl: 600 });
+  await env.MAGIC_CODES.put(`magic:${email3}`, JSON.stringify({ code, expires }), { expirationTtl: 600 });
   const subject = "Your CRT Stories Admin Login Code";
   const body = `Your one-time login code is: ${code}
 
@@ -71,12 +71,12 @@ var onRequestPost3 = /* @__PURE__ */ __name(async ({ request, env, cf }) => {
     return new Response(JSON.stringify({ error: "Missing email or code" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
   const rateKey = `magic-verify:${ip}`;
-  const count = parseInt(await env.RATE_LIMIT_KV.get(rateKey) || "0", 10);
+  const count = parseInt(await env.RATE_LIMIT.get(rateKey) || "0", 10);
   if (count >= 10) {
     console.log(`[AUTH] [${(/* @__PURE__ */ new Date()).toISOString()}] [${ip}] Rate limit exceeded for verify: ${email3}`);
     return new Response(JSON.stringify({ error: "Too many attempts, try again later." }), { status: 429, headers: { "Content-Type": "application/json" } });
   }
-  await env.RATE_LIMIT_KV.put(rateKey, (count + 1).toString(), { expirationTtl: 600 });
+  await env.RATE_LIMIT.put(rateKey, (count + 1).toString(), { expirationTtl: 600 });
   const stored = await env.MAGIC_CODES.get(`magic:${email3}`);
   if (!stored) {
     console.log(`[AUTH] [${(/* @__PURE__ */ new Date()).toISOString()}] [${ip}] Code expired or not found for: ${email3}`);
@@ -15107,7 +15107,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-ZAx5CH/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-9C17hd/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -15139,7 +15139,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-ZAx5CH/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-9C17hd/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
