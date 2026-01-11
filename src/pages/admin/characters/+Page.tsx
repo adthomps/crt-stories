@@ -29,6 +29,7 @@ export default function AdminCharactersPage() {
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const fetchCharacters = () => {
     setLoading(true);
@@ -76,14 +77,40 @@ export default function AdminCharactersPage() {
     setEditingCharacter(null);
   };
 
-  // Handle form changes
+  // Helper to get user-friendly error messages
+  const friendlyError = (err: z.ZodIssue) => {
+    if (err.path[0] === 'slug' && err.code === 'invalid_string') return 'Slug must be lowercase, alphanumeric, and use hyphens.';
+    if (err.path[0] === 'name' && err.code === 'too_small') return 'Name is required.';
+    return err.message;
+  };
+
+  // Validate a single field and update errors state
+  const validateField = (name: string, value: any) => {
+    let testObj = { ...form, [name]: value };
+    const result = CharacterSchema.safeParse(testObj);
+    if (result.success) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    } else {
+      const fieldErr = result.error.errors.find(e => e.path[0] === name);
+      setErrors(prev => ({ ...prev, [name]: fieldErr ? friendlyError(fieldErr) : '' }));
+    }
+  };
+
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-      setForm((f) => ({ ...f, [name]: (e.target as HTMLInputElement).checked }));
-    } else {
-      setForm((f) => ({ ...f, [name]: value }));
-    }
+    let newValue: any = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setForm((f) => {
+      const updated = { ...f, [name]: newValue };
+      validateField(name, newValue);
+      return updated;
+    });
+  };
+
+  // Validate on blur for instant feedback
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    let newValue: any = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    validateField(name, newValue);
   };
 
   // Submit add/edit
@@ -91,6 +118,35 @@ export default function AdminCharactersPage() {
     e.preventDefault();
     setSubmitting(true);
     setFeedback(null);
+    // Duplicate slug/name check
+    const isDuplicateSlug = characters.some(c => c.slug === form.slug && (modalMode === 'add' || (modalMode === 'edit' && c.slug !== editingCharacter?.slug)));
+    const isDuplicateName = characters.some(c => c.name.trim().toLowerCase() === form.name.trim().toLowerCase() && (modalMode === 'add' || (modalMode === 'edit' && c.slug !== editingCharacter?.slug)));
+    if (isDuplicateSlug) {
+      setErrors(prev => ({ ...prev, slug: 'A character with this slug already exists.' }));
+      setFeedback('Please fix the highlighted errors.');
+      setSubmitting(false);
+      return;
+    }
+    if (isDuplicateName) {
+      setErrors(prev => ({ ...prev, name: 'A character with this name already exists.' }));
+      setFeedback('Please fix the highlighted errors.');
+      setSubmitting(false);
+      return;
+    }
+    // Validate all fields before submit
+    const result = CharacterSchema.safeParse(form);
+    if (!result.success) {
+      const newErrors: Record<string, string> = {};
+      for (const err of result.error.errors) {
+        const field = err.path[0] as string;
+        newErrors[field] = friendlyError(err);
+      }
+      setErrors(newErrors);
+      setFeedback('Please fix the highlighted errors.');
+      setSubmitting(false);
+      return;
+    }
+    setErrors({});
     try {
       const method = modalMode === 'add' ? 'POST' : 'PUT';
       const res = await fetch('/api/admin/characters', {
@@ -274,50 +330,67 @@ export default function AdminCharactersPage() {
             {/* Basic Info */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Basic Info</legend>
-              <label style={{ fontWeight: 500 }}>Name
-                <input name="name" value={form.name} onChange={handleFormChange} required style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. Alex Fox" />
-              </label>
-              <label style={{ fontWeight: 500 }}>Slug
-                <input name="slug" value={form.slug} onChange={handleFormChange} required disabled={modalMode === 'edit'} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. alex-fox" pattern="^[a-z0-9-]+$" maxLength={64} />
-                <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>alex-fox</code></div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="name">Name *</label>
+              <input id="name" name="name" value={form.name} onChange={handleFormChange} onBlur={handleBlur} required aria-invalid={!!errors.name} aria-describedby={errors.name ? 'name-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.name ? errorColor : border}` }} placeholder="e.g. Alex Fox" />
+              {errors.name && <div id="name-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.name}</div>}
+
+              <label style={{ fontWeight: 500 }} htmlFor="slug">Slug *</label>
+              <input id="slug" name="slug" value={form.slug} onChange={handleFormChange} onBlur={handleBlur} required disabled={modalMode === 'edit'} aria-invalid={!!errors.slug} aria-describedby={errors.slug ? 'slug-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.slug ? errorColor : border}` }} placeholder="e.g. alex-fox" pattern="^[a-z0-9-]+$" maxLength={64} />
+              <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>alex-fox</code></div>
+              {errors.slug && <div id="slug-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.slug}</div>}
             </fieldset>
 
             {/* Description */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Description</legend>
-              <label style={{ fontWeight: 500 }}>Description
-                <textarea name="description" value={form.description} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="Short summary or blurb" />
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="description">Description</label>
+              <textarea id="description" name="description" value={form.description} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.description} aria-describedby={errors.description ? 'description-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.description ? errorColor : border}` }} placeholder="Short summary or blurb" />
+              {errors.description && <div id="description-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.description}</div>}
             </fieldset>
 
             {/* World */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>World</legend>
-              <label style={{ fontWeight: 500 }}>World
-                <select name="world_slug" value={form.world_slug || ''} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }}>
-                  <option value="">-- None --</option>
-                  {worlds.map(w => (
-                    <option key={w.slug} value={w.slug}>{w.title} ({w.slug})</option>
-                  ))}
-                </select>
-                <div style={{ fontSize: 12, color: '#888' }}>Select the world this character belongs to (optional).</div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="world_slug">World</label>
+              <select id="world_slug" name="world_slug" value={form.world_slug || ''} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.world_slug} aria-describedby={errors.world_slug ? 'world_slug-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.world_slug ? errorColor : border}` }}>
+                <option value="">-- None --</option>
+                {worlds.map(w => (
+                  <option key={w.slug} value={w.slug}>{w.title} ({w.slug})</option>
+                ))}
+              </select>
+              <div style={{ fontSize: 12, color: '#888' }}>Select the world this character belongs to (optional).</div>
+              {errors.world_slug && <div id="world_slug-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.world_slug}</div>}
             </fieldset>
 
             {/* Publication */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Publication</legend>
-              <label style={{ fontWeight: 500 }}><input type="checkbox" name="published" checked={!!form.published} onChange={handleFormChange} style={{ marginRight: 6 }} /> Published
-                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: Character is visible on the public site. Unchecked: Character is hidden (draft).</div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="published"><input id="published" type="checkbox" name="published" checked={!!form.published} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.published} aria-describedby={errors.published ? 'published-error' : undefined} style={{ marginRight: 6 }} /> Published</label>
+              <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: Character is visible on the public site. Unchecked: Character is hidden (draft).</div>
+              {errors.published && <div id="published-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.published}</div>}
             </fieldset>
 
-            <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-              <button type="submit" disabled={submitting} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 1px 4px #0001', transition: 'background 0.2s' }}>{submitting ? 'Saving...' : 'Save'}</button>
+            <div style={{ marginTop: 24, display: 'flex', gap: 12, alignItems: 'center' }}>
+              <button type="submit" disabled={submitting} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 1px 4px #0001', transition: 'background 0.2s', position: 'relative' }}>
+                {submitting ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <span className="spinner" style={{ width: 18, height: 18, border: '2px solid #fff', borderTop: `2px solid ${accentLight}`, borderRadius: '50%', display: 'inline-block', marginRight: 8, animation: 'spin 1s linear infinite' }} />
+                    Saving...
+                  </span>
+                ) : 'Save'}
+              </button>
               <button type="button" onClick={closeModal} style={{ background: '#fff', color: accent, border: `1px solid ${border}`, borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}>Cancel</button>
             </div>
-            {feedback && <div style={{ color: errorColor, marginTop: 12 }}>{feedback}</div>}
+            {feedback && !feedback.toLowerCase().includes('successfully') && (
+              <div style={{ color: errorColor, marginTop: 12 }}>{feedback}</div>
+            )}
+            {feedback && feedback.toLowerCase().includes('successfully') && (
+              <div style={{ color: successColor, marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>{feedback}</span>
+                <button type="button" aria-label="Dismiss" onClick={() => setFeedback(null)} style={{ background: 'none', border: 'none', color: successColor, fontWeight: 700, fontSize: 18, cursor: 'pointer', marginLeft: 8 }}>&times;</button>
+              </div>
+            )}
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
           </form>
         </div>
       )}

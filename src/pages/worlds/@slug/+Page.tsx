@@ -49,7 +49,7 @@ function Page() {
         <h1 className="page-title">{world.title}</h1>
         {world.badges && world.badges.length > 0 && (
           <div className="badge-list">
-            {world.badges.map((badge, i) => (
+            {Array.from(new Set(world.badges)).map((badge, i) => (
               <span key={i} className="badge">{badge}</span>
             ))}
           </div>
@@ -136,7 +136,7 @@ function Page() {
                       <p className="card-description">{character.bio}</p>
                       {character.tags && character.tags.length > 0 && (
                         <div className="tag-list" style={{ margin: '0.5rem 0' }}>
-                          {character.tags.map((tag, i) => (
+                          {Array.from(new Set(character.tags)).map((tag, i) => (
                             <span key={i} className="badge">{tag}</span>
                           ))}
                         </div>

@@ -143,7 +143,7 @@ function Page() {
           {book.publishDate && book.publishDate !== "TBD" && (
             <div className="section">
               <p style={{ marginTop: '1rem', color: '#666' }}>
-                Published: {new Date(book.publishDate).toLocaleDateString()}
+                <b>Published:</b> {new Date(book.publishDate).toLocaleDateString()}
               </p>
             </div>
           )}

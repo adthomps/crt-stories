@@ -65,6 +65,15 @@ export default function AdminWorldsPage() {
     setEditingWorld(w || null);
     setForm(w ? { ...w } : { slug: '', title: '', description: '', published: false });
     setModalOpen(true);
+        // --- Zod validation ---
+        const result = WorldSchema.safeParse(submitData);
+        if (!result.success) {
+          const errorMessages = result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('; ');
+          setFeedback('Validation error: ' + errorMessages);
+          setSubmitting(false);
+          return;
+        }
+        // --- End Zod validation ---
   };
   const closeModal = () => {
     setModalOpen(false);
@@ -254,36 +263,53 @@ export default function AdminWorldsPage() {
             {/* Basic Info */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Basic Info</legend>
-              <label style={{ fontWeight: 500 }}>Title
-                <input name="title" value={form.title} onChange={handleFormChange} required style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. Tales of the Labyrinth Nebula" />
-              </label>
-              <label style={{ fontWeight: 500 }}>Slug
-                <input name="slug" value={form.slug} onChange={handleFormChange} required disabled={modalMode === 'edit'} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="e.g. labyrinth-nebula" pattern="^[a-z0-9-]+$" maxLength={64} />
-                <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>labyrinth-nebula</code></div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="title">Title *</label>
+              <input id="title" name="title" value={form.title} onChange={handleFormChange} onBlur={handleBlur} required aria-invalid={!!errors.title} aria-describedby={errors.title ? 'title-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.title ? errorColor : border}` }} placeholder="e.g. Tales of the Labyrinth Nebula" />
+              {errors.title && <div id="title-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.title}</div>}
+
+              <label style={{ fontWeight: 500 }} htmlFor="slug">Slug *</label>
+              <input id="slug" name="slug" value={form.slug} onChange={handleFormChange} onBlur={handleBlur} required disabled={modalMode === 'edit'} aria-invalid={!!errors.slug} aria-describedby={errors.slug ? 'slug-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.slug ? errorColor : border}` }} placeholder="e.g. labyrinth-nebula" pattern="^[a-z0-9-]+$" maxLength={64} />
+              <div style={{ fontSize: 12, color: '#888' }}>Lowercase, alphanumeric, hyphens only. Example: <code>labyrinth-nebula</code></div>
+              {errors.slug && <div id="slug-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.slug}</div>}
             </fieldset>
 
             {/* Description */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Description</legend>
-              <label style={{ fontWeight: 500 }}>Description
-                <textarea name="description" value={form.description} onChange={handleFormChange} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${border}` }} placeholder="Short summary or blurb" />
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="description">Description</label>
+              <textarea id="description" name="description" value={form.description} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.description} aria-describedby={errors.description ? 'description-error' : undefined} style={{ width: '100%', marginTop: 4, padding: 6, borderRadius: 4, border: `1px solid ${errors.description ? errorColor : border}` }} placeholder="Short summary or blurb" />
+              {errors.description && <div id="description-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.description}</div>}
             </fieldset>
 
             {/* Publication */}
             <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, marginBottom: 18, padding: 16 }}>
               <legend style={{ fontWeight: 600, color: accent }}>Publication</legend>
-              <label style={{ fontWeight: 500 }}><input type="checkbox" name="published" checked={!!form.published} onChange={handleFormChange} style={{ marginRight: 6 }} /> Published
-                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: World is visible on the public site. Unchecked: World is hidden (draft).</div>
-              </label>
+              <label style={{ fontWeight: 500 }} htmlFor="published"><input id="published" type="checkbox" name="published" checked={!!form.published} onChange={handleFormChange} onBlur={handleBlur} aria-invalid={!!errors.published} aria-describedby={errors.published ? 'published-error' : undefined} style={{ marginRight: 6 }} /> Published</label>
+              <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Checked: World is visible on the public site. Unchecked: World is hidden (draft).</div>
+              {errors.published && <div id="published-error" style={{ color: errorColor, fontSize: 13, marginBottom: 8 }} role="alert">{errors.published}</div>}
             </fieldset>
 
-            <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-              <button type="submit" disabled={submitting} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 1px 4px #0001', transition: 'background 0.2s' }}>{submitting ? 'Saving...' : 'Save'}</button>
+            <div style={{ marginTop: 24, display: 'flex', gap: 12, alignItems: 'center' }}>
+              <button type="submit" disabled={submitting} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 1px 4px #0001', transition: 'background 0.2s', position: 'relative' }}>
+                {submitting ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <span className="spinner" style={{ width: 18, height: 18, border: '2px solid #fff', borderTop: `2px solid ${accentLight}`, borderRadius: '50%', display: 'inline-block', marginRight: 8, animation: 'spin 1s linear infinite' }} />
+                    Saving...
+                  </span>
+                ) : 'Save'}
+              </button>
               <button type="button" onClick={closeModal} style={{ background: '#fff', color: accent, border: `1px solid ${border}`, borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}>Cancel</button>
             </div>
-            {feedback && <div style={{ color: errorColor, marginTop: 12 }}>{feedback}</div>}
+            {feedback && !feedback.toLowerCase().includes('successfully') && (
+              <div style={{ color: errorColor, marginTop: 12 }}>{feedback}</div>
+            )}
+            {feedback && feedback.toLowerCase().includes('successfully') && (
+              <div style={{ color: successColor, marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>{feedback}</span>
+                <button type="button" aria-label="Dismiss" onClick={() => setFeedback(null)} style={{ background: 'none', border: 'none', color: successColor, fontWeight: 700, fontSize: 18, cursor: 'pointer', marginLeft: 8 }}>&times;</button>
+              </div>
+            )}
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
           </form>
         </div>
       )}

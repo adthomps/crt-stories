@@ -91,12 +91,12 @@ function Page() {
             </h2>
             <div className="grid">
               {chars.slice(0, maxChars).map((character: any) => {
-                const relatedBooks = (character.appearsInBookSlugs || [])
+                const relatedBooks = Array.from(new Set((character.appearsInBookSlugs || [])
                   .map((slug: string) => books.find((b: any) => b.slug === slug))
-                  .filter(Boolean);
-                const relatedWorlds = (character.worldSlugs || [])
+                  .filter(Boolean)));
+                const relatedWorlds = Array.from(new Set((character.worldSlugs || [])
                   .map((slug: string) => worlds.find((w: any) => w.slug === slug))
-                  .filter(Boolean);
+                  .filter(Boolean)));
                 return (
                   <div key={character.slug} className="card">
                     <img src={character.portraitImage} alt={character.name} />
@@ -132,8 +132,8 @@ function Page() {
                       )}
                       {character.tags && character.tags.length > 0 && (
                         <div className="tag-list" style={{ margin: '0.5rem 0' }}>
-                          {character.tags.map((tag: string, i: number) => (
-                            <span key={i} className="tag">{tag}</span>
+                          {Array.from(new Set(character.tags)).map((tag: string, i: number) => (
+                            <span key={tag} className="tag">{tag}</span>
                           ))}
                         </div>
                       )}

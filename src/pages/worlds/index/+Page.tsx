@@ -16,14 +16,14 @@ function Page() {
       <div className="grid">
         {worlds.slice(0, 5).map((world: any) => {
           // Relationship tags
-          const bookTags = (world.bookSlugs || []).map((slug: string) => {
+          const bookTags = Array.from(new Set((world.bookSlugs || []).map((slug: string) => {
             const b = books.find((b: any) => b.slug === slug);
             return b ? b.title : slug;
-          });
-          const characterTags = (world.characterSlugs || []).map((slug: string) => {
+          })));
+          const characterTags = Array.from(new Set((world.characterSlugs || []).map((slug: string) => {
             const c = characters.find((c: any) => c.slug === slug);
             return c ? c.name : slug;
-          });
+          })));
           return (
             <div key={world.slug} className="card">
               <img src={world.heroImage} alt={world.title} />
