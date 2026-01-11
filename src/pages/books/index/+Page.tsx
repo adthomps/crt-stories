@@ -84,7 +84,7 @@ function Page() {
                       book.publishDate === "TBD" ||
                       isNaN(d.getTime())
                     ) {
-                      return book.publishDate || "TBD";
+                      return "Unpublished";
                     }
                     return d.toLocaleDateString();
                   })()}

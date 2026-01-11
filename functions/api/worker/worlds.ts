@@ -27,7 +27,13 @@ export const onRequest: PagesFunction = async (context) => {
 			}
 		}
 
-		// POST, PUT, DELETE: implement as needed for admin/editor flows, using direct fields only
+		// POST, PUT, DELETE: require admin authentication
+		const { requireWorkerAdminAuth } = await import('./requireAuth');
+		const authResponse = await requireWorkerAdminAuth(request);
+		if (authResponse) {
+			return authResponse;
+		}
+		// No mutation logic here; just block with 405
 		return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
 	} catch (err) {
 		console.error('Worlds API error:', err);

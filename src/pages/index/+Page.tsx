@@ -57,40 +57,7 @@ function Page() {
                 <div className="card-content">
                   <h3 className="card-title">{world.title}</h3>
                   <p className="card-description">{world.description}</p>
-                  <div style={{ margin: "0.5rem 0" }}>
-                    {bookTags.length > 0 &&
-                      bookTags.map((title) => (
-                        <span
-                          key={title}
-                          style={{
-                            background: "#e0e7ff",
-                            color: "#3730a3",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {title}
-                        </span>
-                      ))}
-                    {characterTags.length > 0 &&
-                      characterTags.map((name) => (
-                        <span
-                          key={name}
-                          style={{
-                            background: "#d1fae5",
-                            color: "#065f46",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {name}
-                        </span>
-                      ))}
-                  </div>
+                  {/* Removed book and character badges from worlds section */}
                   <a href={`/worlds/${world.slug}`} className="button">
                     Explore
                   </a>
@@ -129,32 +96,7 @@ function Page() {
                 <div className="card-content">
                   <h3 className="card-title">{s.title}</h3>
                   <p className="card-description">{s.description}</p>
-                  {seriesBooks.length > 0 && (
-                    <div style={{ margin: "0.5rem 0 1rem 0" }}>
-                      <strong>Books:</strong>{" "}
-                      {seriesBooks.slice(0, 3).map((b: any, i: number) => (
-                        <span
-                          key={b.slug}
-                          style={{
-                            background: "#e0e7ff",
-                            color: "#3730a3",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {b.title}
-                          {i < seriesBooks.length - 1 && i < 2 ? "," : ""}
-                        </span>
-                      ))}
-                      {seriesBooks.length > 3 && (
-                        <span style={{ color: "#888", marginLeft: 4 }}>
-                          +{seriesBooks.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  {/* Removed book badges from series section */}
                   <a href={`/series/${s.slug}`} className="button">
                     View Series
                   </a>
@@ -214,40 +156,7 @@ function Page() {
                 <div className="card-content">
                   <h3 className="card-title">{book.title}</h3>
                   <p className="card-description">{expanded}</p>
-                  <div style={{ margin: "0.5rem 0" }}>
-                    {seriesTags.length > 0 &&
-                      seriesTags.map((title) => (
-                        <span
-                          key={title[0]}
-                          style={{
-                            background: "#f3e8ff",
-                            color: "#7c3aed",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {title[1]}
-                        </span>
-                      ))}
-                    {worldTags.length > 0 &&
-                      worldTags.map((title) => (
-                        <span
-                          key={title[0]}
-                          style={{
-                            background: "#fef9c3",
-                            color: "#92400e",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {title[1]}
-                        </span>
-                      ))}
-                  </div>
+                  {/* Removed series and world badges from books section */}
                   <a href={`/books/${book.slug}`} className="button">
                     Learn More
                   </a>
@@ -312,56 +221,7 @@ function Page() {
                         (character.bio.length > 120 ? "..." : "")
                       : ""}
                   </p>
-                  <div style={{ margin: "0.5rem 0" }}>
-                    {worldTags.length > 0 &&
-                      worldTags.map((title) => (
-                        <span
-                          key={title[0]}
-                          style={{
-                            background: "#fef9c3",
-                            color: "#92400e",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {title[1]}
-                        </span>
-                      ))}
-                    {bookTags.length > 0 &&
-                      bookTags.map((title) => (
-                        <span
-                          key={title[0]}
-                          style={{
-                            background: "#e0e7ff",
-                            color: "#3730a3",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {title[1]}
-                        </span>
-                      ))}
-                    {seriesTags.length > 0 &&
-                      seriesTags.map((title) => (
-                        <span
-                          key={title[0]}
-                          style={{
-                            background: "#f3e8ff",
-                            color: "#7c3aed",
-                            borderRadius: 6,
-                            padding: "2px 8px",
-                            marginRight: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {title[1]}
-                        </span>
-                      ))}
-                  </div>
+                  {/* Removed world, book, and series badges from characters section */}
                   <a href={`/characters/${character.slug}`} className="button">
                     View Profile
                   </a>
