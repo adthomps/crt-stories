@@ -67,15 +67,16 @@ export default function WorkerBooksPage() {
     slug: "",
     title: "",
     description: "",
-    cover_image: "",
-    publish_date: "",
-    kindle_url: "",
-    audio_url: "",
-    paperback_url: "",
+    coverImage: "",
+    publishDate: "",
+    kindleUrl: "",
+    audioUrl: "",
+    paperbackUrl: "",
     excerpt: "",
+    published: false,
+    // UI only
     world_slug: "",
     series_id: undefined,
-    published: false,
   });
   // Dropdown data for worlds and series (from API)
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
@@ -194,28 +195,46 @@ export default function WorkerBooksPage() {
     setStatus("idle");
     try {
       // Map purchase link fields to formats array
-      const { kindle_url, audio_url, paperback_url, ...rest } = form;
+      // Map UI fields to API fields (camelCase)
+      const {
+        kindleUrl,
+        audioUrl,
+        paperbackUrl,
+        coverImage,
+        publishDate,
+        excerpt,
+        description,
+        slug,
+        title,
+        published,
+        series_id,
+        world_slug,
+      } = form;
       const formats = [];
-      if (kindle_url)
-        formats.push({ type: "kindle", label: "Kindle", url: kindle_url });
-      if (audio_url)
-        formats.push({ type: "audiobook", label: "Audiobook", url: audio_url });
-      if (paperback_url)
+      if (kindleUrl)
+        formats.push({ type: "kindle", label: "Kindle", url: kindleUrl });
+      if (audioUrl)
+        formats.push({ type: "audiobook", label: "Audiobook", url: audioUrl });
+      if (paperbackUrl)
         formats.push({
           type: "paperback",
           label: "Paperback",
-          url: paperback_url,
+          url: paperbackUrl,
         });
-      // Map series_id to seriesSlugs
       let seriesSlugs: string[] = [];
-      if (rest.series_id && series[rest.series_id - 1]) {
-        seriesSlugs = [series[rest.series_id - 1].slug];
+      if (series_id && series[series_id - 1]) {
+        seriesSlugs = [series[series_id - 1].slug];
       }
-      // Map world_slug to worldSlugs
       let worldSlugs: string[] = [];
-      if (rest.world_slug) worldSlugs = [rest.world_slug];
+      if (world_slug) worldSlugs = [world_slug];
       const payload = {
-        ...rest,
+        slug,
+        title,
+        description,
+        coverImage,
+        publishDate,
+        excerpt,
+        published,
         formats,
         seriesSlugs,
         worldSlugs,
@@ -442,9 +461,15 @@ export default function WorkerBooksPage() {
               </thead>
               <tbody>
                 {books.map((book, i) => {
+                  // Display series from seriesSlugs (first if present)
                   let seriesTitle = "";
-                  if (book.series_id && Array.isArray(series)) {
-                    const s = series[book.series_id - 1];
+                  if (
+                    Array.isArray(book.seriesSlugs) &&
+                    book.seriesSlugs.length > 0
+                  ) {
+                    const s = series.find(
+                      (s) => s.slug === book.seriesSlugs[0]
+                    );
                     if (s) seriesTitle = s.title;
                   }
                   return (
@@ -464,11 +489,13 @@ export default function WorkerBooksPage() {
                     >
                       <td style={{ padding: 14 }}>{book.title}</td>
                       <td style={{ padding: 14 }}>
-                        {seriesTitle || <span style={{ color: "#bbb" }}></span>}
+                        {seriesTitle || (
+                          <span style={{ color: "#bbb" }}>—</span>
+                        )}
                       </td>
                       <td style={{ padding: 14 }}>
-                        {book.publish_date || (
-                          <span style={{ color: "#bbb" }}></span>
+                        {book.publishDate || (
+                          <span style={{ color: "#bbb" }}>—</span>
                         )}
                       </td>
                       <td style={{ padding: 14 }}>

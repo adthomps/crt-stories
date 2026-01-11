@@ -154,14 +154,12 @@ export const onRequest: PagesFunction = async (context: any): Promise<globalThis
 			if (!slug) {
 				return new Response(JSON.stringify({ error: 'Missing slug' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 			}
-			const world = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+			const world = await env.CRT_STORIES_CONTENT.prepare('SELECT id FROM worlds WHERE slug = ?').bind(slug).first();
 			if (!world) {
-				return new Response(JSON.stringify({ error: 'Not found or already deleted' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+				return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 			}
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE worlds SET deleted_at = datetime(\'now\') WHERE slug = ? AND deleted_at IS NULL'
-			).bind(slug).run();
-			// Remove join table entries
+			// Hard delete: remove from worlds and all join tables
+			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM worlds WHERE slug = ?').bind(slug).run();
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM world_series WHERE world_id = ?').bind(world.id).run();
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM book_world WHERE world_id = ?').bind(world.id).run();
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM character_world WHERE world_id = ?').bind(world.id).run();
