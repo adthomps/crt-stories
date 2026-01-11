@@ -41,4 +41,3 @@ export const onRequest: PagesFunction = async (context) => {
 		);
 	}
 };
-			if (Array.isArray(bookSlugs)) {
