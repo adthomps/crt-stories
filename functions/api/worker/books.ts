@@ -118,9 +118,10 @@ export const onRequest: PagesFunction = async (context) => {
 					}
 				}
 			}
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
-			).run();
+			// export_state removed: no longer needed for static export
+			// await env.CRT_STORIES_CONTENT.prepare(
+			//     'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
+			// ).run();
 			return new Response(JSON.stringify({ ok: true }), { status: 201, headers: { 'Content-Type': 'application/json' } });
 		}
 
@@ -174,9 +175,10 @@ export const onRequest: PagesFunction = async (context) => {
 					}
 				}
 			}
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
-			).run();
+			// export_state removed: no longer needed for static export
+			// await env.CRT_STORIES_CONTENT.prepare(
+			//     'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
+			// ).run();
 			return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 		}
 
@@ -202,9 +204,10 @@ export const onRequest: PagesFunction = async (context) => {
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM book_series WHERE book_id = ?').bind(book.id).run();
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM book_world WHERE book_id = ?').bind(book.id).run();
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM book_character WHERE book_id = ?').bind(book.id).run();
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
-			).run();
+			// export_state removed: no longer needed for static export
+			// await env.CRT_STORIES_CONTENT.prepare(
+			//     'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
+			// ).run();
 			return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 		}
 

@@ -58,9 +58,10 @@ export const onRequest: PagesFunction = async (context: any) => {
 					}
 				}
 			}
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
-			).run();
+			// export_state removed: no longer needed for static export
+			// await env.CRT_STORIES_CONTENT.prepare(
+			//     'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
+			// ).run();
 			return new Response(JSON.stringify({ ok: true }), { status: 201, headers: { 'Content-Type': 'application/json' } });
 		}
 
@@ -141,9 +142,10 @@ export const onRequest: PagesFunction = async (context: any) => {
 					}
 				}
 			}
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
-			).run();
+			// export_state removed: no longer needed for static export
+			// await env.CRT_STORIES_CONTENT.prepare(
+			//     'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
+			// ).run();
 			return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 		}
 
@@ -164,9 +166,10 @@ export const onRequest: PagesFunction = async (context: any) => {
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM character_world WHERE character_id = ?').bind(character.id).run();
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM character_series WHERE character_id = ?').bind(character.id).run();
 			await env.CRT_STORIES_CONTENT.prepare('DELETE FROM book_character WHERE character_id = ?').bind(character.id).run();
-			await env.CRT_STORIES_CONTENT.prepare(
-				'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
-			).run();
+			// export_state removed: no longer needed for static export
+			// await env.CRT_STORIES_CONTENT.prepare(
+			//     'UPDATE export_state SET needs_export = 1, updated_at = datetime(\'now\') WHERE id = 1'
+			// ).run();
 			return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 		}
 
