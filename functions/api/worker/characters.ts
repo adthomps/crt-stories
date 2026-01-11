@@ -11,25 +11,23 @@ export const onRequest: PagesFunction = async (context) => {
 				if (!character) {
 					return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 				}
-				   character.portraitImage = character.portrait_image;
-				   character.bio = character.bio;
-				   character.description = character.description;
+				   character.description = character.bio;
 				   character.worldSlugs = JSON.parse(character.worldSlugs || '[]');
 				   character.seriesSlugs = JSON.parse(character.seriesSlugs || '[]');
 				   character.bookSlugs = JSON.parse(character.appearsInBookSlugs || '[]');
 				   character.tags = JSON.parse(character.tags || '[]');
+				   character.roleTag = JSON.parse(character.roleTag || '[]');
 				   return new Response(JSON.stringify(character), { headers: { 'Content-Type': 'application/json' } });
 			} else {
 				const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM characters WHERE deleted_at IS NULL').all();
 				   const results = rows.results.map((character) => ({
 					   ...character,
-					   portraitImage: character.portrait_image,
-					   bio: character.bio,
-					   description: character.description,
+					   description: character.bio,
 					   worldSlugs: JSON.parse(character.worldSlugs || '[]'),
 					   seriesSlugs: JSON.parse(character.seriesSlugs || '[]'),
 					   bookSlugs: JSON.parse(character.appearsInBookSlugs || '[]'),
-					   tags: JSON.parse(character.tags || '[]')
+					   tags: JSON.parse(character.tags || '[]'),
+					   roleTag: JSON.parse(character.roleTag || '[]')
 				   }));
 				   return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
 			}
