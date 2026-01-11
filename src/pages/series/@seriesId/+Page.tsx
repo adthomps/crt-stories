@@ -1,4 +1,8 @@
-// export { Page };
+export { Page };
+// Temporary fallback to satisfy Vike export requirement
+function Page() {
+  return null;
+}
 //
 // import React from 'react';
 // import { usePageContext } from 'vike-react/usePageContext';
