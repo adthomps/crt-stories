@@ -77,22 +77,32 @@ export default function WorkerBooksPage() {
     series_id: undefined,
     published: false,
   });
-  // Dropdown data for worlds and series
+  // Dropdown data for worlds and series (from API)
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
   const [series, setSeries] = useState<{ slug: string; title: string }[]>([]);
 
-  // Load worlds and series for dropdowns
+  // Load worlds and series for dropdowns from API
   useEffect(() => {
-    fetch("/content/worlds.json")
+    fetch("/api/worker/worlds", {
+      headers: { Accept: "application/json" },
+      credentials: "include",
+    })
       .then((res) => res.json())
-      .then((data) =>
-        setWorlds(data.map((w: any) => ({ slug: w.slug, title: w.title })))
-      );
-    fetch("/content/series.json")
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setWorlds(data.map((w: any) => ({ slug: w.slug, title: w.title })));
+        }
+      });
+    fetch("/api/worker/series", {
+      headers: { Accept: "application/json" },
+      credentials: "include",
+    })
       .then((res) => res.json())
-      .then((data) =>
-        setSeries(data.map((s: any) => ({ slug: s.slug, title: s.title })))
-      );
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setSeries(data.map((s: any) => ({ slug: s.slug, title: s.title })));
+        }
+      });
   }, []);
 
   // Open modal for add/edit
@@ -197,12 +207,12 @@ export default function WorkerBooksPage() {
           url: paperback_url,
         });
       // Map series_id to seriesSlugs
-      let seriesSlugs = [];
+      let seriesSlugs: string[] = [];
       if (rest.series_id && series[rest.series_id - 1]) {
         seriesSlugs = [series[rest.series_id - 1].slug];
       }
       // Map world_slug to worldSlugs
-      let worldSlugs = [];
+      let worldSlugs: string[] = [];
       if (rest.world_slug) worldSlugs = [rest.world_slug];
       const payload = {
         ...rest,
