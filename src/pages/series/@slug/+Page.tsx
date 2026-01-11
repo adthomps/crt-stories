@@ -1,20 +1,56 @@
 export { Page };
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { usePageContext } from "vike-react/usePageContext";
-import { series, books, worlds, characters } from "../../../content";
 
 function Page() {
   const pageContext = usePageContext();
   const { slug } = pageContext.routeParams;
-  const s = series.find((s) => s.slug === slug);
-  if (!s) return <div>Series not found.</div>;
-  const seriesBooks = (s.bookSlugs || [])
-    .map((slug) => books.find((b) => b.slug === slug))
+  const [series, setSeries] = useState<any | null>(null);
+  const [books, setBooks] = useState<any[]>([]);
+  const [worlds, setWorlds] = useState<any[]>([]);
+  const [characters, setCharacters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch(`/api/worker/series?slug=${encodeURIComponent(slug)}`, {
+        headers: { Accept: "application/json" },
+      }).then((r) => r.json()),
+      fetch("/api/worker/books", {
+        headers: { Accept: "application/json" },
+      }).then((r) => r.json()),
+      fetch("/api/worker/worlds", {
+        headers: { Accept: "application/json" },
+      }).then((r) => r.json()),
+      fetch("/api/worker/characters", {
+        headers: { Accept: "application/json" },
+      }).then((r) => r.json()),
+    ])
+      .then(([seriesData, booksData, worldsData, charactersData]) => {
+        if (!seriesData || seriesData.error)
+          throw new Error("Series not found");
+        setSeries(seriesData);
+        setBooks(Array.isArray(booksData) ? booksData : []);
+        setWorlds(Array.isArray(worldsData) ? worldsData : []);
+        setCharacters(Array.isArray(charactersData) ? charactersData : []);
+      })
+      .catch((e) => setError(e.message || "Failed to load series"))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error || !series)
+    return <div style={{ color: "red" }}>{error || "Series not found."}</div>;
+
+  const seriesBooks = (series.bookSlugs || [])
+    .map((slug: string) => books.find((b: any) => b.slug === slug))
     .filter(Boolean);
   if (seriesBooks.length === 0) return <div>No books in this series.</div>;
-  const seriesName = s.title || slug;
-  const seriesDescription = s.longDescription || s.description;
+  const seriesName = series.title || slug;
+  const seriesDescription = series.longDescription || series.description;
 
   return (
     <>
@@ -25,7 +61,7 @@ function Page() {
       <div className="section">
         <h2>Reading Order</h2>
         <div className="grid">
-          {seriesBooks.map((book, idx) => {
+          {seriesBooks.map((book: any, idx: number) => {
             const desc = book.longDescription || book.description || "";
             let shortDesc = desc;
             if (desc.length > 140) {
@@ -39,16 +75,16 @@ function Page() {
             // Relationship tags
             const worldTags = Array.from(
               new Set(
-                (book.worldSlugs || []).map((slug) => {
-                  const w = worlds.find((w) => w.slug === slug);
+                (book.worldSlugs || []).map((slug: string) => {
+                  const w = worlds.find((w: any) => w.slug === slug);
                   return w ? w.title : slug;
                 })
               )
             );
             const characterTags = Array.from(
               new Set(
-                (book.characterSlugs || []).map((slug) => {
-                  const c = characters.find((c) => c.slug === slug);
+                (book.characterSlugs || []).map((slug: string) => {
+                  const c = characters.find((c: any) => c.slug === slug);
                   return c ? c.name : slug;
                 })
               )
@@ -105,7 +141,7 @@ function Page() {
                   </div>
                   {book.badges && book.badges.length > 0 && (
                     <div className="badge-list">
-                      {book.badges.map((badge, i) => (
+                      {book.badges.map((badge: any, i: number) => (
                         <span key={i} className="badge">
                           {badge}
                         </span>
