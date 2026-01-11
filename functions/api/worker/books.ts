@@ -20,7 +20,7 @@ export const onRequest: PagesFunction = async (context) => {
 				   book.related = book.related ? JSON.parse(book.related) : null;
 				   return new Response(JSON.stringify(book), { headers: { 'Content-Type': 'application/json' } });
 			} else {
-				const books = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM books WHERE deleted_at IS NULL ORDER BY publish_date DESC, id DESC').all();
+				   const books = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM books WHERE deleted_at IS NULL ORDER BY title COLLATE NOCASE ASC').all();
 				   const results = books.results.map((book) => ({
 					   ...book,
 					   coverImage: book.cover_image,
