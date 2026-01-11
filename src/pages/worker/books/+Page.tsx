@@ -44,6 +44,7 @@ export default function WorkerBooksPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
+  const [showCount, setShowCount] = useState(20); // Pagination
 
   const fetchBooks = () => {
     setLoading(true);
@@ -460,18 +461,23 @@ export default function WorkerBooksPage() {
                 </tr>
               </thead>
               <tbody>
-                {books.map((book, i) => {
-                  // Display series from seriesSlugs (first if present)
+                {books.slice(0, showCount).map((book, i) => {
+                  // Defensive: support both legacy and new API shapes
                   let seriesTitle = "";
-                  if (
-                    Array.isArray(book.seriesSlugs) &&
-                    book.seriesSlugs.length > 0
-                  ) {
-                    const s = series.find(
-                      (s) => s.slug === book.seriesSlugs[0]
-                    );
+                  let seriesSlugs: string[] = [];
+                  if (Array.isArray((book as any).seriesSlugs)) {
+                    seriesSlugs = (book as any).seriesSlugs;
+                  } else if (typeof (book as any).series_slug === "string") {
+                    seriesSlugs = [(book as any).series_slug];
+                  }
+                  if (seriesSlugs.length > 0) {
+                    const s = series.find((s) => s.slug === seriesSlugs[0]);
                     if (s) seriesTitle = s.title;
                   }
+                  const publishDate =
+                    (book as any).publish_date ||
+                    (book as any).publishDate ||
+                    "";
                   return (
                     <tr
                       key={book.slug}
@@ -494,7 +500,7 @@ export default function WorkerBooksPage() {
                         )}
                       </td>
                       <td style={{ padding: 14 }}>
-                        {book.publishDate || (
+                        {publishDate || (
                           <span style={{ color: "#bbb" }}>—</span>
                         )}
                       </td>
@@ -562,6 +568,29 @@ export default function WorkerBooksPage() {
             </table>
           </div>
         ))}
+      {books.length > showCount && (
+        <div style={{ textAlign: "center", margin: "1.5rem 0" }}>
+          <button
+            style={{
+              background: accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              padding: "10px 28px",
+              fontWeight: 700,
+              fontSize: "1.1rem",
+              cursor: "pointer",
+              boxShadow: "0 1px 4px #0001",
+              transition: "background 0.2s",
+              outline: "none",
+              letterSpacing: 0.5,
+            }}
+            onClick={() => setShowCount((c) => c + 20)}
+          >
+            Show More
+          </button>
+        </div>
+      )}
 
       {/* Modal for Add/Edit */}
       {modalOpen && (
