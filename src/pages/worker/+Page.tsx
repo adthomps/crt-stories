@@ -27,13 +27,13 @@ export default function WorkerPage() {
       </div>
       <ul style={{ listStyle: "none", padding: 0 }}>
         <li>
-          <a href="/worker/books">Manage Books</a>
-        </li>
-        <li>
           <a href="/worker/worlds">Manage Worlds</a>
         </li>
         <li>
           <a href="/worker/series">Manage Series</a>
+        </li>
+        <li>
+          <a href="/worker/books">Manage Books</a>
         </li>
         <li>
           <a href="/worker/characters">Manage Characters</a>
