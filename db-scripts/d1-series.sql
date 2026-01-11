@@ -1,0 +1,68 @@
+INSERT INTO
+  series (
+    id,
+    slug,
+    title,
+    subtitle,
+    description,
+    longDescription,
+    badges,
+    tags,
+    ogImage,
+    heroImage,
+    published
+  )
+VALUES
+  -- Series 1
+  (
+    1,
+    'trafalgar',
+    'The True Story of Trafalgar',
+    'Volume One',
+    'A famous square. A legendary battle. The untold lives behind the history.',
+    'Today we can travel to London and experience the many historical sites, including beautiful Trafalgar Square, in the area known as Charing Cross. We think that the statue of Admiral Nelson that stands watch on top of the tall column represents the Battle of Trafalgar and the naming of the square, but it is only a small part of a greater story that involves the lives of many people. The True Story of Trafalgar reveals the names and details of many persons recorded in history and many others who lived their lives in relative anonymity, but perhaps enjoying life every bit as much as their famous counterparts. Welcome to volume one taking place primarily in London and Garristown, Ireland, where George and Riley show us that life and love can be very complicated.',
+    '["Historical Fiction"]',
+    '["historical fiction","london","ireland","trafalgar","character-driven"]',
+    '/images/og/books/true-story-of-trafalgar.jpg',
+    '/images/books/trafalgar/trafalgar1.png',
+    1
+  ),
+  -- Series 2
+  (
+    2,
+    'power-seven',
+    'Power Seven',
+    '',
+    'When catastrophe strikes, the truth hides in plain sight.',
+    'Strange phenomena are observed during chaotic and catastrophic events around the world. Efforts to discover the cause are finding nothing. David Stone is assigned to investigate one of the scenes, where he found violent actions seen only on the worst battlefields. Politics seem to be thwarting his best efforts to solve the mystery. The truth is hard to find and harder to accept. Hoping to stop a worldwide catastrophe, Stone needs help and it seems to come from the most unlikely sources.',
+    '["Sci-Fi Thriller"]',
+    '["science fiction","thriller","mystery","global catastrophe","conspiracy"]',
+    '/images/og/books/power-seven.jpg',
+    '/images/books/powerseven/powerseven1.png',
+    1
+  ),
+  -- Series 3
+  (
+    3,
+    'tln',
+    'Tales of the Labyrinth Nebula',
+    'Tales of the Labyrinth Nebula · Book 1',
+    'A single encounter can change the course of a life—and a universe.',
+    'As young boys, growing up on Earth, Alex and his brother Ryan have a brief encounter with the strange alien, C621. From that moment on, Alex knows that his destiny is in the stars. The path is not always clear or easy, but it is definitely life changing. Alex was originally published on Kindle Vella as one of the Top Faved Science Fiction stories. Alex is the prequel to the even larger story that continues with Alex’s daughter, Dorian in the Tales of the Labyrinth Nebula series by C. R. Thompson, published on Amazon, for Kindle eBooks and in paperback. Dorian: Volume 3 is coming soon (previously on Vella).',
+    '["Space Opera","Kindle Vella"]',
+    '["science fiction","space opera","first contact","origin story","tln"]',
+    '/images/og/books/alex.jpg',
+    '/images/books/tln/alex1.png',
+    1
+  ) ON CONFLICT (slug) DO
+UPDATE
+SET
+  title = excluded.title,
+  subtitle = excluded.subtitle,
+  description = excluded.description,
+  longDescription = excluded.longDescription,
+  badges = excluded.badges,
+  tags = excluded.tags,
+  ogImage = excluded.ogImage,
+  heroImage = excluded.heroImage,
+  published = excluded.published;

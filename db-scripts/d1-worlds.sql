@@ -1,0 +1,98 @@
+INSERT INTO
+  worlds (
+    id,
+    slug,
+    title,
+    description,
+    heroImage,
+    heroImageCaption,
+    image1,
+    image1Caption,
+    image2,
+    image2Caption,
+    image3,
+    image3Caption,
+    themeTags,
+    bookSlugs,
+    characterSlugs,
+    startHereBookSlug,
+    published
+  )
+VALUES
+  -- World 1
+  (
+    1,
+    'tales-of-the-labyrinth-nebula',
+    'Tales of the Labyrinth Nebula',
+    'A sweeping space opera of first contact, impossible gateways, and mysteries buried in the Labyrinth Nebula.',
+    '/images/worlds/tln/alex-hero.png',
+    'A single encounter set a lifetime in motion.',
+    '/images/worlds/tln/tln-world1.png',
+    'The Labyrinth Nebula as seen from the edge of the Earth Window.',
+    '/images/worlds/tln/tln-world2.png',
+    'The Defense Alliance fleet.',
+    '/images/worlds/tln/tln-world3.png',
+    'Star map showing the Labyrinth Nebula and key locations.',
+    '["Space Opera","First Contact","Mystery","Lunar Frontier","Defense Alliance"]',
+    '["alex","dorian-volume-1","dorian-volume-2","dorian-volume-3"]',
+    '["alex-fox","dorian-fox","adam-casey","c621"]',
+    'alex',
+    1
+  ),
+  -- World 2
+  (
+    2,
+    'power-seven',
+    'Power Seven',
+    'A sci-fi thriller where catastrophic events reveal a hidden truth—and the cost of learning it.',
+    '/images/worlds/powerseven/power-hero.png',
+    'Modern warfare erupts across contested seas.',
+    '/images/worlds/powerseven/power-world1.png',
+    'David Stone examines evidence no one can explain.',
+    '/images/worlds/powerseven/power-world2.png',
+    'A catastrophic event reshapes the balance of power.',
+    '/images/worlds/powerseven/power-world3.png',
+    'Critical locations linked by an invisible threat.',
+    '["Sci-Fi Thriller","Global Mystery","Conspiracy","Catastrophe"]',
+    '["power-seven"]',
+    '["david-stone"]',
+    'power-seven',
+    1
+  ),
+  -- World 3
+  (
+    3,
+    'trafalgar',
+    'The True Story of Trafalgar',
+    'Historical fiction that brings the overlooked lives behind Trafalgar Square into focus.',
+    '/images/worlds/trafalgar/trafalgar-hero.png',
+    'A view of Trafalgar Square in the 19th century.',
+    '/images/worlds/trafalgar/trafalgar-world1.png',
+    'A quiet village where memory and longing take root.',
+    '/images/worlds/trafalgar/trafalgar-world2.png',
+    'The Battle of Trafalgar at sea.',
+    '/images/worlds/trafalgar/trafalgar-world3.png',
+    'The journey between London and Garristown.',
+    '["Historical Fiction","London","Ireland","Character-Driven","History Reimagined"]',
+    '["true-story-of-trafalgar"]',
+    '["george","riley"]',
+    'true-story-of-trafalgar',
+    1
+  ) ON CONFLICT (slug) DO
+UPDATE
+SET
+  title = excluded.title,
+  description = excluded.description,
+  heroImage = excluded.heroImage,
+  heroImageCaption = excluded.heroImageCaption,
+  image1 = excluded.image1,
+  image1Caption = excluded.image1Caption,
+  image2 = excluded.image2,
+  image2Caption = excluded.image2Caption,
+  image3 = excluded.image3,
+  image3Caption = excluded.image3Caption,
+  themeTags = excluded.themeTags,
+  bookSlugs = excluded.bookSlugs,
+  characterSlugs = excluded.characterSlugs,
+  startHereBookSlug = excluded.startHereBookSlug,
+  published = excluded.published;

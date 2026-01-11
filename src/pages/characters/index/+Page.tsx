@@ -1,156 +1,177 @@
-export { Page };
+import { useEffect, useState } from "react";
 
-import { useState } from 'react';
-// import { characters, worlds } from '../../../content'; // Legacy static import (commented for safety)
-import { characters, worlds, books } from '../../../content';
-
-import type { Character } from '../../../content';
-
-function getAllTags(characters: Character[]): string[] {
-  const tagSet = new Set<string>();
-  characters.forEach((c) => {
-    if (c.tags) c.tags.forEach((t: string) => tagSet.add(t));
+// Helper to fetch books for character cards
+async function fetchBooks() {
+  const res = await fetch("/api/worker/books", {
+    headers: { Accept: "application/json" },
   });
-  return Array.from(tagSet).sort();
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+function CharacterCard({ character, books }: { character: any; books: any[] }) {
+  // Find books this character appears in
+  const appearsIn = books.filter(
+    (b) =>
+      Array.isArray(b.characterSlugs) &&
+      b.characterSlugs.includes(character.slug)
+  );
+  return (
+    <div className="card character-card">
+      {character.portraitImage && (
+        <img
+          src={character.portraitImage}
+          alt={character.name}
+          className="card-image character-card-image"
+        />
+      )}
+      <div className="card-content">
+        <h3 className="card-title">{character.name}</h3>
+        {character.roleTag &&
+          Array.isArray(character.roleTag) &&
+          character.roleTag.length > 0 && (
+            <div className="badge-list">
+              {character.roleTag.map((role: string, i: number) => (
+                <span key={i} className="badge">
+                  {role}
+                </span>
+              ))}
+            </div>
+          )}
+        <p className="card-description">
+          {character.description || character.bio}
+        </p>
+        {character.tags &&
+          Array.isArray(character.tags) &&
+          character.tags.length > 0 && (
+            <div className="tag-list">
+              {character.tags.map((tag: string, i: number) => (
+                <span key={i} className="tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        {appearsIn.length > 0 && (
+          <div className="appears-in-books">
+            <div style={{ fontWeight: 600, margin: "0.5rem 0 0.25rem 0" }}>
+              Appears In:
+            </div>
+            <div
+              className="book-cover-list"
+              style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+            >
+              {appearsIn.slice(0, 3).map((book) => (
+                <a
+                  key={book.slug}
+                  href={`/books/${book.slug}`}
+                  title={book.title}
+                  style={{ display: "inline-block" }}
+                >
+                  <img
+                    src={book.coverImage}
+                    alt={book.title}
+                    style={{
+                      width: 40,
+                      height: 60,
+                      objectFit: "cover",
+                      borderRadius: 4,
+                      boxShadow: "0 1px 4px #0002",
+                    }}
+                  />
+                </a>
+              ))}
+              {appearsIn.length > 3 && (
+                <span
+                  style={{ alignSelf: "center", fontSize: 14, color: "#666" }}
+                >
+                  +{appearsIn.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        <a
+          href={`/characters/${character.slug}`}
+          className="button"
+          style={{ marginTop: 12 }}
+        >
+          Learn More
+        </a>
+      </div>
+    </div>
+  );
 }
 
 function Page() {
+  const [characters, setCharacters] = useState<any[]>([]);
+  const [books, setBooks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCount, setShowCount] = useState(20);
 
-  // Use static characters and worlds for build
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch("/api/worker/characters", {
+        headers: { Accept: "application/json" },
+      }).then((r) => r.json()),
+      fetchBooks(),
+    ])
+      .then(([charData, bookData]) => {
+        setCharacters(Array.isArray(charData) ? charData : []);
+        setBooks(Array.isArray(bookData) ? bookData : []);
+      })
+      .catch(() => setError("Failed to load characters or books"))
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Group characters by worldSlug
-  const worldMap = worlds.reduce((acc: any, world: any) => {
-    acc[world.slug] = world;
-    return acc;
-  }, {} as Record<string, any>);
-
-  const charactersByWorld: Record<string, any[]> = {};
-  characters.forEach((character: any) => {
-    const slug = character.worldSlug || 'unknown';
-    if (!charactersByWorld[slug]) charactersByWorld[slug] = [];
-    charactersByWorld[slug].push(character);
-  });
-
-  // Filtering
-  const filteredCharactersByWorld: typeof charactersByWorld = {};
-  Object.entries(charactersByWorld).forEach(([worldSlug, chars]) => {
-    filteredCharactersByWorld[worldSlug] = activeTag
-      ? chars.filter((c: any) => c.tags && c.tags.includes(activeTag))
-      : chars;
-  });
-
-  function getAllTags(characters: any[]): string[] {
-    const tagSet = new Set<string>();
-    characters.forEach((c) => {
-      if (c.tags) c.tags.forEach((t: string) => tagSet.add(t));
-    });
-    return Array.from(tagSet).sort();
-  }
-  const allTags = getAllTags(characters);
-
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (!characters || characters.length === 0)
+    return <div>No characters found.</div>;
 
   return (
     <>
       <h1 className="page-title">Characters</h1>
-      <p className="page-description">Meet the unforgettable characters that bring our stories to life.</p>
+      <p className="page-description">
+        Meet the unforgettable characters that bring our stories to life.
+      </p>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <span style={{ fontWeight: 500, marginRight: '0.5rem' }}>Filter by tag:</span>
-        <span className="tag-list">
-          <span
-            className={`badge${!activeTag ? ' badge-active' : ''}`}
-            style={{ cursor: 'pointer', marginRight: '0.5rem' }}
-            onClick={() => setActiveTag(null)}
-          >
-            All
-          </span>
-          {allTags.map((tag: string) => (
-            <span
-              key={tag}
-              className={`badge${activeTag === tag ? ' badge-active' : ''}`}
-              style={{ cursor: 'pointer', marginRight: '0.5rem' }}
-              onClick={() => setActiveTag(tag)}
-            >
-              {tag}
-            </span>
-          ))}
-        </span>
+      <div className="grid">
+        {characters.slice(0, showCount).map((character: any) => (
+          <CharacterCard
+            key={character.slug}
+            character={character}
+            books={books}
+          />
+        ))}
       </div>
-
-      {Object.entries(filteredCharactersByWorld).map(([worldSlug, chars]: [string, any[]]) => {
-        if (chars.length === 0) return null;
-        const world = worldMap[worldSlug];
-        const maxChars = 5;
-        const maxTags = 3;
-        const showAll = chars.length > maxChars;
-        return (
-          <div key={worldSlug} style={{ marginBottom: '2.5rem' }}>
-            <h2 style={{ marginBottom: '1rem' }}>
-              {world ? world.title : 'Other'}
-            </h2>
-            <div className="grid">
-              {chars.slice(0, maxChars).map((character: any) => {
-                const relatedBooks = Array.from(new Set((character.appearsInBookSlugs || [])
-                  .map((slug: string) => books.find((b: any) => b.slug === slug))
-                  .filter(Boolean)));
-                const relatedWorlds = Array.from(new Set((character.worldSlugs || [])
-                  .map((slug: string) => worlds.find((w: any) => w.slug === slug))
-                  .filter(Boolean)));
-                return (
-                  <div key={character.slug} className="card">
-                    <img src={character.portraitImage} alt={character.name} />
-                    <div className="card-content">
-                      <h3 className="card-title">{character.name}</h3>
-                      {character.roleTag && (
-                        <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>{character.roleTag}</p>
-                      )}
-                      <p className="card-description">{character.bio}</p>
-                      {relatedBooks.length > 0 && (
-                        <div className="tag-list" style={{ margin: '0.5rem 0' }}>
-                          {relatedBooks.slice(0, maxTags).map((book: any) => (
-                            <a key={book.slug} href={`/books/${book.slug}`} className="badge">
-                              {book.title}
-                            </a>
-                          ))}
-                          {relatedBooks.length > maxTags && (
-                            <span className="badge">+{relatedBooks.length - maxTags} more</span>
-                          )}
-                        </div>
-                      )}
-                      {relatedWorlds.length > 0 && (
-                        <div className="tag-list" style={{ margin: '0.5rem 0' }}>
-                          {relatedWorlds.slice(0, maxTags).map((w: any) => (
-                            <a key={w.slug} href={`/worlds/${w.slug}`} className="badge">
-                              {w.title}
-                            </a>
-                          ))}
-                          {relatedWorlds.length > maxTags && (
-                            <span className="badge">+{relatedWorlds.length - maxTags} more</span>
-                          )}
-                        </div>
-                      )}
-                      {character.tags && character.tags.length > 0 && (
-                        <div className="tag-list" style={{ margin: '0.5rem 0' }}>
-                          {Array.from(new Set(character.tags)).map((tag: string, i: number) => (
-                            <span key={tag} className="tag">{tag}</span>
-                          ))}
-                        </div>
-                      )}
-                      <a href={`/characters/${character.slug}`} className="button">View Profile</a>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {showAll && (
-              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-                <a href="/characters" className="button">View All Characters</a>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {characters.length > showCount && (
+        <div style={{ textAlign: "center", marginTop: "2rem" }}>
+          <button
+            style={{
+              background: "#222b3a",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              padding: "10px 28px",
+              fontWeight: 700,
+              fontSize: "1.1rem",
+              cursor: "pointer",
+              boxShadow: "0 1px 4px #0001",
+              transition: "background 0.2s",
+              outline: "none",
+              letterSpacing: 0.5,
+            }}
+            onClick={() => setShowCount((c) => c + 20)}
+          >
+            Show More
+          </button>
+        </div>
+      )}
     </>
   );
 }
+
+export { Page };
