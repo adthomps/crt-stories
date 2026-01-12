@@ -109,7 +109,7 @@ function Page() {
                     {worldTags.length > 0 &&
                       worldTags.map((title) => (
                         <span
-                          key={title}
+                          key={String(title)}
                           style={{
                             background: "#fef9c3",
                             color: "#92400e",
@@ -119,13 +119,13 @@ function Page() {
                             fontSize: 13,
                           }}
                         >
-                          {title}
+                          {String(title)}
                         </span>
                       ))}
                     {characterTags.length > 0 &&
                       characterTags.map((name) => (
                         <span
-                          key={name}
+                          key={String(name)}
                           style={{
                             background: "#d1fae5",
                             color: "#065f46",
@@ -135,7 +135,7 @@ function Page() {
                             fontSize: 13,
                           }}
                         >
-                          {name}
+                          {String(name)}
                         </span>
                       ))}
                   </div>
