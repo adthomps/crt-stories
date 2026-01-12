@@ -1,7 +1,7 @@
 export { Page };
 
 // import { books, worlds, characters } from '../../content'; // Legacy static import (commented for safety)
-import { books, worlds, characters, series } from "../../content";
+// import { books, worlds, characters, series } from "../../content";
 import { CharacterCard } from "src/components/CharacterCard";
 import { WorldCard } from "src/components/WorldCard";
 import { BookCard } from "src/components/BookCard";
@@ -10,8 +10,34 @@ import { siteConfig } from "../../config";
 
 import React from "react";
 
-function Page() {
-  // Use static books, worlds, characters for build
+  const [books, setBooks] = React.useState<any[]>([]);
+  const [worlds, setWorlds] = React.useState<any[]>([]);
+  const [series, setSeries] = React.useState<any[]>([]);
+  const [characters, setCharacters] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      fetch('/api/worker/books').then(r => r.json()),
+      fetch('/api/worker/worlds').then(r => r.json()),
+      fetch('/api/worker/series').then(r => r.json()),
+      fetch('/api/worker/characters').then(r => r.json()),
+    ])
+      .then(([books, worlds, series, characters]) => {
+        setBooks(books);
+        setWorlds(worlds);
+        setSeries(series);
+        setCharacters(characters);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
   return (
     <>
