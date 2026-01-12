@@ -11,6 +11,7 @@ CREATE TABLE
     tags TEXT, -- store as JSON string
     ogImage TEXT,
     heroImage TEXT,
+    bookSlugs TEXT, -- store as JSON string (NEW)
     published INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime ('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime ('now')),

@@ -1,6 +1,7 @@
 export { Page };
 
 import React, { useEffect, useState } from "react";
+import { CharacterCard } from "src/components/CharacterCard";
 import { usePageContext } from "vike-react/usePageContext";
 
 function Page() {
@@ -184,40 +185,7 @@ function Page() {
               <h2>Characters from {world.title}</h2>
               <div className="grid">
                 {relatedCharacters.slice(0, 5).map((character: any) => (
-                  <div key={character.slug} className="card">
-                    <img src={character.portraitImage} alt={character.name} />
-                    <div className="card-content">
-                      <h3 className="card-title">{character.name}</h3>
-                      {character.roleTag &&
-                        Array.isArray(character.roleTag) &&
-                        character.roleTag.length > 0 && (
-                          <p className="card-description">
-                            {character.roleTag.join(" · ")}
-                          </p>
-                        )}
-                      <p className="card-description">{character.bio}</p>
-                      {character.tags && character.tags.length > 0 && (
-                        <div
-                          className="tag-list"
-                          style={{ margin: "0.5rem 0" }}
-                        >
-                          {Array.from(new Set(character.tags)).map(
-                            (tag: any, i: number) => (
-                              <span key={i} className="badge">
-                                {tag}
-                              </span>
-                            )
-                          )}
-                        </div>
-                      )}
-                      <a
-                        href={`/characters/${character.slug}`}
-                        className="button"
-                      >
-                        View Profile
-                      </a>
-                    </div>
-                  </div>
+                  <CharacterCard key={character.slug} character={character} />
                 ))}
                 {relatedCharacters.length > 5 && (
                   <div

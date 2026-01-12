@@ -1,6 +1,7 @@
 export { Page };
 
 import { useEffect, useState } from "react";
+import { CharacterCard } from "src/components/CharacterCard";
 import { usePageContext } from "vike-react/usePageContext";
 
 function Page() {
@@ -257,22 +258,7 @@ function Page() {
           <h2>Featured Characters</h2>
           <div className="grid">
             {relatedCharacters.slice(0, 5).map((character: any) => (
-              <div key={character.slug} className="card">
-                <img src={character.portraitImage} alt={character.name} />
-                <div className="card-content">
-                  <h3 className="card-title">{character.name}</h3>
-                  {character.roleTag &&
-                    Array.isArray(character.roleTag) &&
-                    character.roleTag.length > 0 && (
-                      <p className="card-description">
-                        {character.roleTag.join(" · ")}
-                      </p>
-                    )}
-                  <a href={`/characters/${character.slug}`} className="button">
-                    View Profile
-                  </a>
-                </div>
-              </div>
+              <CharacterCard key={character.slug} character={character} />
             ))}
             {relatedCharacters.length > 5 && (
               <div

@@ -14,6 +14,8 @@ export const onRequestPost: PagesFunction = async ({ request, env, cf }) => {
 
   // Admin email allowlist (comma-separated in env.ADMIN_EMAILS)
   const allowed = (env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
+  console.log(`[AUTH DEBUG] Allowed emails:`, allowed);
+  console.log(`[AUTH DEBUG] Submitted email:`, email.toLowerCase());
   if (!allowed.includes(email.toLowerCase())) {
     console.log(`[AUTH] [${new Date().toISOString()}] [${ip}] Email not allowed: ${email}`);
     return new Response(JSON.stringify({ error: 'Not authorized' }), { status: 403, headers: { 'Content-Type': 'application/json' } });

@@ -1,4 +1,6 @@
-export const onRequest: PagesFunction = async (context) => {
+import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+
+export const onRequest: PagesFunction = async (context: any) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
 	const method = request.method.toUpperCase();
@@ -6,21 +8,28 @@ export const onRequest: PagesFunction = async (context) => {
 	try {
 		if (method === 'GET') {
 			const slug = url.searchParams.get('slug');
+			console.log(`[SERIES API] Requested slug:`, slug);
 			if (slug) {
 				const series = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM series WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+				console.log(`[SERIES API] DB result for slug '${slug}':`, series);
 				if (!series) {
+					console.log(`[SERIES API] Series not found for slug:`, slug);
 					return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 				}
 				series.badges = JSON.parse(series.badges || '[]');
 				series.tags = JSON.parse(series.tags || '[]');
+				series.bookSlugs = JSON.parse(series.bookSlugs || '[]');
+				console.log(`[SERIES API] Final series object:`, series);
 				return new Response(JSON.stringify(series), { headers: { 'Content-Type': 'application/json' } });
 			} else {
 				const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM series WHERE deleted_at IS NULL').all();
-				const results = rows.results.map((series) => ({
+				console.log(`[SERIES API] DB result for all series:`, rows.results);
+				const results = rows.results.map((series: any) => ({
 					...series,
 					badges: JSON.parse(series.badges || '[]'),
-					tags: JSON.parse(series.tags || '[]')
+					bookSlugs: JSON.parse(series.bookSlugs || '[]'),
 				}));
+				console.log(`[SERIES API] Final series list:`, results);
 				return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
 			}
 		}
