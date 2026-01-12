@@ -20,7 +20,6 @@ export const onRequest: PagesFunction = async (context: any) => {
 				const results = rows.results.map((series: any) => ({
 					...series,
 					badges: JSON.parse(series.badges || '[]'),
-					tags: JSON.parse(series.tags || '[]')
 				}));
 				return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
 			}
