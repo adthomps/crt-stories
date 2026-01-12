@@ -43,7 +43,7 @@ export const onRequest: PagesFunction = async (context: any) => {
 			 }
 			 const body = await request.json();
 			 if (method === 'POST') {
-				 const { slug, title, description = '', coverImage = '', publishDate = '', badges = [], tags = [], formats = [], characterSlugs = [], worldSlugs = [], seriesSlugs = [], excerpt = '', published = false } = body;
+				 const { slug, title, description = '', coverImage = '', publishDate = '', badges = [], tags = [], formats = [], characterSlugs = [], world_slug = '', seriesSlugs = [], excerpt = '', published = false } = body;
 				 if (!slug || !title) {
 					 return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 				 }
@@ -52,12 +52,12 @@ export const onRequest: PagesFunction = async (context: any) => {
 				 if (exists) {
 					 return new Response(JSON.stringify({ error: 'Book with this slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
 				 }
-				 await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, worldSlugs, seriesSlugs, excerpt, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
-					 .bind(slug, title, description, coverImage, publishDate, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(formats), JSON.stringify(characterSlugs), JSON.stringify(worldSlugs), JSON.stringify(seriesSlugs), excerpt, published ? 1 : 0).run();
+				 await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, seriesSlugs, excerpt, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
+					 .bind(slug, title, description, coverImage, publishDate, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(formats), JSON.stringify(characterSlugs), world_slug, JSON.stringify(seriesSlugs), excerpt, published ? 1 : 0).run();
 				 return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
 			 }
 			 if (method === 'PUT') {
-				 const { slug, title, description = '', coverImage = '', publishDate = '', badges = [], tags = [], formats = [], characterSlugs = [], worldSlugs = [], seriesSlugs = [], excerpt = '', published = false } = body;
+				 const { slug, title, description = '', coverImage = '', publishDate = '', badges = [], tags = [], formats = [], characterSlugs = [], world_slug = '', seriesSlugs = [], excerpt = '', published = false } = body;
 				 if (!slug || !title) {
 					 return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 				 }
@@ -65,8 +65,8 @@ export const onRequest: PagesFunction = async (context: any) => {
 				 if (!exists) {
 					 return new Response(JSON.stringify({ error: 'Book not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 				 }
-				 await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, worldSlugs = ?, seriesSlugs = ?, excerpt = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
-					 .bind(title, description, coverImage, publishDate, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(formats), JSON.stringify(characterSlugs), JSON.stringify(worldSlugs), JSON.stringify(seriesSlugs), excerpt, published ? 1 : 0, slug).run();
+				 await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, world_slug = ?, seriesSlugs = ?, excerpt = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
+					 .bind(title, description, coverImage, publishDate, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(formats), JSON.stringify(characterSlugs), world_slug, JSON.stringify(seriesSlugs), excerpt, published ? 1 : 0, slug).run();
 				 return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
 			 }
 			 if (method === 'DELETE') {
