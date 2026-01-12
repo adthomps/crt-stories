@@ -1,3 +1,5 @@
+import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+
 export const onRequest: PagesFunction = async (context: any) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
@@ -8,7 +10,6 @@ export const onRequest: PagesFunction = async (context: any) => {
 			const slug = url.searchParams.get('slug');
 			if (slug) {
 				const series = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM series WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
-				import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
 				if (!series) {
 					return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 				}
@@ -36,7 +37,6 @@ export const onRequest: PagesFunction = async (context: any) => {
 				stack: err instanceof Error ? err.stack : undefined
 			}),
 			{ status: 500, headers: { 'Content-Type': 'application/json' } }
-		import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
 		);
 	}
 };
