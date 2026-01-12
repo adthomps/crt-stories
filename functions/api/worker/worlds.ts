@@ -36,8 +36,51 @@ export const onRequest: PagesFunction = async (context: any) => {
 			if (authResponse) {
 				return authResponse;
 			}
-			// No mutation logic here; just block with 405
-			return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
+			       // Parse request body
+			       const body = await request.json();
+			       if (method === 'POST') {
+				       // Add new world
+				       const { slug, title, description = '', published = false } = body;
+				       if (!slug || !title) {
+					       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+				       }
+				       // Check for duplicate slug
+				       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+				       if (exists) {
+					       return new Response(JSON.stringify({ error: 'World with this slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
+				       }
+				       await env.CRT_STORIES_CONTENT.prepare('INSERT INTO worlds (slug, title, description, published, created_at, updated_at) VALUES (?, ?, ?, ?, datetime("now"), datetime("now"))')
+					       .bind(slug, title, description, published ? 1 : 0).run();
+				       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
+			       }
+			       if (method === 'PUT') {
+				       // Update world
+				       const { slug, title, description = '', published = false } = body;
+				       if (!slug || !title) {
+					       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+				       }
+				       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+				       if (!exists) {
+					       return new Response(JSON.stringify({ error: 'World not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+				       }
+				       await env.CRT_STORIES_CONTENT.prepare('UPDATE worlds SET title = ?, description = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
+					       .bind(title, description, published ? 1 : 0, slug).run();
+				       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
+			       }
+			       if (method === 'DELETE') {
+				       // Soft delete world
+				       const { slug } = body;
+				       if (!slug) {
+					       return new Response(JSON.stringify({ error: 'Missing slug' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+				       }
+				       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+				       if (!exists) {
+					       return new Response(JSON.stringify({ error: 'World not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+				       }
+				       await env.CRT_STORIES_CONTENT.prepare('UPDATE worlds SET deleted_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL').bind(slug).run();
+				       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
+			       }
+			       return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
 		}
 	} catch (err) {
 		console.error('Worlds API error:', err);
