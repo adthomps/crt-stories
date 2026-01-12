@@ -8,6 +8,7 @@ export const onRequest: PagesFunction = async (context: any) => {
 			const slug = url.searchParams.get('slug');
 			if (slug) {
 				const series = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM series WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+				import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
 				if (!series) {
 					return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
 				}
