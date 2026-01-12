@@ -30,11 +30,61 @@ function Page() {
       </div>
 
       {/* Worlds Section FIRST */}
+      <section className="section">
+        <h2>Explore Worlds</h2>
+        <div className="grid">
+          {worlds.slice(0, 5).map((world: any) => (
+            <WorldCard key={world.slug} world={world} />
+          ))}
+        </div>
+        {worlds.length > 3 && (
+          <div style={{ marginTop: "2rem" }}>
+            <a href="/worlds" className="button">
+              View All Worlds
+            </a>
+          </div>
+        )}
+      </section>
+
+      {/* Series Section */}
+      <section className="section">
+        <h2>Book Series</h2>
+        <div className="grid">
+          {series.slice(0, 5).map((s: any) => {
+            const seriesBooks = Array.from(
+              new Set(
+                (s.bookSlugs || [])
+                  .map((slug: string) =>
+                    books.find((b: any) => b.slug === slug)
+                  )
+                  .filter(Boolean)
+              )
+            );
+            const firstBook = seriesBooks[0];
+            return <SeriesCard key={s.slug} series={s} firstBook={firstBook} />;
+          })}
+        </div>
+        {series.length > 3 && (
+          <div style={{ marginTop: "2rem" }}>
+            <a href="/series" className="button">
+              View All Series
+            </a>
+          </div>
+        )}
+      </section>
+
+      {/* Books Section */}
+      <section className="section">
+        <h2>Books</h2>
         <div className="grid">
           {books.slice(0, 5).map((book: any) => (
             <BookCard key={book.slug} book={book} />
           ))}
-              View All Series
+        </div>
+        {books.length > 3 && (
+          <div style={{ marginTop: "2rem" }}>
+            <a href="/books" className="button">
+              View All Books
             </a>
           </div>
         )}
