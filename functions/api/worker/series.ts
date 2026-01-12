@@ -15,12 +15,14 @@ export const onRequest: PagesFunction = async (context: any) => {
 				}
 				series.badges = JSON.parse(series.badges || '[]');
 				series.tags = JSON.parse(series.tags || '[]');
+				series.bookSlugs = JSON.parse(series.bookSlugs || '[]');
 				return new Response(JSON.stringify(series), { headers: { 'Content-Type': 'application/json' } });
 			} else {
 				const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM series WHERE deleted_at IS NULL').all();
 				const results = rows.results.map((series: any) => ({
 					...series,
 					badges: JSON.parse(series.badges || '[]'),
+					bookSlugs: JSON.parse(series.bookSlugs || '[]'),
 				}));
 				return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
 			}
