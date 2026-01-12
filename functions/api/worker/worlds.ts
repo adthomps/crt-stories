@@ -6,6 +6,7 @@ export const onRequest: PagesFunction = async (context: any) => {
 	const method = request.method.toUpperCase();
 
 	try {
+		if (method === 'GET') {
 			const slug = url.searchParams.get('slug');
 			if (slug) {
 				const world = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
@@ -16,6 +17,7 @@ export const onRequest: PagesFunction = async (context: any) => {
 				world.bookSlugs = JSON.parse(world.bookSlugs || '[]');
 				world.characterSlugs = JSON.parse(world.characterSlugs || '[]');
 				return new Response(JSON.stringify(world), { headers: { 'Content-Type': 'application/json' } });
+			} else {
 				const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM worlds WHERE deleted_at IS NULL').all();
 				const results = rows.results.map((world: any) => ({
 					...world,
@@ -28,13 +30,15 @@ export const onRequest: PagesFunction = async (context: any) => {
 		}
 
 		// POST, PUT, DELETE: require admin authentication
-		const { requireWorkerAdminAuth } = await import('./requireAuth');
-		const authResponse = await requireWorkerAdminAuth(request);
-		if (authResponse) {
-			return authResponse;
+		if (['POST', 'PUT', 'DELETE'].includes(method)) {
+			const { requireWorkerAdminAuth } = await import('./requireAuth');
+			const authResponse = await requireWorkerAdminAuth(request);
+			if (authResponse) {
+				return authResponse;
+			}
+			// No mutation logic here; just block with 405
+			return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
 		}
-		// No mutation logic here; just block with 405
-		return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
 	} catch (err) {
 		console.error('Worlds API error:', err);
 		return new Response(
