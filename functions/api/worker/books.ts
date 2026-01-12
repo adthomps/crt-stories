@@ -1,5 +1,6 @@
 // Cloudflare Pages Function: /api/worker/books
-export const onRequest: PagesFunction = async (context) => {
+import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+export const onRequest: PagesFunction = async (context: any) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
 	const method = request.method.toUpperCase();
@@ -21,7 +22,7 @@ export const onRequest: PagesFunction = async (context) => {
 				   return new Response(JSON.stringify(book), { headers: { 'Content-Type': 'application/json' } });
 			} else {
 				   const books = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM books WHERE deleted_at IS NULL ORDER BY title COLLATE NOCASE ASC').all();
-				   const results = books.results.map((book) => ({
+				const results = books.results.map((book: any) => ({
 					   ...book,
 					   coverImage: book.cover_image,
 					   badges: JSON.parse(book.badges || '[]'),

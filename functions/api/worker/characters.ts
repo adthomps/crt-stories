@@ -1,4 +1,6 @@
-export const onRequest: PagesFunction = async (context) => {
+import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+
+export const onRequest: PagesFunction = async (context: any) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
 	const method = request.method.toUpperCase();
@@ -20,7 +22,7 @@ export const onRequest: PagesFunction = async (context) => {
 				   return new Response(JSON.stringify(character), { headers: { 'Content-Type': 'application/json' } });
 			} else {
 				const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM characters WHERE deleted_at IS NULL').all();
-				   const results = rows.results.map((character) => ({
+				const results = rows.results.map((character: any) => ({
 					   ...character,
 					   description: character.bio,
 					   worldSlugs: JSON.parse(character.worldSlugs || '[]'),

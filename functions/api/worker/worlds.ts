@@ -1,10 +1,11 @@
-export const onRequest: PagesFunction = async (context) => {
+import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+
+export const onRequest: PagesFunction = async (context: any) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
 	const method = request.method.toUpperCase();
 
 	try {
-		if (method === 'GET') {
 			const slug = url.searchParams.get('slug');
 			if (slug) {
 				const world = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
@@ -15,9 +16,8 @@ export const onRequest: PagesFunction = async (context) => {
 				world.bookSlugs = JSON.parse(world.bookSlugs || '[]');
 				world.characterSlugs = JSON.parse(world.characterSlugs || '[]');
 				return new Response(JSON.stringify(world), { headers: { 'Content-Type': 'application/json' } });
-			} else {
 				const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM worlds WHERE deleted_at IS NULL').all();
-				const results = rows.results.map((world) => ({
+				const results = rows.results.map((world: any) => ({
 					...world,
 					themeTags: JSON.parse(world.themeTags || '[]'),
 					bookSlugs: JSON.parse(world.bookSlugs || '[]'),

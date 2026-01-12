@@ -1,7 +1,7 @@
 export { Page };
 
 import { useEffect, useState } from "react";
-import { CharacterCard } from "../components/CharacterCard";
+import { CharacterCard } from "src/components/CharacterCard";
 import { usePageContext } from "vike-react/usePageContext";
 
 function Page() {

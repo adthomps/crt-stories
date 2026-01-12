@@ -2,6 +2,10 @@ export { Page };
 
 // import { books, worlds, characters } from '../../content'; // Legacy static import (commented for safety)
 import { books, worlds, characters, series } from "../../content";
+import { CharacterCard } from "src/components/CharacterCard";
+import { WorldCard } from "src/components/WorldCard";
+import { BookCard } from "src/components/BookCard";
+import { SeriesCard } from "src/components/SeriesCard";
 import { siteConfig } from "../../config";
 
 import React from "react";
@@ -26,108 +30,42 @@ function Page() {
       </div>
 
       {/* Worlds Section FIRST */}
-      <section className="section">
-        <h2>Explore Worlds</h2>
         <div className="grid">
-          {worlds.slice(0, 5).map((world: any) => {
-            // Relationship tags
-            const bookTags = Array.from(
-              new Set(
-                (world.bookSlugs || [])
-                  .map((slug: string) => {
-                    const b = books.find((b: any) => b.slug === slug);
-                    return b ? b.title : null;
-                  })
-                  .filter(Boolean)
-              )
-            );
-            const characterTags = Array.from(
-              new Set(
-                (world.characterSlugs || [])
-                  .map((slug: string) => {
-                    const c = characters.find((c: any) => c.slug === slug);
-                    return c ? c.name : null;
-                  })
-                  .filter(Boolean)
-              )
-            );
-            return (
-              <div key={world.slug} className="card">
-                <img src={world.heroImage} alt={world.title} />
-                <div className="card-content">
-                  <h3 className="card-title">{world.title}</h3>
-                  <p className="card-description">{world.description}</p>
-                  {/* Removed book and character badges from worlds section */}
-                  <a href={`/worlds/${world.slug}`} className="button">
-                    Explore
-                  </a>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {worlds.length > 3 && (
-          <div style={{ marginTop: "2rem" }}>
-            <a href="/worlds" className="button">
-              View All Worlds
-            </a>
-          </div>
-        )}
-      </section>
-
-      {/* Series Section SECOND */}
-      <section className="section">
-        <h2>Book Series</h2>
-        <div className="grid">
-          {series.slice(0, 5).map((s: any) => {
-            const seriesBooks = Array.from(
-              new Set(
-                (s.bookSlugs || [])
-                  .map((slug: string) =>
-                    books.find((b: any) => b.slug === slug)
-                  )
-                  .filter(Boolean)
-              )
-            );
-            const firstBook = seriesBooks[0];
-            return (
-              <div key={s.slug} className="card">
-                <img src={firstBook?.coverImage || s.heroImage} alt={s.title} />
-                <div className="card-content">
-                  <h3 className="card-title">{s.title}</h3>
-                  <p className="card-description">{s.description}</p>
-                  {/* Removed book badges from series section */}
-                  <a href={`/series/${s.slug}`} className="button">
-                    View Series
-                  </a>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {series.length > 3 && (
-          <div style={{ marginTop: "2rem" }}>
-            <a href="/series" className="button">
+          {books.slice(0, 5).map((book: any) => (
+            <BookCard key={book.slug} book={book} />
+          ))}
               View All Series
             </a>
           </div>
         )}
       </section>
 
-      {/* Books Section THIRD */}
+      {/* Characters Section LAST */}
       <section className="section">
-        <h2>Featured Books</h2>
+        <h2>Meet the Characters</h2>
         <div className="grid">
-          {books.slice(0, 5).map((book: any) => {
-            const desc = book.longDescription || book.description || "";
-            let expanded = desc;
-            if (desc.length > 320) {
-              const periodIdx = desc.lastIndexOf(".", 320);
-              if (periodIdx > 0) {
-                expanded = desc.slice(0, periodIdx + 1);
-              } else {
-                expanded = desc.slice(0, 317) + "...";
-              }
+          {characters.slice(0, 5).map((character: any) => (
+            <CharacterCard
+              key={character.slug}
+              character={{
+                ...character,
+                // Truncate bio for summary view
+                description:
+                  character.bio && character.bio.length > 120
+                    ? character.bio.slice(0, 120) + "..."
+                    : character.bio || ""
+              }}
+            />
+          ))}
+        </div>
+        {characters.length > 3 && (
+          <div style={{ marginTop: "2rem" }}>
+            <a href="/characters" className="button">
+              View All Characters
+            </a>
+          </div>
+        )}
+      </section>
             }
             // Relationship tags (deduplicate by slug, then by title)
             const seriesTags = Array.from(

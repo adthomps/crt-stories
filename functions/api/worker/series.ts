@@ -1,4 +1,4 @@
-export const onRequest: PagesFunction = async (context) => {
+export const onRequest: PagesFunction = async (context: any) => {
 	const { request, env } = context;
 	const url = new URL(request.url);
 	const method = request.method.toUpperCase();
@@ -16,7 +16,7 @@ export const onRequest: PagesFunction = async (context) => {
 				return new Response(JSON.stringify(series), { headers: { 'Content-Type': 'application/json' } });
 			} else {
 				const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM series WHERE deleted_at IS NULL').all();
-				const results = rows.results.map((series) => ({
+				const results = rows.results.map((series: any) => ({
 					...series,
 					badges: JSON.parse(series.badges || '[]'),
 					tags: JSON.parse(series.tags || '[]')
@@ -36,6 +36,7 @@ export const onRequest: PagesFunction = async (context) => {
 				stack: err instanceof Error ? err.stack : undefined
 			}),
 			{ status: 500, headers: { 'Content-Type': 'application/json' } }
+		import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
 		);
 	}
 };
