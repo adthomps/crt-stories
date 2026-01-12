@@ -56,11 +56,11 @@ export function Page() {
       <section className="section">
         <h2>Explore Worlds</h2>
         <div className="grid">
-          {worlds.slice(0, 5).map((world: any) => (
+          {worlds.slice(0, 6).map((world: any) => (
             <WorldCard key={world.slug} world={world} />
           ))}
         </div>
-        {worlds.length > 3 && (
+        {worlds.length > 6 && (
           <div style={{ marginTop: "2rem" }}>
             <a href="/worlds" className="button">
               View All Worlds
@@ -73,7 +73,7 @@ export function Page() {
       <section className="section">
         <h2>Book Series</h2>
         <div className="grid">
-          {series.slice(0, 5).map((s: any) => {
+          {series.slice(0, 6).map((s: any) => {
             const seriesBooks = Array.from(
               new Set(
                 (s.bookSlugs || [])
@@ -87,7 +87,7 @@ export function Page() {
             return <SeriesCard key={s.slug} series={s} firstBook={firstBook} />;
           })}
         </div>
-        {series.length > 3 && (
+        {series.length > 6 && (
           <div style={{ marginTop: "2rem" }}>
             <a href="/series" className="button">
               View All Series
@@ -100,11 +100,11 @@ export function Page() {
       <section className="section">
         <h2>Books</h2>
         <div className="grid">
-          {books.slice(0, 5).map((book: any) => (
+          {books.slice(0, 6).map((book: any) => (
             <BookCard key={book.slug} book={book} />
           ))}
         </div>
-        {books.length > 3 && (
+        {books.length > 6 && (
           <div style={{ marginTop: "2rem" }}>
             <a href="/books" className="button">
               View All Books
@@ -117,7 +117,7 @@ export function Page() {
       <section className="section">
         <h2>Meet the Characters</h2>
         <div className="grid">
-          {characters.slice(0, 5).map((character: any) => (
+          {characters.slice(0, 6).map((character: any) => (
             <CharacterCard
               key={character.slug}
               character={{
@@ -131,7 +131,7 @@ export function Page() {
             />
           ))}
         </div>
-        {characters.length > 3 && (
+        {characters.length > 6 && (
           <div style={{ marginTop: "2rem" }}>
             <a href="/characters" className="button">
               View All Characters
