@@ -1,40 +1,29 @@
-import type { HeadConfig } from "vike/types";
-import type { Character } from "../../../components/CharacterPage";
+export { Head };
 
-// This Head config expects the page to provide the character object
-export default function Head({ character }: { character: Character }) {
+import React from 'react';
+import { usePageContext } from 'vike-react/usePageContext';
+import { getCharacterBySlug } from '../../../content';
+
+function Head() {
+  const pageContext = usePageContext();
+  const { slug } = pageContext.routeParams;
+  const character = getCharacterBySlug(slug);
+
+
+
   if (!character) {
     return (
       <>
-        <title>Character Not Found | CRT Stories</title>
-        <meta name="robots" content="noindex" />
+        <title>Character Not Found | Author Name</title>
+
       </>
     );
   }
+
   return (
     <>
-      <title>{character.displayName} | CRT Stories Character</title>
-      <meta
-        name="description"
-        content={
-          character.bio?.notes?.join(" ") ||
-          character.role ||
-          "Character in CRT Stories"
-        }
-      />
-      <meta property="og:title" content={character.displayName} />
-      <meta
-        property="og:description"
-        content={character.bio?.notes?.join(" ") || character.role || ""}
-      />
-      {character.portraitImage && (
-        <meta property="og:image" content={character.portraitImage} />
-      )}
-      <meta name="twitter:card" content="summary" />
-      <meta name="twitter:title" content={character.displayName} />
-      {character.portraitImage && (
-        <meta name="twitter:image" content={character.portraitImage} />
-      )}
-    </>
-  );
-}
+      <title>{character.name} | Author Name</title>
+      <meta name="description" content={`${character.title} - ${character.description}`} />
+      <meta property="og:title" content={character.name} />
+      <meta property="og:description" content={character.description} />
+      <meta property="og:image" content={character.image} />
