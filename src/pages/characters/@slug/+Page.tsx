@@ -51,18 +51,10 @@ function Page() {
   if (error || !character)
     return <div style={{ color: "red" }}>{error || "Character not found"}</div>;
 
-  // Admin edit link
-  const isAdmin =
-    typeof window !== "undefined" &&
-    window.location.pathname.startsWith("/admin");
-  const editUrl = `/admin/characters/${character.slug || slug}`;
-
   return (
     <>
       <div className="detail-header">
-        <h1 className="page-title">
-          {character.name || character.displayName}
-        </h1>
+        <h1 className="page-title">{character.name}</h1>
         {character.badges && character.badges.length > 0 && (
           <div className="badge-list">
             {character.badges.map((badge: any, i: number) => (
@@ -77,28 +69,23 @@ function Page() {
           character.roleTag.length > 0 && (
             <p className="page-description">{character.roleTag.join(" · ")}</p>
           )}
-        {isAdmin && (
-          <a href={editUrl} className="button" style={{ marginLeft: 16 }}>
-            Edit Character
-          </a>
-        )}
       </div>
 
       <div className="detail-content character-detail-flex">
         <div className="character-portrait-col">
-          {character.portraitImage && (
-            <img
-              src={character.portraitImage}
-              alt={character.name || character.displayName}
-              className="detail-image character-detail-portrait"
-            />
-          )}
+          <img
+            src={character.portraitImage}
+            alt={character.name}
+            className="detail-image character-detail-portrait"
+          />
         </div>
         <div className="character-info-col">
-          <div className="section">
-            <h2>About</h2>
-            <p>{character.bio || "No bio available."}</p>
-          </div>
+          {character.bio && (
+            <div className="section">
+              <h2>About</h2>
+              <p>{character.bio}</p>
+            </div>
+          )}
 
           {character.audioExcerpt && (
             <div className="section">
