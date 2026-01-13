@@ -2,11 +2,13 @@ export { Page };
 
 import React, { useEffect, useState } from "react";
 import { usePageContext } from "vike-react/usePageContext";
+import ReactMarkdown from "react-markdown";
 
 function Page() {
   const pageContext = usePageContext();
   const { slug } = pageContext.routeParams;
   const [character, setCharacter] = useState<any | null>(null);
+  const [bioMarkdown, setBioMarkdown] = useState<string | null>(null);
   const [relatedWorlds, setRelatedWorlds] = useState<any[]>([]);
   const [relatedBooks, setRelatedBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +26,14 @@ function Page() {
       fetch("/api/worker/books", {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
+      fetch(`/bios/${slug}.md`)
+        .then((r) => (r.ok ? r.text() : null))
+        .catch(() => null),
     ])
-      .then(([charData, worldsData, booksData]) => {
+      .then(([charData, worldsData, booksData, bioMd]) => {
         if (!charData || charData.error) throw new Error("Character not found");
         setCharacter(charData);
+        setBioMarkdown(bioMd);
         // Find related worlds
         const worldSlugs = Array.isArray(charData.worldSlugs)
           ? charData.worldSlugs
@@ -51,10 +57,18 @@ function Page() {
   if (error || !character)
     return <div style={{ color: "red" }}>{error || "Character not found"}</div>;
 
+  // Admin edit link
+  const isAdmin =
+    typeof window !== "undefined" &&
+    window.location.pathname.startsWith("/admin");
+  const editUrl = `/admin/characters/${character.slug || slug}`;
+
   return (
     <>
       <div className="detail-header">
-        <h1 className="page-title">{character.name}</h1>
+        <h1 className="page-title">
+          {character.name || character.displayName}
+        </h1>
         {character.badges && character.badges.length > 0 && (
           <div className="badge-list">
             {character.badges.map((badge: any, i: number) => (
@@ -69,23 +83,34 @@ function Page() {
           character.roleTag.length > 0 && (
             <p className="page-description">{character.roleTag.join(" · ")}</p>
           )}
+        {isAdmin && (
+          <a href={editUrl} className="button" style={{ marginLeft: 16 }}>
+            Edit Character
+          </a>
+        )}
       </div>
 
       <div className="detail-content character-detail-flex">
         <div className="character-portrait-col">
-          <img
-            src={character.portraitImage}
-            alt={character.name}
-            className="detail-image character-detail-portrait"
-          />
+          {character.portraitImage && (
+            <img
+              src={character.portraitImage}
+              alt={character.name || character.displayName}
+              className="detail-image character-detail-portrait"
+            />
+          )}
         </div>
         <div className="character-info-col">
-          {character.bio && (
-            <div className="section">
-              <h2>About</h2>
-              <p>{character.bio}</p>
-            </div>
-          )}
+          <div className="section">
+            <h2>About</h2>
+            {bioMarkdown ? (
+              <ReactMarkdown>{bioMarkdown}</ReactMarkdown>
+            ) : (
+              <p style={{ opacity: 0.75 }}>
+                No narrative bio loaded. (Optional) Load from /bios/{slug}.md
+              </p>
+            )}
+          </div>
 
           {character.audioExcerpt && (
             <div className="section">

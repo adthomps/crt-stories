@@ -1,0 +1,16 @@
+[
+  {
+    "id": "TLN-BOOK-001",
+    "slug": "dorian-vol-1",
+    "title": "Dorian \u2014 Volume 1",
+    "format": "Novel",
+    "status": "Canon"
+  },
+  {
+    "id": "TLN-BOOK-002",
+    "slug": "dorian-vol-2",
+    "title": "Dorian \u2014 Volume 2",
+    "format": "Novel",
+    "status": "Canon"
+  }
+]

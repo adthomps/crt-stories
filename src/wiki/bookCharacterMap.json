@@ -1,0 +1,123 @@
+[
+  {
+    "bookId": "TLN-BOOK-001",
+    "characterId": "TLN-CHAR-0017",
+    "inBook": "Yes",
+    "importance": "Lead",
+    "povUsed": "Yes",
+    "povMode": "Primary",
+    "notes": [
+      "Dorian",
+      "Antilles",
+      "Andar royalty"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-001",
+    "characterId": "TLN-CHAR-0002",
+    "inBook": "Yes",
+    "importance": "Major",
+    "povUsed": "Yes",
+    "povMode": "Secondary",
+    "notes": [
+      "Alex Fox",
+      "Earth\u2013Andar context"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-001",
+    "characterId": "TLN-CHAR-0001",
+    "inBook": "Yes",
+    "importance": "Major",
+    "povUsed": "Yes",
+    "povMode": "Secondary",
+    "notes": [
+      "Adam Casey",
+      "Chel Station",
+      "Tran Fighters"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-001",
+    "characterId": "TLN-CHAR-0023",
+    "inBook": "Yes",
+    "importance": "Supporting",
+    "povUsed": "No",
+    "povMode": null,
+    "notes": [
+      "Queen Ellean",
+      "Andar"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-001",
+    "characterId": "TLN-CHAR-0019",
+    "inBook": "Yes",
+    "importance": "Supporting",
+    "povUsed": "No",
+    "povMode": null,
+    "notes": [
+      "Kevan",
+      "Andar"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-002",
+    "characterId": "TLN-CHAR-0017",
+    "inBook": "Yes",
+    "importance": "Lead",
+    "povUsed": "Yes",
+    "povMode": "Primary",
+    "notes": [
+      "Dorian",
+      "Alliance-wide stakes"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-002",
+    "characterId": "TLN-CHAR-0001",
+    "inBook": "Yes",
+    "importance": "Major",
+    "povUsed": "Yes",
+    "povMode": "Secondary",
+    "notes": [
+      "Adam Casey",
+      "Chel Station"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-002",
+    "characterId": "TLN-CHAR-0002",
+    "inBook": "Yes",
+    "importance": "Major",
+    "povUsed": "Yes",
+    "povMode": "Secondary",
+    "notes": [
+      "Alex Fox",
+      "legacy-driven"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-002",
+    "characterId": "TLN-CHAR-0087",
+    "inBook": "Yes",
+    "importance": "Supporting",
+    "povUsed": "No",
+    "povMode": null,
+    "notes": [
+      "C621",
+      "Sons of Celor"
+    ]
+  },
+  {
+    "bookId": "TLN-BOOK-002",
+    "characterId": "TLN-CHAR-0099",
+    "inBook": "Yes",
+    "importance": "Supporting",
+    "povUsed": "No",
+    "povMode": null,
+    "notes": [
+      "Wingman"
+    ]
+  }
+]
