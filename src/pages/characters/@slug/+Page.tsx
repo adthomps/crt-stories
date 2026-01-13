@@ -2,13 +2,11 @@ export { Page };
 
 import React, { useEffect, useState } from "react";
 import { usePageContext } from "vike-react/usePageContext";
-import ReactMarkdown from "react-markdown";
 
 function Page() {
   const pageContext = usePageContext();
   const { slug } = pageContext.routeParams;
   const [character, setCharacter] = useState<any | null>(null);
-  const [bioMarkdown, setBioMarkdown] = useState<string | null>(null);
   const [relatedWorlds, setRelatedWorlds] = useState<any[]>([]);
   const [relatedBooks, setRelatedBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,14 +24,10 @@ function Page() {
       fetch("/api/worker/books", {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
-      fetch(`/bios/${slug}.md`)
-        .then((r) => (r.ok ? r.text() : null))
-        .catch(() => null),
     ])
-      .then(([charData, worldsData, booksData, bioMd]) => {
+      .then(([charData, worldsData, booksData]) => {
         if (!charData || charData.error) throw new Error("Character not found");
         setCharacter(charData);
-        setBioMarkdown(bioMd);
         // Find related worlds
         const worldSlugs = Array.isArray(charData.worldSlugs)
           ? charData.worldSlugs
@@ -103,13 +97,7 @@ function Page() {
         <div className="character-info-col">
           <div className="section">
             <h2>About</h2>
-            {bioMarkdown ? (
-              <ReactMarkdown>{bioMarkdown}</ReactMarkdown>
-            ) : (
-              <p style={{ opacity: 0.75 }}>
-                No narrative bio loaded. (Optional) Load from /bios/{slug}.md
-              </p>
-            )}
+            <p>{character.bio || "No bio available."}</p>
           </div>
 
           {character.audioExcerpt && (
