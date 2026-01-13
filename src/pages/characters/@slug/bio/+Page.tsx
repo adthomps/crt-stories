@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { usePageContext } from "vike-react/usePageContext";
-import CharacterPage from "../../../components/CharacterPage";
+import { CharacterPage } from "../../../../components/CharacterPage";
 
 export default function CharacterBioPage() {
   const pageContext = usePageContext();
