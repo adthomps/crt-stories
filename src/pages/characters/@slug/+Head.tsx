@@ -1,29 +1,39 @@
 export { Head };
 
-import React from 'react';
-import { usePageContext } from 'vike-react/usePageContext';
-import { getCharacterBySlug } from '../../../content';
+import type { HeadConfig } from "vike/types";
+import type { Character } from "../../../components/CharacterPage";
 
-function Head() {
-  const pageContext = usePageContext();
-  const { slug } = pageContext.routeParams;
-  const character = getCharacterBySlug(slug);
-
-
-
+// This Head config expects the page to provide the character object
+export default function Head({ character }: { character: Character }) {
   if (!character) {
-    return (
-      <>
-        <title>Character Not Found | Author Name</title>
-
-      </>
-    );
+    return {
+      title: "Character Not Found",
+      meta: [{ name: "robots", content: "noindex" }],
+    };
   }
-
-  return (
-    <>
-      <title>{character.name} | Author Name</title>
-      <meta name="description" content={`${character.title} - ${character.description}`} />
-      <meta property="og:title" content={character.name} />
-      <meta property="og:description" content={character.description} />
-      <meta property="og:image" content={character.image} />
+  return {
+    title: `${character.displayName} | CRT Stories Character`,
+    meta: [
+      {
+        name: "description",
+        content:
+          character.bio?.notes?.join(" ") ||
+          character.role ||
+          "Character in CRT Stories",
+      },
+      { property: "og:title", content: character.displayName },
+      {
+        property: "og:description",
+        content: character.bio?.notes?.join(" ") || character.role || "",
+      },
+      character.portraitImage
+        ? { property: "og:image", content: character.portraitImage }
+        : null,
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: character.displayName },
+      character.portraitImage
+        ? { name: "twitter:image", content: character.portraitImage }
+        : null,
+    ].filter(Boolean),
+  };
+}
