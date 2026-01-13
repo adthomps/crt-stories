@@ -1,5 +1,3 @@
-export { Head };
-
 import type { HeadConfig } from "vike/types";
 import type { Character } from "../../../components/CharacterPage";
 
