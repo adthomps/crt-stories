@@ -1,3 +1,4 @@
+import ReactMarkdown from "react-markdown";
 // components/CharacterPage.tsx
 // Reusable Character Page schema for a React + Vike wiki.
 // Assumes JSON canon files are loaded (e.g., canon.bundle.json).
