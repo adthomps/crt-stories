@@ -1,5 +1,7 @@
 
 console.log('[onBeforePrerenderStart] HOOK LOADED:', new Date().toISOString());
+console.log('[onBeforePrerenderStart] __dirname:', typeof __dirname !== 'undefined' ? __dirname : '(undefined)');
+console.log('[onBeforePrerenderStart] __filename:', typeof __filename !== 'undefined' ? __filename : '(undefined)');
 import { characters } from '../../../content';
 
 export default function onBeforePrerenderStart() {
@@ -8,6 +10,7 @@ export default function onBeforePrerenderStart() {
   if (typeof console !== 'undefined') {
     console.log('[onBeforePrerenderStart] RAW character slugs:', characters.map(c => c.slug));
     console.log('[onBeforePrerenderStart] RAW character URLs:', urls);
+    console.log('[onBeforePrerenderStart] Source file:', typeof __filename !== 'undefined' ? __filename : '(undefined)');
   }
   // Find duplicates
   const slugCounts = urls.reduce((acc, url) => {
