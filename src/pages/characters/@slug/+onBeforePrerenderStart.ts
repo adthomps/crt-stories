@@ -2,9 +2,20 @@
 console.log('[onBeforePrerenderStart] HOOK LOADED:', new Date().toISOString());
 console.log('[onBeforePrerenderStart] __dirname:', typeof __dirname !== 'undefined' ? __dirname : '(undefined)');
 console.log('[onBeforePrerenderStart] __filename:', typeof __filename !== 'undefined' ? __filename : '(undefined)');
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __VikeCharacterPrerenderRan: boolean | undefined;
+}
 import { characters } from '../../../content';
 
 export default function onBeforePrerenderStart() {
+  if (globalThis.__VikeCharacterPrerenderRan) {
+    console.log('[onBeforePrerenderStart] Skipping duplicate invocation');
+    return [];
+  }
+  globalThis.__VikeCharacterPrerenderRan = true;
+
   const urls = characters.map((character) => `/characters/${character.slug}`);
   // Log all slugs before deduplication
   if (typeof console !== 'undefined') {
