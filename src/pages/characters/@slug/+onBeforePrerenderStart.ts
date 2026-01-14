@@ -14,8 +14,9 @@ export default function onBeforePrerenderStart() {
     return acc;
   }, {});
   const duplicates = Object.entries(slugCounts).filter(([url, count]) => count > 1);
-  if (duplicates.length > 0 && typeof console !== 'undefined') {
-    console.warn('[onBeforePrerenderStart] Duplicate character URLs detected:', duplicates);
+  if (duplicates.length > 0) {
+    // Fail the build with a clear error
+    throw new Error('[onBeforePrerenderStart] Duplicate character URLs detected: ' + JSON.stringify(duplicates));
   }
   // Deduplicate URLs in case of accidental duplicates
   const uniqueUrls = Array.from(new Set(urls));
