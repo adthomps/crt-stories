@@ -1,4 +1,5 @@
 
+console.log('[onBeforePrerenderStart] HOOK LOADED:', new Date().toISOString());
 import { characters } from '../../../content';
 
 export default function onBeforePrerenderStart() {
