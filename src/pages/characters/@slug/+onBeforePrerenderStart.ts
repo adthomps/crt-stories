@@ -1,13 +1,27 @@
 
+
 import { characters } from '../../../content';
 
-export default function onBeforePrerenderStart() {
   const urls = characters.map((character) => `/characters/${character.slug}`);
+  // Log all slugs before deduplication
+  if (typeof console !== 'undefined') {
+    console.log('[onBeforePrerenderStart] RAW character slugs:', characters.map(c => c.slug));
+    console.log('[onBeforePrerenderStart] RAW character URLs:', urls);
+  }
+  // Find duplicates
+  const slugCounts = urls.reduce((acc, url) => {
+    acc[url] = (acc[url] || 0) + 1;
+    return acc;
+  }, {});
+  const duplicates = Object.entries(slugCounts).filter(([url, count]) => count > 1);
+  if (duplicates.length > 0 && typeof console !== 'undefined') {
+    console.warn('[onBeforePrerenderStart] Duplicate character URLs detected:', duplicates);
+  }
   // Deduplicate URLs in case of accidental duplicates
   const uniqueUrls = Array.from(new Set(urls));
   if (typeof console !== 'undefined') {
     // This will show up in Node.js build logs
-    console.log('[onBeforePrerenderStart] character URLs:', uniqueUrls);
+    console.log('[onBeforePrerenderStart] DEDUPED character URLs:', uniqueUrls);
   }
   return uniqueUrls;
 }
