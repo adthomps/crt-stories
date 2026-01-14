@@ -90,12 +90,14 @@ export const siteConfig = {
 
 ## Development Workflow
 
+
 ```bash
 npm install        # Install dependencies
 npm run dev        # Start dev server
 npm run build      # Build for production (runs content validation)
 npm run preview    # Preview production build
 ```
+
 
 ---
 
