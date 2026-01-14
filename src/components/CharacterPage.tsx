@@ -201,17 +201,16 @@ export function CharacterPage({
       <section style={{ marginTop: 16 }}>
         <h2>Narrative Bio</h2>
         {bioMarkdown ? (
-          <pre
+          <div
             style={{
-              whiteSpace: "pre-wrap",
               background: "#fafafa",
               border: "1px solid #eee",
               borderRadius: 12,
               padding: 14,
             }}
           >
-            {bioMarkdown}
-          </pre>
+            <ReactMarkdown>{bioMarkdown}</ReactMarkdown>
+          </div>
         ) : (
           <div style={{ opacity: 0.75 }}>
             No narrative bio loaded. (Optional) Load from /bios/{character.slug}
