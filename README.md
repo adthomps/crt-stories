@@ -67,7 +67,7 @@ export const siteConfig = {
 ```
 [Series] 1---* [Books] *---1 [Worlds]
                     |
-                    * 
+                    *
                 [Characters]
 ```
 
