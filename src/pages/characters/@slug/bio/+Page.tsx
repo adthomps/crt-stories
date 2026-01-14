@@ -13,8 +13,8 @@ export default function CharacterBioPage() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/src/wiki/canon.bundle.json").then((r) => r.json()),
-      fetch(`/src/bios/${slug}.md`).then((r) => r.text()),
+      fetch("/wiki/canon.bundle.json").then((r) => r.json()),
+      fetch(`/bios/${slug}.md`).then((r) => r.text()),
     ])
       .then(([canonData, bioMd]) => {
         setCanon(canonData);
