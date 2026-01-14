@@ -1,7 +1,7 @@
 
-
 import { characters } from '../../../content';
 
+export default function onBeforePrerenderStart() {
   const urls = characters.map((character) => `/characters/${character.slug}`);
   // Log all slugs before deduplication
   if (typeof console !== 'undefined') {
