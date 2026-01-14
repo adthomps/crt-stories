@@ -1,5 +1,8 @@
 {
   "name": "crt-stories",
+  "engines": {
+    "node": "20.x"
+  },
   "version": "1.0.0",
   "description": "Static author website with books, worlds, and characters",
   "type": "module",
