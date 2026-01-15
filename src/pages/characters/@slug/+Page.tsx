@@ -78,15 +78,6 @@ function Page() {
             alt={character.name}
             className="detail-image character-detail-portrait"
           />
-          <div style={{ marginTop: "1.2rem" }}>
-            <a
-              href={`/characters/${character.slug}/bio`}
-              className="button button-secondary"
-              style={{ display: "inline-block", marginTop: 8 }}
-            >
-              View Bio / Wiki
-            </a>
-          </div>
         </div>
         <div className="character-info-col">
           {character.bio && (
