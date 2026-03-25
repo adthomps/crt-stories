@@ -1,4 +1,5 @@
 import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+import { requireWorkerAdminAuth } from './requireAuth.ts';
 
 function parseJsonArray<T>(value: unknown): T[] {
   if (!value || typeof value !== 'string') return [];
@@ -38,7 +39,6 @@ export const onRequest: PagesFunction = async (context: any) => {
   const method = request.method.toUpperCase();
 
   try {
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
     const authResponse = await requireWorkerAdminAuth(request);
     if (authResponse) return authResponse;
 
@@ -53,13 +53,9 @@ export const onRequest: PagesFunction = async (context: any) => {
       }
 
       const rows = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM series WHERE deleted_at IS NULL').all();
-      const results = rows.results.map((series: any) => toSeriesDto(series));
+      const results = rows.results.map((row: any) => toSeriesDto(row));
       return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
     }
-
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
-    const authResponse = await requireWorkerAdminAuth(request);
-    if (authResponse) return authResponse;
 
     const body = await request.json();
 
@@ -74,19 +70,25 @@ export const onRequest: PagesFunction = async (context: any) => {
         bookSlugs?: string[];
         published?: boolean;
       };
+
       if (!slug || !title) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+
       const relationError = await validateSeriesRelations(env, Array.isArray(bookSlugs) ? bookSlugs : []);
       if (relationError) {
         return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM series WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
       if (exists) {
         return new Response(JSON.stringify({ error: 'Series with this slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
       }
+
       await env.CRT_STORIES_CONTENT.prepare('INSERT INTO series (slug, title, description, longDescription, badges, tags, bookSlugs, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
-        .bind(slug, title, description, longDescription, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(bookSlugs), published ? 1 : 0).run();
+        .bind(slug, title, description, longDescription, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(bookSlugs), published ? 1 : 0)
+        .run();
+
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -101,35 +103,55 @@ export const onRequest: PagesFunction = async (context: any) => {
         bookSlugs?: string[];
         published?: boolean;
       };
+
       if (!slug || !title) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+
       const relationError = await validateSeriesRelations(env, Array.isArray(bookSlugs) ? bookSlugs : []);
       if (relationError) {
         return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM series WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
       if (!exists) {
         return new Response(JSON.stringify({ error: 'Series not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
       }
+
       await env.CRT_STORIES_CONTENT.prepare('UPDATE series SET title = ?, description = ?, longDescription = ?, badges = ?, tags = ?, bookSlugs = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
-        .bind(title, description, longDescription, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(bookSlugs), published ? 1 : 0, slug).run();
+        .bind(title, description, longDescription, JSON.stringify(badges), JSON.stringify(tags), JSON.stringify(bookSlugs), published ? 1 : 0, slug)
+        .run();
+
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
     }
 
     if (method === 'DELETE') {
-      const { slug } = body as { slug?: string };
+      const { slug, deleteMode = 'restrict' } = body as { slug?: string; deleteMode?: 'restrict' | 'detach' | 'cascade' };
       if (!slug) {
         return new Response(JSON.stringify({ error: 'Missing slug' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+      if (!['restrict', 'detach', 'cascade'].includes(deleteMode)) {
+        return new Response(JSON.stringify({ error: 'Invalid delete mode' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      }
+
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM series WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
       if (!exists) {
         return new Response(JSON.stringify({ error: 'Series not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
       }
+
       const linkedBook = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE series_slug = ? AND deleted_at IS NULL LIMIT 1').bind(slug).first();
-      if (linkedBook) {
+      if (linkedBook && deleteMode === 'restrict') {
         return new Response(JSON.stringify({ error: 'Cannot delete series while books still reference it' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
       }
+
+      if (deleteMode === 'detach') {
+        await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET series_slug = "", updated_at = datetime("now") WHERE series_slug = ? AND deleted_at IS NULL').bind(slug).run();
+      }
+
+      if (deleteMode === 'cascade') {
+        await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET deleted_at = datetime("now"), updated_at = datetime("now") WHERE series_slug = ? AND deleted_at IS NULL').bind(slug).run();
+      }
+
       await env.CRT_STORIES_CONTENT.prepare('UPDATE series SET deleted_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL').bind(slug).run();
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
     }
@@ -142,7 +164,7 @@ export const onRequest: PagesFunction = async (context: any) => {
         error: 'Internal Server Error',
         details: err instanceof Error ? err.message : String(err),
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
     );
   }
 };

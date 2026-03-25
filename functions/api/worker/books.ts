@@ -1,5 +1,5 @@
-// Cloudflare Pages Function: /api/worker/books
 import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+import { requireWorkerAdminAuth } from './requireAuth.ts';
 
 type BookPayload = {
   slug?: string;
@@ -12,7 +12,9 @@ type BookPayload = {
   tags?: string[];
   formats?: Array<{ type: string; label: string; url: string }>;
   characterSlugs?: string[];
+  worldSlug?: string;
   worldSlugs?: string[];
+  seriesSlug?: string;
   seriesSlugs?: string[];
   excerpt?: string;
   related?: Record<string, unknown> | null;
@@ -40,16 +42,8 @@ function parseJsonObject(value: unknown): Record<string, unknown> | null {
 }
 
 function toBookDto(book: any) {
-  const worldSlugs = Array.isArray(book.worldSlugs)
-    ? book.worldSlugs
-    : book.world_slug
-      ? [book.world_slug]
-      : [];
-  const seriesSlugs = Array.isArray(book.seriesSlugs)
-    ? book.seriesSlugs
-    : book.series_slug
-      ? [book.series_slug]
-      : [];
+  const worldSlug = typeof book.world_slug === 'string' ? book.world_slug : '';
+  const seriesSlug = typeof book.series_slug === 'string' ? book.series_slug : '';
 
   return {
     ...book,
@@ -59,8 +53,10 @@ function toBookDto(book: any) {
     tags: parseJsonArray<string>(book.tags),
     formats: parseJsonArray<{ type: string; label: string; url: string }>(book.formats),
     characterSlugs: parseJsonArray<string>(book.characterSlugs),
-    worldSlugs,
-    seriesSlugs,
+    worldSlug,
+    worldSlugs: worldSlug ? [worldSlug] : [],
+    seriesSlug,
+    seriesSlugs: seriesSlug ? [seriesSlug] : [],
     related: parseJsonObject(book.related),
   };
 }
@@ -68,6 +64,10 @@ function toBookDto(book: any) {
 function normalizeBookPayload(body: BookPayload) {
   const worldSlugs = Array.isArray(body.worldSlugs) ? body.worldSlugs.filter(Boolean) : [];
   const seriesSlugs = Array.isArray(body.seriesSlugs) ? body.seriesSlugs.filter(Boolean) : [];
+  // Backward-compat: prefer singular worldSlug/seriesSlug when present; otherwise fall back to first legacy array item.
+  const worldSlug = typeof body.worldSlug === 'string' && body.worldSlug ? body.worldSlug : worldSlugs[0] || '';
+  const seriesSlug = typeof body.seriesSlug === 'string' && body.seriesSlug ? body.seriesSlug : seriesSlugs[0] || '';
+
   return {
     slug: body.slug || '',
     title: body.title || '',
@@ -78,9 +78,9 @@ function normalizeBookPayload(body: BookPayload) {
     badges: Array.isArray(body.badges) ? body.badges : [],
     tags: Array.isArray(body.tags) ? body.tags : [],
     formats: Array.isArray(body.formats) ? body.formats : [],
-    characterSlugs: Array.isArray(body.characterSlugs) ? body.characterSlugs : [],
-    worldSlugs,
-    seriesSlugs,
+    characterSlugs: Array.isArray(body.characterSlugs) ? body.characterSlugs.filter(Boolean) : [],
+    worldSlug,
+    seriesSlug,
     excerpt: body.excerpt || '',
     related: body.related || null,
     published: !!body.published,
@@ -88,23 +88,28 @@ function normalizeBookPayload(body: BookPayload) {
 }
 
 async function ensureSlugExists(env: any, table: 'worlds' | 'series' | 'characters', slug: string): Promise<boolean> {
-  const row = await env.CRT_STORIES_CONTENT.prepare(`SELECT slug FROM ${table} WHERE slug = ? AND deleted_at IS NULL`).bind(slug).first();
+  const row = await env.CRT_STORIES_CONTENT
+    .prepare(`SELECT slug FROM ${table} WHERE slug = ? AND deleted_at IS NULL`)
+    .bind(slug)
+    .first();
   return !!row;
 }
 
 async function validateBookRelations(env: any, payload: ReturnType<typeof normalizeBookPayload>): Promise<string | null> {
-  for (const worldSlug of payload.worldSlugs) {
-    const ok = await ensureSlugExists(env, 'worlds', worldSlug);
-    if (!ok) return `Invalid world slug: ${worldSlug}`;
-  }
-  for (const seriesSlug of payload.seriesSlugs) {
-    const ok = await ensureSlugExists(env, 'series', seriesSlug);
-    if (!ok) return `Invalid series slug: ${seriesSlug}`;
-  }
+  if (!payload.worldSlug) return 'Exactly one world is required';
+  if (!payload.seriesSlug) return 'Exactly one series is required';
+
+  const worldOk = await ensureSlugExists(env, 'worlds', payload.worldSlug);
+  if (!worldOk) return `Invalid world slug: ${payload.worldSlug}`;
+
+  const seriesOk = await ensureSlugExists(env, 'series', payload.seriesSlug);
+  if (!seriesOk) return `Invalid series slug: ${payload.seriesSlug}`;
+
   for (const characterSlug of payload.characterSlugs) {
     const ok = await ensureSlugExists(env, 'characters', characterSlug);
     if (!ok) return `Invalid character slug: ${characterSlug}`;
   }
+
   return null;
 }
 
@@ -114,105 +119,104 @@ export const onRequest: PagesFunction = async (context: any) => {
   const method = request.method.toUpperCase();
 
   try {
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
     const authResponse = await requireWorkerAdminAuth(request);
     if (authResponse) return authResponse;
 
     if (method === 'GET') {
       const slug = url.searchParams.get('slug');
       if (slug) {
-        const book = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM books WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
+        const book = await env.CRT_STORIES_CONTENT
+          .prepare('SELECT * FROM books WHERE slug = ? AND deleted_at IS NULL')
+          .bind(slug)
+          .first();
         if (!book) {
           return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
         }
         return new Response(JSON.stringify(toBookDto(book)), { headers: { 'Content-Type': 'application/json' } });
       }
 
-      const books = await env.CRT_STORIES_CONTENT.prepare('SELECT * FROM books WHERE deleted_at IS NULL ORDER BY title COLLATE NOCASE ASC').all();
+      const books = await env.CRT_STORIES_CONTENT
+        .prepare('SELECT * FROM books WHERE deleted_at IS NULL ORDER BY title COLLATE NOCASE ASC')
+        .all();
       const results = books.results.map((book: any) => toBookDto(book));
       return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
     }
 
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
-    const authResponse = await requireWorkerAdminAuth(request);
-    if (authResponse) return authResponse;
-
-    if (method === 'POST') {
+    if (method === 'POST' || method === 'PUT') {
       const body = await request.json();
       const payload = normalizeBookPayload(body as BookPayload);
-    const body = await request.json();
-    const payload = normalizeBookPayload(body as BookPayload);
 
-    if (method === 'POST') {
       if (!payload.slug || !payload.title) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+
       const relationError = await validateBookRelations(env, payload);
       if (relationError) {
         return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
-      const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE slug = ? AND deleted_at IS NULL').bind(payload.slug).first();
-      if (exists) {
-        return new Response(JSON.stringify({ error: 'Book with this slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
-      }
-      await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, longDescription, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
-      await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
-        .bind(
-          payload.slug,
-          payload.title,
-          payload.description,
-          payload.longDescription,
-          payload.coverImage,
-          payload.publishDate,
-          JSON.stringify(payload.badges),
-          JSON.stringify(payload.tags),
-          JSON.stringify(payload.formats),
-          JSON.stringify(payload.characterSlugs),
-          payload.worldSlugs[0] || '',
-          payload.seriesSlugs[0] || '',
-          payload.excerpt,
-          payload.related ? JSON.stringify(payload.related) : null,
-          payload.published ? 1 : 0
-        ).run();
-      return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
-    }
 
-    if (method === 'PUT') {
-      const body = await request.json();
-      const payload = normalizeBookPayload(body as BookPayload);
-      if (!payload.slug || !payload.title) {
-        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      if (method === 'POST') {
+        const exists = await env.CRT_STORIES_CONTENT
+          .prepare('SELECT slug FROM books WHERE slug = ? AND deleted_at IS NULL')
+          .bind(payload.slug)
+          .first();
+        if (exists) {
+          return new Response(JSON.stringify({ error: 'Book with this slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
+        }
+
+        await env.CRT_STORIES_CONTENT
+          .prepare('INSERT INTO books (slug, title, description, longDescription, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
+          .bind(
+            payload.slug,
+            payload.title,
+            payload.description,
+            payload.longDescription,
+            payload.coverImage,
+            payload.publishDate,
+            JSON.stringify(payload.badges),
+            JSON.stringify(payload.tags),
+            JSON.stringify(payload.formats),
+            JSON.stringify(payload.characterSlugs),
+            payload.worldSlug,
+            payload.seriesSlug,
+            payload.excerpt,
+            payload.related ? JSON.stringify(payload.related) : null,
+            payload.published ? 1 : 0,
+          )
+          .run();
+
+        return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
       }
-      const relationError = await validateBookRelations(env, payload);
-      if (relationError) {
-        return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-      }
-      const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE slug = ? AND deleted_at IS NULL').bind(payload.slug).first();
+
+      const exists = await env.CRT_STORIES_CONTENT
+        .prepare('SELECT slug FROM books WHERE slug = ? AND deleted_at IS NULL')
+        .bind(payload.slug)
+        .first();
       if (!exists) {
         return new Response(JSON.stringify({ error: 'Book not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
       }
-      await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET title = ?, description = ?, longDescription = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, world_slug = ?, series_slug = ?, excerpt = ?, related = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
+
+      await env.CRT_STORIES_CONTENT
+        .prepare('UPDATE books SET title = ?, description = ?, longDescription = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, world_slug = ?, series_slug = ?, excerpt = ?, related = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
         .bind(
           payload.title,
           payload.description,
           payload.longDescription,
-      await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, world_slug = ?, series_slug = ?, excerpt = ?, related = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
-        .bind(
-          payload.title,
-          payload.description,
           payload.coverImage,
           payload.publishDate,
           JSON.stringify(payload.badges),
           JSON.stringify(payload.tags),
           JSON.stringify(payload.formats),
           JSON.stringify(payload.characterSlugs),
-          payload.worldSlugs[0] || '',
-          payload.seriesSlugs[0] || '',
+          payload.worldSlug,
+          payload.seriesSlug,
           payload.excerpt,
           payload.related ? JSON.stringify(payload.related) : null,
           payload.published ? 1 : 0,
-          payload.slug
-        ).run();
+          payload.slug,
+        )
+        .run();
+
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -238,7 +242,7 @@ export const onRequest: PagesFunction = async (context: any) => {
         error: 'Internal Server Error',
         details: err instanceof Error ? err.message : String(err),
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
     );
   }
 };

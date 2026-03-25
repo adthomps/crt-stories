@@ -1,1 +1,3 @@
-/*    /index.html   200
+/admin /worker 302
+/admin/* /worker/:splat 302
+/* /index.html 200

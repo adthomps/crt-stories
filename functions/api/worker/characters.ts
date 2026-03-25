@@ -1,4 +1,5 @@
 import type { PagesFunction } from 'vite-plugin-cloudflare-pages';
+import { requireWorkerAdminAuth } from './requireAuth.ts';
 
 type CharacterPayload = {
   slug?: string;
@@ -23,11 +24,10 @@ function parseJsonArray<T>(value: unknown): T[] {
 }
 
 function toCharacterDto(character: any) {
-  const worldSlugs = parseJsonArray<string>(character.worldSlugs);
   return {
     ...character,
     bio: character.bio || '',
-    worldSlugs,
+    worldSlugs: parseJsonArray<string>(character.worldSlugs),
     seriesSlugs: parseJsonArray<string>(character.seriesSlugs),
     appearsInBookSlugs: parseJsonArray<string>(character.appearsInBookSlugs),
     tags: parseJsonArray<string>(character.tags),
@@ -76,7 +76,6 @@ export const onRequest: PagesFunction = async (context: any) => {
   const method = request.method.toUpperCase();
 
   try {
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
     const authResponse = await requireWorkerAdminAuth(request);
     if (authResponse) return authResponse;
 
@@ -94,10 +93,6 @@ export const onRequest: PagesFunction = async (context: any) => {
       const results = rows.results.map((character: any) => toCharacterDto(character));
       return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
     }
-
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
-    const authResponse = await requireWorkerAdminAuth(request);
-    if (authResponse) return authResponse;
 
     const body = await request.json();
     const payload = normalizeCharacterPayload(body as CharacterPayload);
@@ -124,8 +119,9 @@ export const onRequest: PagesFunction = async (context: any) => {
           JSON.stringify(payload.appearsInBookSlugs),
           JSON.stringify(payload.tags),
           payload.roleTag,
-          payload.published ? 1 : 0
-        ).run();
+          payload.published ? 1 : 0,
+        )
+        .run();
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -151,24 +147,41 @@ export const onRequest: PagesFunction = async (context: any) => {
           JSON.stringify(payload.tags),
           payload.roleTag,
           payload.published ? 1 : 0,
-          payload.slug
-        ).run();
+          payload.slug,
+        )
+        .run();
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
     }
 
     if (method === 'DELETE') {
-      const { slug } = body as { slug?: string };
+      const { slug, deleteMode = 'restrict' } = body as { slug?: string; deleteMode?: 'restrict' | 'detach' };
       if (!slug) {
         return new Response(JSON.stringify({ error: 'Missing slug' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+      if (!['restrict', 'detach'].includes(deleteMode)) {
+        return new Response(JSON.stringify({ error: 'Invalid delete mode' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      }
+
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM characters WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
       if (!exists) {
         return new Response(JSON.stringify({ error: 'Character not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
       }
-      const linkedBook = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE characterSlugs LIKE ? AND deleted_at IS NULL LIMIT 1').bind(`%\"${slug}\"%`).first();
-      if (linkedBook) {
+
+      const linkedBook = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE characterSlugs LIKE ? AND deleted_at IS NULL LIMIT 1').bind(`%"${slug}"%`).first();
+      if (linkedBook && deleteMode === 'restrict') {
         return new Response(JSON.stringify({ error: 'Cannot delete character while books still reference it' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
       }
+
+      if (deleteMode === 'detach') {
+        const linkedRows = await env.CRT_STORIES_CONTENT.prepare('SELECT slug, characterSlugs FROM books WHERE characterSlugs LIKE ? AND deleted_at IS NULL').bind(`%"${slug}"%`).all();
+        for (const row of linkedRows.results as any[]) {
+          const list = parseJsonArray<string>(row.characterSlugs).filter((item) => item !== slug);
+          await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET characterSlugs = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
+            .bind(JSON.stringify(list), row.slug)
+            .run();
+        }
+      }
+
       await env.CRT_STORIES_CONTENT.prepare('UPDATE characters SET deleted_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL').bind(slug).run();
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
     }
@@ -181,7 +194,7 @@ export const onRequest: PagesFunction = async (context: any) => {
         error: 'Internal Server Error',
         details: err instanceof Error ? err.message : String(err),
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
     );
   }
 };

@@ -18,10 +18,10 @@ export function Page() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch("/api/worker/books").then((r) => r.json()),
-      fetch("/api/worker/worlds").then((r) => r.json()),
-      fetch("/api/worker/series").then((r) => r.json()),
-      fetch("/api/worker/characters").then((r) => r.json()),
+      fetch("/api/public/books").then((r) => r.json()),
+      fetch("/api/public/worlds").then((r) => r.json()),
+      fetch("/api/public/series").then((r) => r.json()),
+      fetch("/api/public/characters").then((r) => r.json()),
     ])
       .then(([books, worlds, series, characters]) => {
         setBooks(books);
