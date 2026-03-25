@@ -3,7 +3,8 @@ export const onRequest: PagesFunction = async ({ env }) => {
 	const parsed = rows.results.map(series => ({
 		...series,
 		badges: JSON.parse(series.badges || '[]'),
-		tags: JSON.parse(series.tags || '[]')
+		tags: JSON.parse(series.tags || '[]'),
+		bookSlugs: JSON.parse(series.bookSlugs || '[]')
 	}));
 	return new Response(JSON.stringify(parsed), { status: 200 });
 };
