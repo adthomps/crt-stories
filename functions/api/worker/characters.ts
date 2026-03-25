@@ -49,33 +49,16 @@ function normalizeCharacterPayload(body: CharacterPayload) {
   };
 }
 
-async function ensureEntitySlugExists(env: any, table: 'worlds' | 'series' | 'books', slug: string): Promise<boolean> {
-  const row = await env.CRT_STORIES_CONTENT.prepare(`SELECT slug FROM ${table} WHERE slug = ? AND deleted_at IS NULL`).bind(slug).first();
-  return !!row;
-}
-
-async function validateCharacterRelations(env: any, payload: ReturnType<typeof normalizeCharacterPayload>): Promise<string | null> {
-  for (const worldSlug of payload.worldSlugs) {
-    const ok = await ensureEntitySlugExists(env, 'worlds', worldSlug);
-    if (!ok) return `Invalid world slug: ${worldSlug}`;
-  }
-  for (const seriesSlug of payload.seriesSlugs) {
-    const ok = await ensureEntitySlugExists(env, 'series', seriesSlug);
-    if (!ok) return `Invalid series slug: ${seriesSlug}`;
-  }
-  for (const bookSlug of payload.appearsInBookSlugs) {
-    const ok = await ensureEntitySlugExists(env, 'books', bookSlug);
-    if (!ok) return `Invalid book slug: ${bookSlug}`;
-  }
-  return null;
-}
-
 export const onRequest: PagesFunction = async (context: any) => {
   const { request, env } = context;
   const url = new URL(request.url);
   const method = request.method.toUpperCase();
 
   try {
+    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
+    const authResponse = await requireWorkerAdminAuth(request);
+    if (authResponse) return authResponse;
+
     if (method === 'GET') {
       const slug = url.searchParams.get('slug');
       if (slug) {
@@ -91,20 +74,12 @@ export const onRequest: PagesFunction = async (context: any) => {
       return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
     }
 
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
-    const authResponse = await requireWorkerAdminAuth(request);
-    if (authResponse) return authResponse;
-
     const body = await request.json();
     const payload = normalizeCharacterPayload(body as CharacterPayload);
 
     if (method === 'POST') {
       if (!payload.slug || !payload.name) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-      }
-      const relationError = await validateCharacterRelations(env, payload);
-      if (relationError) {
-        return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM characters WHERE slug = ? AND deleted_at IS NULL').bind(payload.slug).first();
       if (exists) {
@@ -128,10 +103,6 @@ export const onRequest: PagesFunction = async (context: any) => {
     if (method === 'PUT') {
       if (!payload.slug || !payload.name) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-      }
-      const relationError = await validateCharacterRelations(env, payload);
-      if (relationError) {
-        return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM characters WHERE slug = ? AND deleted_at IS NULL').bind(payload.slug).first();
       if (!exists) {
@@ -160,10 +131,6 @@ export const onRequest: PagesFunction = async (context: any) => {
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM characters WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
       if (!exists) {
         return new Response(JSON.stringify({ error: 'Character not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
-      }
-      const linkedBook = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE characterSlugs LIKE ? AND deleted_at IS NULL LIMIT 1').bind(`%\"${slug}\"%`).first();
-      if (linkedBook) {
-        return new Response(JSON.stringify({ error: 'Cannot delete character while books still reference it' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
       }
       await env.CRT_STORIES_CONTENT.prepare('UPDATE characters SET deleted_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL').bind(slug).run();
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });

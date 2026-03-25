@@ -25,6 +25,10 @@ export const onRequest: PagesFunction = async (context: any) => {
   const method = request.method.toUpperCase();
 
   try {
+    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
+    const authResponse = await requireWorkerAdminAuth(request);
+    if (authResponse) return authResponse;
+
     if (method === 'GET') {
       const slug = url.searchParams.get('slug');
       if (slug) {
@@ -39,10 +43,6 @@ export const onRequest: PagesFunction = async (context: any) => {
       const results = rows.results.map((world: any) => toWorldDto(world));
       return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
     }
-
-    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
-    const authResponse = await requireWorkerAdminAuth(request);
-    if (authResponse) return authResponse;
 
     const body = await request.json();
 
@@ -82,10 +82,6 @@ export const onRequest: PagesFunction = async (context: any) => {
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM worlds WHERE slug = ? AND deleted_at IS NULL').bind(slug).first();
       if (!exists) {
         return new Response(JSON.stringify({ error: 'World not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
-      }
-      const linkedBook = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE world_slug = ? AND deleted_at IS NULL LIMIT 1').bind(slug).first();
-      if (linkedBook) {
-        return new Response(JSON.stringify({ error: 'Cannot delete world while books still reference it' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
       }
       await env.CRT_STORIES_CONTENT.prepare('UPDATE worlds SET deleted_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL').bind(slug).run();
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
