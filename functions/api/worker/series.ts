@@ -38,6 +38,10 @@ export const onRequest: PagesFunction = async (context: any) => {
   const method = request.method.toUpperCase();
 
   try {
+    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
+    const authResponse = await requireWorkerAdminAuth(request);
+    if (authResponse) return authResponse;
+
     if (method === 'GET') {
       const slug = url.searchParams.get('slug');
       if (slug) {
