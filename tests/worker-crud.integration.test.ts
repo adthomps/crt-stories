@@ -79,6 +79,14 @@ class MockDb {
       const [title, description, longDescription, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, slug] = args;
       const row = table.find((r) => r.slug === slug && !r.deleted_at);
       Object.assign(row, { title, description, longDescription, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published });
+      const [slug, title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published] = args;
+      table.push({ slug, title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, deleted_at: null });
+      return null;
+    }
+    if (sql.startsWith('UPDATE books SET title')) {
+      const [title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, slug] = args;
+      const row = table.find((r) => r.slug === slug && !r.deleted_at);
+      Object.assign(row, { title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published });
       return null;
     }
     if (sql.startsWith('UPDATE books SET deleted_at')) {
@@ -148,11 +156,13 @@ class MockDb {
 }
 
 function ctx(url, method = 'GET', body, db, withAuth = true) {
+function ctx(url, method = 'GET', body, db) {
   return {
     request: new Request(url, {
       method,
       headers: {
         ...(withAuth ? { cookie: 'worker_admin=1' } : {}),
+        cookie: 'worker_admin=1',
         ...(body ? { 'Content-Type': 'application/json' } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
@@ -176,6 +186,13 @@ test('books CRUD round-trip', async () => {
   assert.equal(r2.title, 'Book B');
   assert.deepEqual(r2.worldSlugs, ['world-b']);
   assert.equal(r2.longDescription, 'Long beta');
+  assert.equal((await booksHandler(ctx('https://x/api/worker/books', 'POST', { slug: 'book-a', title: 'Book A', worldSlugs: ['world-a'], seriesSlugs: ['series-a'] }, db))).status, 200);
+  const r1 = await (await booksHandler(ctx('https://x/api/worker/books?slug=book-a', 'GET', undefined, db))).json();
+  assert.deepEqual(r1.worldSlugs, ['world-a']);
+  assert.equal((await booksHandler(ctx('https://x/api/worker/books', 'PUT', { slug: 'book-a', title: 'Book B', worldSlugs: ['world-b'] }, db))).status, 200);
+  const r2 = await (await booksHandler(ctx('https://x/api/worker/books?slug=book-a', 'GET', undefined, db))).json();
+  assert.equal(r2.title, 'Book B');
+  assert.deepEqual(r2.worldSlugs, ['world-b']);
   assert.equal((await booksHandler(ctx('https://x/api/worker/books', 'DELETE', { slug: 'book-a' }, db))).status, 200);
   assert.equal((await booksHandler(ctx('https://x/api/worker/books?slug=book-a', 'GET', undefined, db))).status, 404);
 });

@@ -114,6 +114,10 @@ export const onRequest: PagesFunction = async (context: any) => {
   const method = request.method.toUpperCase();
 
   try {
+    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
+    const authResponse = await requireWorkerAdminAuth(request);
+    if (authResponse) return authResponse;
+
     if (method === 'GET') {
       const slug = url.searchParams.get('slug');
       if (slug) {
@@ -149,6 +153,7 @@ export const onRequest: PagesFunction = async (context: any) => {
         return new Response(JSON.stringify({ error: 'Book with this slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
       }
       await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, longDescription, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
+      await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
         .bind(
           payload.slug,
           payload.title,
@@ -186,6 +191,10 @@ export const onRequest: PagesFunction = async (context: any) => {
           payload.title,
           payload.description,
           payload.longDescription,
+      await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, world_slug = ?, series_slug = ?, excerpt = ?, related = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
+        .bind(
+          payload.title,
+          payload.description,
           payload.coverImage,
           payload.publishDate,
           JSON.stringify(payload.badges),
