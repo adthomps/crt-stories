@@ -23,14 +23,14 @@ interface Book {
   slug: string;
   title: string;
   description?: string;
-  cover_image?: string;
-  publish_date?: string;
-  kindle_url?: string;
-  audio_url?: string;
-  paperback_url?: string;
+  coverImage?: string;
+  publishDate?: string;
+  kindleUrl?: string;
+  audioUrl?: string;
+  paperbackUrl?: string;
   excerpt?: string;
-  world_slug?: string;
-  series_id?: number;
+  worldSlug?: string;
+  seriesSlug?: string;
   published?: boolean;
 }
 
@@ -76,8 +76,8 @@ export default function WorkerBooksPage() {
     excerpt: "",
     published: false,
     // UI only
-    world_slug: "",
-    series_id: undefined,
+    worldSlug: "",
+    seriesSlug: undefined,
   });
   // Dropdown data for worlds and series (from API)
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
@@ -114,32 +114,31 @@ export default function WorkerBooksPage() {
     setStatus("idle");
     if (book) {
       // Map formats array to individual fields
-      let kindle_url = "",
-        audio_url = "",
-        paperback_url = "";
+      let kindleUrl = "",
+        audioUrl = "",
+        paperbackUrl = "";
       if (Array.isArray((book as any).formats)) {
         for (const f of (book as any).formats) {
-          if (f.type === "kindle") kindle_url = f.url;
-          if (f.type === "audiobook") audio_url = f.url;
-          if (f.type === "paperback") paperback_url = f.url;
+          if (f.type === "kindle") kindleUrl = f.url;
+          if (f.type === "audiobook") audioUrl = f.url;
+          if (f.type === "paperback") paperbackUrl = f.url;
         }
       }
       setForm({
         ...book,
-        kindle_url,
-        audio_url,
-        paperback_url,
+        kindleUrl,
+        audioUrl,
+        paperbackUrl,
         // Map worldSlugs/seriesSlugs if present
-        world_slug:
-          (book as any).world_slug ||
+        worldSlug:
+          (book as any).worldSlug ||
           (Array.isArray((book as any).worldSlugs)
             ? (book as any).worldSlugs[0]
             : ""),
-        series_id:
-          (book as any).series_id ||
+        seriesSlug:
+          (book as any).seriesSlug ||
           (Array.isArray((book as any).seriesSlugs)
-            ? series.findIndex((s) => s.slug === (book as any).seriesSlugs[0]) +
-              1
+            ? (book as any).seriesSlugs[0]
             : undefined),
       });
     } else {
@@ -147,14 +146,14 @@ export default function WorkerBooksPage() {
         slug: "",
         title: "",
         description: "",
-        cover_image: "",
-        publish_date: "",
-        kindle_url: "",
-        audio_url: "",
-        paperback_url: "",
+        coverImage: "",
+        publishDate: "",
+        kindleUrl: "",
+        audioUrl: "",
+        paperbackUrl: "",
         excerpt: "",
-        world_slug: "",
-        series_id: undefined,
+        worldSlug: "",
+        seriesSlug: undefined,
         published: false,
       });
     }
@@ -177,11 +176,6 @@ export default function WorkerBooksPage() {
       setForm((f: any) => ({
         ...f,
         [name]: (e.target as HTMLInputElement).checked,
-      }));
-    } else if (name === "series_id") {
-      setForm((f: any) => ({
-        ...f,
-        series_id: value ? Number(value) : undefined,
       }));
     } else {
       setForm((f: any) => ({ ...f, [name]: value }));
@@ -208,8 +202,8 @@ export default function WorkerBooksPage() {
         slug,
         title,
         published,
-        series_id,
-        world_slug,
+        seriesSlug,
+        worldSlug,
       } = form;
       const formats = [];
       if (kindleUrl)
@@ -222,12 +216,8 @@ export default function WorkerBooksPage() {
           label: "Paperback",
           url: paperbackUrl,
         });
-      let seriesSlugs: string[] = [];
-      if (series_id && series[series_id - 1]) {
-        seriesSlugs = [series[series_id - 1].slug];
-      }
-      let worldSlugs: string[] = [];
-      if (world_slug) worldSlugs = [world_slug];
+      const seriesSlugs: string[] = seriesSlug ? [seriesSlug] : [];
+      const worldSlugs: string[] = worldSlug ? [worldSlug] : [];
       const payload = {
         slug,
         title,
@@ -239,6 +229,7 @@ export default function WorkerBooksPage() {
         formats,
         seriesSlugs,
         worldSlugs,
+        related: (form as any).related || null,
       };
       const method = modalMode === "add" ? "POST" : "PUT";
       const res = await fetch("/api/worker/books", {
@@ -475,8 +466,8 @@ export default function WorkerBooksPage() {
                     if (s) seriesTitle = s.title;
                   }
                   const publishDate =
-                    (book as any).publish_date ||
                     (book as any).publishDate ||
+                    (book as any).publish_date ||
                     "";
                   return (
                     <tr
@@ -704,8 +695,8 @@ export default function WorkerBooksPage() {
               <label style={{ fontWeight: 500 }}>
                 Series
                 <select
-                  name="series_id"
-                  value={form.series_id ?? ""}
+                  name="seriesSlug"
+                  value={form.seriesSlug ?? ""}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
@@ -716,22 +707,21 @@ export default function WorkerBooksPage() {
                   }}
                 >
                   <option value="">-- None --</option>
-                  {series.map((s, idx) => (
-                    <option key={s.slug} value={idx + 1}>
+                  {series.map((s) => (
+                    <option key={s.slug} value={s.slug}>
                       {s.title} ({s.slug})
                     </option>
                   ))}
                 </select>
                 <div style={{ fontSize: 12, color: "#888" }}>
-                  Select the series this book belongs to (optional). Series is
-                  assigned by order in series.json.
+                  Select the series this book belongs to (optional).
                 </div>
               </label>
               <label style={{ fontWeight: 500 }}>
                 World
                 <select
-                  name="world_slug"
-                  value={form.world_slug || ""}
+                  name="worldSlug"
+                  value={form.worldSlug || ""}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
@@ -797,8 +787,8 @@ export default function WorkerBooksPage() {
               <label style={{ fontWeight: 500 }}>
                 Cover Image URL
                 <input
-                  name="cover_image"
-                  value={form.cover_image}
+                  name="coverImage"
+                  value={form.coverImage}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
@@ -830,8 +820,8 @@ export default function WorkerBooksPage() {
               <label style={{ fontWeight: 500 }}>
                 Kindle URL
                 <input
-                  name="kindle_url"
-                  value={form.kindle_url}
+                  name="kindleUrl"
+                  value={form.kindleUrl}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
@@ -849,8 +839,8 @@ export default function WorkerBooksPage() {
               <label style={{ fontWeight: 500 }}>
                 Audio URL
                 <input
-                  name="audio_url"
-                  value={form.audio_url}
+                  name="audioUrl"
+                  value={form.audioUrl}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
@@ -868,8 +858,8 @@ export default function WorkerBooksPage() {
               <label style={{ fontWeight: 500 }}>
                 Paperback URL
                 <input
-                  name="paperback_url"
-                  value={form.paperback_url}
+                  name="paperbackUrl"
+                  value={form.paperbackUrl}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
@@ -931,8 +921,8 @@ export default function WorkerBooksPage() {
               <label style={{ fontWeight: 500 }}>
                 Publish Date
                 <input
-                  name="publish_date"
-                  value={form.publish_date}
+                  name="publishDate"
+                  value={form.publishDate}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
