@@ -8,7 +8,7 @@
 
 ## Cloudflare Workers
 - Internal API: deployed to /api/*
-- Public API: deployed to /v1/*
+- Public API: deployed to /api/public/*
 - Use GitHub Actions for deployment if present
 
 ## Content Export

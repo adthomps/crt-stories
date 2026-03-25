@@ -1,14 +1,14 @@
 # CRT Stories: Public API
 
 ## Overview
-- All public API endpoints are served from `/v1/*` via Cloudflare Pages Functions in `functions/api/public/`
+- All public API endpoints are served from `/api/public/*` via Cloudflare Pages Functions in `functions/api/public/`
 - Stable, versioned endpoints for public consumption
 
 ## Endpoints
-- `/v1/books` – Public book data
-- `/v1/worlds` – Public world data
-- `/v1/characters` – Public character data
-- `/v1/series` – Public series data
+- `/api/public/books` – Public book data
+- `/api/public/worlds` – Public world data
+- `/api/public/characters` – Public character data
+- `/api/public/series` – Public series data
 
 ## Conventions
 - No UI-specific logic or view models
