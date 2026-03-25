@@ -27,11 +27,11 @@ class MockStatement {
   }
 
   first() {
-    return Promise.resolve(this.db.exec(this.sql, this.args, false, true));
+    return Promise.resolve(this.db.exec(this.sql, this.args));
   }
 
   all() {
-    return Promise.resolve({ results: this.db.exec(this.sql, this.args, true, false) });
+    return Promise.resolve({ results: this.db.exec(this.sql, this.args) });
   }
 
   run() {
@@ -51,7 +51,7 @@ class MockDb {
     return new MockStatement(this, sql);
   }
 
-  exec(sql: string, args: any[], expectAll = false, expectFirst = false) {
+  exec(sql: string, args: any[]) {
     const entity = ['books', 'worlds', 'series', 'characters'].find((t) => sql.includes(` ${t} `));
     if (!entity) throw new Error(`Unknown table: ${sql}`);
 
@@ -301,12 +301,12 @@ class MockDb {
   }
 }
 
-function ctx(url: string, method = 'GET', body?: unknown, db?: MockDb, withAuth = true) {
+function mockWorkerContext(url: string, method = 'GET', body?: unknown, db?: MockDb, includeAuth = true) {
   return {
     request: new Request(url, {
       method,
       headers: {
-        ...(withAuth ? { cookie: 'worker_admin=1' } : {}),
+        ...(includeAuth ? { cookie: 'worker_admin=1' } : {}),
         ...(body ? { 'Content-Type': 'application/json' } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
@@ -329,11 +329,11 @@ test('books CRUD enforces one world and one series', async () => {
   db.tables.series.push({ slug: 'series-a', title: 'Series A', deleted_at: null });
   db.tables.series.push({ slug: 'series-b', title: 'Series B', deleted_at: null });
 
-  const missingWorld = await booksHandler(ctx('https://x/api/worker/books', 'POST', { slug: 'book-missing-world', title: 'Book Missing', seriesSlug: 'series-a' }, db));
+  const missingWorld = await booksHandler(mockWorkerContext('https://x/api/worker/books', 'POST', { slug: 'book-missing-world', title: 'Book Missing', seriesSlug: 'series-a' }, db));
   assert.equal(missingWorld.status, 400);
 
   const createRes = await booksHandler(
-    ctx(
+    mockWorkerContext(
       'https://x/api/worker/books',
       'POST',
       { slug: 'book-a', title: 'Book A', description: 'Short', longDescription: 'Long alpha', worldSlug: 'world-a', seriesSlug: 'series-a', published: true },
@@ -342,7 +342,7 @@ test('books CRUD enforces one world and one series', async () => {
   );
   assert.equal(createRes.status, 200);
 
-  const getRes = await booksHandler(ctx('https://x/api/worker/books?slug=book-a', 'GET', undefined, db));
+  const getRes = await booksHandler(mockWorkerContext('https://x/api/worker/books?slug=book-a', 'GET', undefined, db));
   assert.equal(getRes.status, 200);
   const r1: any = await getRes.json();
   assert.equal(r1.worldSlug, 'world-a');
@@ -350,11 +350,11 @@ test('books CRUD enforces one world and one series', async () => {
   assert.equal(r1.seriesSlug, 'series-a');
 
   const updateRes = await booksHandler(
-    ctx('https://x/api/worker/books', 'PUT', { slug: 'book-a', title: 'Book B', worldSlug: 'world-b', seriesSlug: 'series-b' }, db),
+    mockWorkerContext('https://x/api/worker/books', 'PUT', { slug: 'book-a', title: 'Book B', worldSlug: 'world-b', seriesSlug: 'series-b' }, db),
   );
   assert.equal(updateRes.status, 200);
 
-  const getUpdated = await booksHandler(ctx('https://x/api/worker/books?slug=book-a', 'GET', undefined, db));
+  const getUpdated = await booksHandler(mockWorkerContext('https://x/api/worker/books?slug=book-a', 'GET', undefined, db));
   const r2: any = await getUpdated.json();
   assert.equal(r2.title, 'Book B');
   assert.equal(r2.worldSlug, 'world-b');
@@ -367,16 +367,16 @@ test('world delete modes support restrict, detach, cascade', async () => {
   db.tables.series.push({ slug: 's1', title: 'Series 1', deleted_at: null });
   db.tables.books.push({ slug: 'b1', title: 'Book 1', world_slug: 'w1', series_slug: 's1', characterSlugs: '[]', deleted_at: null });
 
-  const restrictRes = await worldsHandler(ctx('https://x/api/worker/worlds', 'DELETE', { slug: 'w1', deleteMode: 'restrict' }, db));
+  const restrictRes = await worldsHandler(mockWorkerContext('https://x/api/worker/worlds', 'DELETE', { slug: 'w1', deleteMode: 'restrict' }, db));
   assert.equal(restrictRes.status, 409);
 
-  const detachRes = await worldsHandler(ctx('https://x/api/worker/worlds', 'DELETE', { slug: 'w1', deleteMode: 'detach' }, db));
+  const detachRes = await worldsHandler(mockWorkerContext('https://x/api/worker/worlds', 'DELETE', { slug: 'w1', deleteMode: 'detach' }, db));
   assert.equal(detachRes.status, 200);
   assert.equal(db.tables.books[0].world_slug, '');
 
   db.tables.worlds.push({ slug: 'w2', title: 'World 2', deleted_at: null });
   db.tables.books.push({ slug: 'b2', title: 'Book 2', world_slug: 'w2', series_slug: 's1', characterSlugs: '[]', deleted_at: null });
-  const cascadeRes = await worldsHandler(ctx('https://x/api/worker/worlds', 'DELETE', { slug: 'w2', deleteMode: 'cascade' }, db));
+  const cascadeRes = await worldsHandler(mockWorkerContext('https://x/api/worker/worlds', 'DELETE', { slug: 'w2', deleteMode: 'cascade' }, db));
   assert.equal(cascadeRes.status, 200);
   const b2 = db.tables.books.find((b) => b.slug === 'b2');
   assert.equal(b2?.deleted_at, 'now');
@@ -388,16 +388,16 @@ test('series delete modes support restrict, detach, cascade', async () => {
   db.tables.series.push({ slug: 's1', title: 'Series 1', deleted_at: null });
   db.tables.books.push({ slug: 'b1', title: 'Book 1', world_slug: 'w1', series_slug: 's1', characterSlugs: '[]', deleted_at: null });
 
-  const restrictRes = await seriesHandler(ctx('https://x/api/worker/series', 'DELETE', { slug: 's1', deleteMode: 'restrict' }, db));
+  const restrictRes = await seriesHandler(mockWorkerContext('https://x/api/worker/series', 'DELETE', { slug: 's1', deleteMode: 'restrict' }, db));
   assert.equal(restrictRes.status, 409);
 
-  const detachRes = await seriesHandler(ctx('https://x/api/worker/series', 'DELETE', { slug: 's1', deleteMode: 'detach' }, db));
+  const detachRes = await seriesHandler(mockWorkerContext('https://x/api/worker/series', 'DELETE', { slug: 's1', deleteMode: 'detach' }, db));
   assert.equal(detachRes.status, 200);
   assert.equal(db.tables.books[0].series_slug, '');
 
   db.tables.series.push({ slug: 's2', title: 'Series 2', deleted_at: null });
   db.tables.books.push({ slug: 'b2', title: 'Book 2', world_slug: 'w1', series_slug: 's2', characterSlugs: '[]', deleted_at: null });
-  const cascadeRes = await seriesHandler(ctx('https://x/api/worker/series', 'DELETE', { slug: 's2', deleteMode: 'cascade' }, db));
+  const cascadeRes = await seriesHandler(mockWorkerContext('https://x/api/worker/series', 'DELETE', { slug: 's2', deleteMode: 'cascade' }, db));
   assert.equal(cascadeRes.status, 200);
   const b2 = db.tables.books.find((b) => b.slug === 'b2');
   assert.equal(b2?.deleted_at, 'now');
@@ -408,17 +408,17 @@ test('character delete supports detach mode', async () => {
   db.tables.characters.push({ slug: 'c1', name: 'Char 1', worldSlugs: '[]', seriesSlugs: '[]', appearsInBookSlugs: '[]', tags: '[]', roleTag: '', deleted_at: null });
   db.tables.books.push({ slug: 'b1', title: 'Book 1', world_slug: '', series_slug: '', characterSlugs: '["c1","c2"]', deleted_at: null });
 
-  const restrictRes = await charactersHandler(ctx('https://x/api/worker/characters', 'DELETE', { slug: 'c1', deleteMode: 'restrict' }, db));
+  const restrictRes = await charactersHandler(mockWorkerContext('https://x/api/worker/characters', 'DELETE', { slug: 'c1', deleteMode: 'restrict' }, db));
   assert.equal(restrictRes.status, 409);
 
-  const detachRes = await charactersHandler(ctx('https://x/api/worker/characters', 'DELETE', { slug: 'c1', deleteMode: 'detach' }, db));
+  const detachRes = await charactersHandler(mockWorkerContext('https://x/api/worker/characters', 'DELETE', { slug: 'c1', deleteMode: 'detach' }, db));
   assert.equal(detachRes.status, 200);
   assert.equal(db.tables.books[0].characterSlugs, '["c2"]');
 });
 
 test('worker endpoints require auth cookie', async () => {
   const db = new MockDb();
-  const res = await booksHandler(ctx('https://x/api/worker/books', 'GET', undefined, db, false));
+  const res = await booksHandler(mockWorkerContext('https://x/api/worker/books', 'GET', undefined, db, false));
   assert.equal(res.status, 401);
 });
 

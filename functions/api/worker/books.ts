@@ -64,6 +64,7 @@ function toBookDto(book: any) {
 function normalizeBookPayload(body: BookPayload) {
   const worldSlugs = Array.isArray(body.worldSlugs) ? body.worldSlugs.filter(Boolean) : [];
   const seriesSlugs = Array.isArray(body.seriesSlugs) ? body.seriesSlugs.filter(Boolean) : [];
+  // Backward-compat: prefer singular worldSlug/seriesSlug when present; otherwise fall back to first legacy array item.
   const worldSlug = typeof body.worldSlug === 'string' && body.worldSlug ? body.worldSlug : worldSlugs[0] || '';
   const seriesSlug = typeof body.seriesSlug === 'string' && body.seriesSlug ? body.seriesSlug : seriesSlugs[0] || '';
 
