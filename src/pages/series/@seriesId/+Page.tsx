@@ -27,9 +27,17 @@ function Page() {
         if (!booksRes.ok) throw new Error("Failed to fetch books");
         const allBooks = await booksRes.json();
         // Map bookSlugs to book objects
-        const seriesBooks = (s.bookSlugs || [])
-          .map((slug) => allBooks.find((b) => b.slug === slug))
-          .filter(Boolean);
+        const derivedSeriesBooks = allBooks.filter((b) =>
+          Array.isArray((b as any).seriesSlugs)
+            ? (b as any).seriesSlugs.includes(s.slug)
+            : false
+        );
+        const seriesBooks =
+          derivedSeriesBooks.length > 0
+            ? derivedSeriesBooks
+            : (s.bookSlugs || [])
+                .map((slug) => allBooks.find((b) => b.slug === slug))
+                .filter(Boolean);
         setBooks(seriesBooks);
       } catch (err) {
         setError(err.message);

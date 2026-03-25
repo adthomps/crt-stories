@@ -31,19 +31,33 @@ function Page() {
         if (!worldData || worldData.error) throw new Error("World not found");
         setWorld(worldData);
         // Find related books
-        const bookSlugs = Array.isArray(worldData.bookSlugs)
-          ? worldData.bookSlugs
-          : [];
-        setRelatedBooks(
-          booksData.filter((b: any) => bookSlugs.includes(b.slug))
+        const relatedBooksByWorldField = booksData.filter((b: any) =>
+          Array.isArray(b.worldSlugs) ? b.worldSlugs.includes(worldData.slug) : false
         );
+        if (relatedBooksByWorldField.length > 0) {
+          setRelatedBooks(relatedBooksByWorldField);
+        } else {
+          const bookSlugs = Array.isArray(worldData.bookSlugs)
+            ? worldData.bookSlugs
+            : [];
+          setRelatedBooks(
+            booksData.filter((b: any) => bookSlugs.includes(b.slug))
+          );
+        }
         // Find related characters
-        const characterSlugs = Array.isArray(worldData.characterSlugs)
-          ? worldData.characterSlugs
-          : [];
-        setRelatedCharacters(
-          charactersData.filter((c: any) => characterSlugs.includes(c.slug))
+        const relatedCharsByWorldField = charactersData.filter((c: any) =>
+          Array.isArray(c.worldSlugs) ? c.worldSlugs.includes(worldData.slug) : false
         );
+        if (relatedCharsByWorldField.length > 0) {
+          setRelatedCharacters(relatedCharsByWorldField);
+        } else {
+          const characterSlugs = Array.isArray(worldData.characterSlugs)
+            ? worldData.characterSlugs
+            : [];
+          setRelatedCharacters(
+            charactersData.filter((c: any) => characterSlugs.includes(c.slug))
+          );
+        }
       })
       .catch((e) => setError(e.message || "Failed to load world"))
       .finally(() => setLoading(false));
