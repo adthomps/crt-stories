@@ -68,6 +68,7 @@ export default function WorkerBooksPage() {
     slug: "",
     title: "",
     description: "",
+    longDescription: "",
     coverImage: "",
     publishDate: "",
     kindleUrl: "",
@@ -199,6 +200,7 @@ export default function WorkerBooksPage() {
         publishDate,
         excerpt,
         description,
+        longDescription,
         slug,
         title,
         published,
@@ -222,6 +224,7 @@ export default function WorkerBooksPage() {
         slug,
         title,
         description,
+        longDescription,
         coverImage,
         publishDate,
         excerpt,
@@ -417,6 +420,16 @@ export default function WorkerBooksPage() {
                       fontSize: "1.05rem",
                     }}
                   >
+                    Short Description
+                  </th>
+                  <th
+                    style={{
+                      padding: 14,
+                      borderBottom: `2px solid ${border}`,
+                      textAlign: "left",
+                      fontSize: "1.05rem",
+                    }}
+                  >
                     Published Date
                   </th>
                   <th
@@ -469,6 +482,9 @@ export default function WorkerBooksPage() {
                     (book as any).publishDate ||
                     (book as any).publish_date ||
                     "";
+                  const shortDescription = ((book as any).description || "")
+                    .toString()
+                    .trim();
                   return (
                     <tr
                       key={book.slug}
@@ -489,6 +505,13 @@ export default function WorkerBooksPage() {
                         {seriesTitle || (
                           <span style={{ color: "#bbb" }}>—</span>
                         )}
+                      </td>
+                      <td style={{ padding: 14 }}>
+                        {shortDescription
+                          ? shortDescription.length > 90
+                            ? `${shortDescription.slice(0, 87)}...`
+                            : shortDescription
+                          : "—"}
                       </td>
                       <td style={{ padding: 14 }}>
                         {publishDate || (
@@ -757,7 +780,7 @@ export default function WorkerBooksPage() {
                 Description
               </legend>
               <label style={{ fontWeight: 500 }}>
-                Description
+                Short Description
                 <textarea
                   name="description"
                   value={form.description}
@@ -770,6 +793,23 @@ export default function WorkerBooksPage() {
                     border: `1px solid ${border}`,
                   }}
                   placeholder="Short summary or blurb"
+                />
+              </label>
+              <label style={{ fontWeight: 500 }}>
+                Long Description
+                <textarea
+                  name="longDescription"
+                  value={form.longDescription || ""}
+                  onChange={handleFormChange}
+                  style={{
+                    width: "100%",
+                    marginTop: 4,
+                    padding: 6,
+                    borderRadius: 4,
+                    border: `1px solid ${border}`,
+                    minHeight: 120,
+                  }}
+                  placeholder="Detailed book description for book detail pages"
                 />
               </label>
             </fieldset>
