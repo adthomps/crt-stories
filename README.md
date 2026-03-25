@@ -88,6 +88,25 @@ export const siteConfig = {
 
 ---
 
+## UI ↔ Backend Data Report (Worlds, Series, Books, Characters)
+
+This table documents what users see in the public UI, where that data comes from (D1 vs JSON), and which APIs are connected.
+
+| Entity | Public UI routes (user-visible) | Runtime backend source | JSON usage | Connected public APIs |
+|---|---|---|---|---|
+| **Worlds** | `/worlds` (list), `/worlds/:slug` (detail) | **Cloudflare D1** (`worlds` table, published rows) via Pages Functions | `src/content/worlds.json` is used for prerender URL generation during build | `/api/public/worlds`, plus `/api/public/books` and `/api/public/characters` on detail/list pages for relationship cards/tags |
+| **Series** | `/series` (list), `/series/:slug` (detail) | **Cloudflare D1** (`series` table, published rows) via Pages Functions | `src/content/series.json` is used for prerender URL generation during build | `/api/public/series`, plus `/api/public/books` (and on detail pages also `/api/public/worlds`, `/api/public/characters`) |
+| **Books** | `/books` (list), `/books/:slug` (detail) | **Cloudflare D1** (`books` table, published rows) via Pages Functions | `src/content/books.json` is used for prerender URL generation during build | `/api/public/books`, plus `/api/public/worlds` and `/api/public/characters` for related entities |
+| **Characters** | `/characters` (list), `/characters/:slug` (detail) | **Cloudflare D1** (`characters` table, published rows) via Pages Functions | `src/content/characters.json` is used for prerender URL generation during build | `/api/public/characters`, plus `/api/public/books` and `/api/public/worlds` for related entities |
+
+### Notes
+
+- Public pages read data from `/api/public/*` endpoints at runtime.
+- Public endpoints query D1 (`CRT_STORIES_CONTENT`) and return only published, non-deleted rows.
+- Static JSON in `src/content/*.json` is still important for build-time prerender route generation (`+onBeforePrerenderStart.ts`) and content validation.
+
+---
+
 ## Development Workflow
 
 
@@ -154,4 +173,3 @@ npm run preview    # Preview production build
 ---
 
 CRT Stories is designed for modern static author sites: robust, fast, and easy to manage. For questions or contributions, open an issue or pull request!
-
