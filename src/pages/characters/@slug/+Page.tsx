@@ -36,8 +36,8 @@ function Page() {
           worldsData.filter((w: any) => worldSlugs.includes(w.slug))
         );
         // Find related books
-        const bookSlugs = Array.isArray(charData.bookSlugs)
-          ? charData.bookSlugs
+        const bookSlugs = Array.isArray(charData.appearsInBookSlugs)
+          ? charData.appearsInBookSlugs
           : [];
         setRelatedBooks(
           booksData.filter((b: any) => bookSlugs.includes(b.slug))
@@ -64,11 +64,13 @@ function Page() {
             ))}
           </div>
         )}
-        {character.roleTag &&
-          Array.isArray(character.roleTag) &&
-          character.roleTag.length > 0 && (
-            <p className="page-description">{character.roleTag.join(" · ")}</p>
-          )}
+        {character.roleTag && (
+          <p className="page-description">
+            {Array.isArray(character.roleTag)
+              ? character.roleTag.join(" · ")
+              : character.roleTag}
+          </p>
+        )}
       </div>
 
       <div className="detail-content character-detail-flex">

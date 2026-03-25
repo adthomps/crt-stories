@@ -45,9 +45,15 @@ function Page() {
   if (error || !series)
     return <div style={{ color: "red" }}>{error || "Series not found."}</div>;
 
-  const seriesBooks = (series.bookSlugs || [])
-    .map((slug: string) => books.find((b: any) => b.slug === slug))
-    .filter(Boolean);
+  const seriesBooksFromBookField = books.filter((b: any) =>
+    Array.isArray(b.seriesSlugs) ? b.seriesSlugs.includes(series.slug) : false
+  );
+  const seriesBooks =
+    seriesBooksFromBookField.length > 0
+      ? seriesBooksFromBookField
+      : (series.bookSlugs || [])
+          .map((slug: string) => books.find((b: any) => b.slug === slug))
+          .filter(Boolean);
   if (seriesBooks.length === 0) return <div>No books in this series.</div>;
   const seriesName = series.title || slug;
   const seriesDescription = series.longDescription || series.description;

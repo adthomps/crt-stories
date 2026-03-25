@@ -47,10 +47,19 @@ function Page() {
       </p>
       <div className="grid">
         {worlds.slice(0, showCount).map((world: any) => {
+          const relatedBooks = books.filter((b: any) =>
+            Array.isArray(b.worldSlugs) ? b.worldSlugs.includes(world.slug) : false
+          );
+          const relatedCharacters = characters.filter((c: any) =>
+            Array.isArray(c.worldSlugs) ? c.worldSlugs.includes(world.slug) : false
+          );
           // Relationship tags
           const bookTags = Array.from(
             new Set(
-              (world.bookSlugs || []).map((slug: string) => {
+              (relatedBooks.length > 0
+                ? relatedBooks.map((b: any) => b.slug)
+                : world.bookSlugs || []
+              ).map((slug: string) => {
                 const b = books.find((b: any) => b.slug === slug);
                 return b ? b.title : slug;
               })
@@ -58,7 +67,10 @@ function Page() {
           );
           const characterTags = Array.from(
             new Set(
-              (world.characterSlugs || []).map((slug: string) => {
+              (relatedCharacters.length > 0
+                ? relatedCharacters.map((c: any) => c.slug)
+                : world.characterSlugs || []
+              ).map((slug: string) => {
                 const c = characters.find((c: any) => c.slug === slug);
                 return c ? c.name : slug;
               })

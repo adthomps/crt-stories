@@ -47,7 +47,7 @@ function Page() {
       </p>
       <div className="grid">
         {books.slice(0, showCount).map((book: any) => {
-          const desc = book.longDescription || book.description || "";
+          const desc = book.description || book.longDescription || "";
           let expanded = desc;
           if (desc.length > 320) {
             const periodIdx = desc.lastIndexOf(".", 320);

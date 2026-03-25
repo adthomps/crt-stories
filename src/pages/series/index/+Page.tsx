@@ -45,9 +45,15 @@ function Page() {
           const desc = s.longDescription || s.description || "";
           const shortDesc =
             desc.length > 140 ? desc.slice(0, 137) + "..." : desc;
-          const seriesBooks = (s.bookSlugs || [])
-            .map((slug: string) => books.find((b) => b.slug === slug))
-            .filter(Boolean);
+          const derivedSeriesBooks = books.filter((b: any) =>
+            Array.isArray(b.seriesSlugs) ? b.seriesSlugs.includes(s.slug) : false
+          );
+          const seriesBooks =
+            derivedSeriesBooks.length > 0
+              ? derivedSeriesBooks
+              : (s.bookSlugs || [])
+                  .map((slug: string) => books.find((b) => b.slug === slug))
+                  .filter(Boolean);
           return (
             <div key={s.slug} className="card">
               <img

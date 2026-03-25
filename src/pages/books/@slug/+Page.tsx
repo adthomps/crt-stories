@@ -152,10 +152,10 @@ function Page() {
             </div>
           )}
 
-          {book.longDescription && (
+          {(book.longDescription || book.description) && (
             <div className="section">
               <h2>About the Book</h2>
-              <p>{book.longDescription}</p>
+              <p>{book.longDescription || book.description}</p>
             </div>
           )}
 
