@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 // Helper to fetch books for character cards
 async function fetchBooks() {
-  const res = await fetch("/api/worker/books", {
+  const res = await fetch("/api/public/books", {
     headers: { Accept: "application/json" },
   });
   const data = await res.json();
@@ -113,7 +113,7 @@ function Page() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/api/worker/characters", {
+      fetch("/api/public/characters", {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
       fetchBooks(),

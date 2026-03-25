@@ -15,13 +15,13 @@ function Page() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`/api/worker/characters?slug=${encodeURIComponent(slug)}`, {
+      fetch(`/api/public/characters?slug=${encodeURIComponent(slug)}`, {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
-      fetch("/api/worker/worlds", {
+      fetch("/api/public/worlds", {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
-      fetch("/api/worker/books", {
+      fetch("/api/public/books", {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
     ])

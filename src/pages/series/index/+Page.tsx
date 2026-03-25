@@ -13,10 +13,10 @@ function Page() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/api/worker/series", {
+      fetch("/api/public/series", {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
-      fetch("/api/worker/books", {
+      fetch("/api/public/books", {
         headers: { Accept: "application/json" },
       }).then((r) => r.json()),
     ])

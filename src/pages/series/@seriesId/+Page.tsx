@@ -17,13 +17,13 @@ function Page() {
       setError(null);
       try {
         // Fetch series details
-        const res = await fetch(`/api/worker/series?slug=${seriesId}`);
+        const res = await fetch(`/api/public/series?slug=${seriesId}`);
         if (!res.ok) throw new Error("Failed to fetch series");
         const s = await res.json();
         setSeries(s);
 
         // Fetch all books (could optimize to fetch only needed)
-        const booksRes = await fetch("/api/worker/books");
+        const booksRes = await fetch("/api/public/books");
         if (!booksRes.ok) throw new Error("Failed to fetch books");
         const allBooks = await booksRes.json();
         // Map bookSlugs to book objects
