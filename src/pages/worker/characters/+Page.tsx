@@ -21,8 +21,13 @@ function BackToWorker() {
 interface Character {
   slug: string;
   name: string;
-  description?: string;
-  world_slug?: string;
+  bio?: string;
+  worldSlugs?: string[];
+  worldSlug?: string;
+  seriesSlugs?: string[];
+  appearsInBookSlugs?: string[];
+  tags?: string[];
+  roleTag?: string;
   published?: boolean;
 }
 
@@ -72,8 +77,8 @@ export default function WorkerCharactersPage() {
   const [form, setForm] = useState<Character>({
     slug: "",
     name: "",
-    description: "",
-    world_slug: "",
+    bio: "",
+    worldSlug: "",
     published: false,
   });
   const [worlds, setWorlds] = useState<{ slug: string; title: string }[]>([]);
@@ -95,12 +100,19 @@ export default function WorkerCharactersPage() {
     setEditingCharacter(c || null);
     setForm(
       c
-        ? { ...c }
+        ? {
+            ...c,
+            bio: (c as any).bio || "",
+            worldSlug:
+              (Array.isArray((c as any).worldSlugs) && (c as any).worldSlugs[0]) ||
+              (c as any).worldSlug ||
+              "",
+          }
         : {
             slug: "",
             name: "",
-            description: "",
-            world_slug: "",
+            bio: "",
+            worldSlug: "",
             published: false,
           }
     );
@@ -133,10 +145,23 @@ export default function WorkerCharactersPage() {
     setFeedback(null);
     try {
       const method = modalMode === "add" ? "POST" : "PUT";
+      const payload = {
+        slug: form.slug,
+        name: form.name,
+        bio: form.bio || "",
+        worldSlugs: form.worldSlug ? [form.worldSlug] : [],
+        seriesSlugs: Array.isArray(form.seriesSlugs) ? form.seriesSlugs : [],
+        appearsInBookSlugs: Array.isArray(form.appearsInBookSlugs)
+          ? form.appearsInBookSlugs
+          : [],
+        tags: Array.isArray(form.tags) ? form.tags : [],
+        roleTag: typeof form.roleTag === "string" ? form.roleTag : "",
+        published: !!form.published,
+      };
       const res = await fetch("/api/worker/characters", {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to save character");
@@ -319,7 +344,7 @@ export default function WorkerCharactersPage() {
                 >
                   <td style={{ padding: 12 }}>{c.name}</td>
                   <td style={{ padding: 12 }}>{c.slug}</td>
-                  <td style={{ padding: 12 }}>{c.world_slug}</td>
+                  <td style={{ padding: 12 }}>{(c.worldSlugs && c.worldSlugs[0]) || c.worldSlug || ""}</td>
                   <td style={{ padding: 12 }}>{c.published ? "Yes" : "No"}</td>
                   <td style={{ padding: 12 }}>
                     <button
@@ -500,8 +525,8 @@ export default function WorkerCharactersPage() {
               <label style={{ fontWeight: 500 }}>
                 Description
                 <textarea
-                  name="description"
-                  value={form.description}
+                  name="bio"
+                  value={form.bio}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
@@ -526,8 +551,8 @@ export default function WorkerCharactersPage() {
               <label style={{ fontWeight: 500 }}>
                 World
                 <select
-                  name="world_slug"
-                  value={form.world_slug || ""}
+                  name="worldSlug"
+                  value={form.worldSlug || ""}
                   onChange={handleFormChange}
                   style={{
                     width: "100%",
