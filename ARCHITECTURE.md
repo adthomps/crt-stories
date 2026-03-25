@@ -1,64 +1,129 @@
 # CRT Stories: Project Architecture
 
-## Overview
+CRT Stories is a static-first author platform built with Vite, React, TypeScript, and Vike (SSG), with Cloudflare Pages Functions used for API capabilities.
 
-CRT Stories is a static author website built with Vite, React, TypeScript, and Vike (Static Site Generation). All content is managed via JSON and Cloudflare D1, with strict validation, robust admin UI, and seamless deployment to Cloudflare Pages.
+## Core Principles
 
----
+### Monorepo by Default
+Shared code, unified tooling, and atomic commits are handled in a single repository.
 
-## Architecture Summary
+### Static-First, API-Optional
+Public pages are statically generated from JSON content. API usage is additive for admin and publish workflows, not a requirement for public rendering.
 
-- **Framework:** Vite + React + TypeScript + Vike (Static Site Generation)
-- **Content:** All books, worlds, series, characters, and author info managed via JSON in `src/content/` (exported from Cloudflare D1)
-- **Pages:** Located in `src/pages/` using Vike conventions (`+Page.tsx`, `+Head.tsx`, etc.)
-- **Assets:** Images in `public/images/{books,characters,worlds,author}/`
-- **Config:** Global site config in `src/config.ts`
-- **Validation:** Content validation in `src/content/validation.ts` (Zod schemas, strict type safety)
-- **Deployment:** Static output for Cloudflare Pages
-- **Admin UI:** `/worker` route, protected, CRUD for all entities
-- **API:** All admin CRUD via `/api/worker/` (Cloudflare Pages Functions)
-- **Automated Content Export:** D1 → JSON sync via scripts and GitHub Actions
+### Boundaries Over Flexibility
+Clear boundaries between frontend (`src/`), backend (`functions/`), and scripts (`scripts/`) prevent accidental coupling.
 
----
+### Docs as Code
+Architecture and guardrail decisions are version-controlled in repository docs and reviewed with normal PR workflows.
 
-## Entity Relationship Diagram
+### AI-Aware From Day One
+Agent behavior and scope are explicitly documented in `AGENTS.md` and `.github/copilot-instructions.md`.
 
-```
-[Series] 1---* [Books] *---1 [Worlds]
-                    |
-                    * 
-                [Characters]
-```
+### Reproducible Deploys
+Builds are tied to commits through package lockfiles and GitHub workflow execution.
 
-- **Series:** 1–* Books
-- **Worlds:** 1–* Books, 1–* Characters
-- **Books:** *–* Characters (via world)
-- **Strict validation and join tables in D1**
+### Frontend/Backend Boundaries
+Client and server concerns are separated with explicit responsibilities and constraints.
 
----
+## Frontend/Backend Boundaries
+
+### Frontend (Vite + React + TypeScript + Vike)
+**Responsibilities**
+- UI rendering and state handling
+- Route handling and navigation
+- API calls through page/service logic
+- Asset bundling and optimization
+
+**Constraints**
+- No direct database access
+- No secrets in client code
+- No backend-only business logic embedded in presentational components
+
+### Backend (Cloudflare Workers + Hono-compatible handlers)
+**Responsibilities**
+- API endpoints under `/api/*`
+- Authentication and authorization for admin workflows
+- Database queries and mutations (D1)
+- External service integrations (for example export/publish tooling)
+
+**Constraints**
+- No UI rendering
+- No persistent client-side state
+- Stateless per-request execution model
+
+## Architectural Patterns
+
+### Monorepo Layout
+Unified codebase with explicit boundaries between deployables and shared code.
+
+**Hard Rules**
+- No deployable application logic at repository root
+- Deployable units live in `src/` and `functions/`
+- Shared validation and types live in `src/content/`
+- Docs live in version control near implementation
+
+**When to Apply**
+- Default for this repository and any multi-surface author platform changes
+
+### Frontend/Backend Split
+Clear separation between client and server concerns.
+
+**Hard Rules**
+- Prefer no direct `fetch` calls in presentational components
+- API endpoints live under `/api/*`
+- Validation occurs at boundaries (`src/content/validation.ts`)
+- Shared data contracts are versioned in repository code
+
+**When to Apply**
+- Any change touching admin API, public API, or page data loading
+
+### AI Prompt Ownership
+Prompt instructions are treated as versioned architecture artifacts.
+
+**Hard Rules**
+- Agent prompts/instructions are stored in repository (`AGENTS.md`, `.github/copilot-instructions.md`)
+- Each prompt source has a clear owner in code review history
+- AI-routed behavior must be explicit and auditable
+- AI flows do not bypass authentication or validation
+
+**When to Apply**
+- Every agent-assisted change
+
+### CI/CD Pipeline
+Automated and reproducible deployments from version control.
+
+**Hard Rules**
+- PRs must run validation/build checks
+- Main branch is deployable to staging/production targets via automation
+- Release workflows are commit-based and traceable
+- No manual production-only snowflake steps
+
+**When to Apply**
+- Every deploy path
+
+### Branch Protection
+Quality gates before merge/deploy.
+
+**Hard Rules**
+- Require PR reviews
+- Require passing status checks
+- Prefer squash merge for linear history
+- No force push on protected branches
+
+**When to Apply**
+- All protected branches, especially production-bound branches
 
 ## Build & Deployment Flow
 
-1. **Content Management:** Admin UI writes to Cloudflare D1
-2. **Export:** Published D1 records exported to JSON (`src/content/`)
-3. **Validation:** Build runs strict validation (missing fields, bad slugs, duplicates, etc.)
-4. **Static Generation:** Vike prerenders all pages to HTML
-5. **Deployment:** Static site deployed to Cloudflare Pages
-
----
+1. Admin UI writes changes to Cloudflare D1
+2. Export script syncs published D1 records to `src/content/`
+3. Build runs validation and static generation
+4. Static assets are deployed to Cloudflare Pages
 
 ## Reference Files
 
-- `README.md`: Project overview, setup, and workflow
-- `src/config.ts`: Site-wide settings (title, author, baseUrl, etc.)
-- `src/content/validation.ts`: Content schema and validation logic
-- `src/pages/Layout.css`: All layout, card, button, badge, and tag styles
-- `src/pages/[entity]/index/+Page.tsx`: List pages for books, worlds, characters
-- `src/pages/[entity]/@slug/+Page.tsx`: Detail pages for books, worlds, characters
-- `src/pages/about/+Page.tsx`: About the Author page
-- `src/content/author.json`: Author bio and metadata
-- `src/content/books.json`, `worlds.json`, `series.json`, `characters.json`: Main content data
-
----
-
-For more details, see the README and DESIGN-STYLE-GUIDE.md for conventions and workflows.
+- `PROJECT_RULES.md`
+- `AGENTS.md`
+- `.github/copilot-instructions.md`
+- `src/content/validation.ts`
+- `docs/DEPLOYMENT.md`
