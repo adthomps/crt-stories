@@ -11,7 +11,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rimraf dist",
-    "postbuild": "shx cp public/_redirects dist/client/_redirects"
+    "postbuild": "shx cp public/_redirects dist/client/_redirects",
+    "test:crud": "node --test tests/worker-crud.integration.test.ts"
   },
   "keywords": [],
   "author": "",
