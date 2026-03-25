@@ -5,6 +5,7 @@ type BookPayload = {
   slug?: string;
   title?: string;
   description?: string;
+  longDescription?: string;
   coverImage?: string;
   publishDate?: string;
   badges?: string[];
@@ -71,6 +72,7 @@ function normalizeBookPayload(body: BookPayload) {
     slug: body.slug || '',
     title: body.title || '',
     description: body.description || '',
+    longDescription: body.longDescription || '',
     coverImage: body.coverImage || '',
     publishDate: body.publishDate || '',
     badges: Array.isArray(body.badges) ? body.badges : [],
@@ -83,6 +85,27 @@ function normalizeBookPayload(body: BookPayload) {
     related: body.related || null,
     published: !!body.published,
   };
+}
+
+async function ensureSlugExists(env: any, table: 'worlds' | 'series' | 'characters', slug: string): Promise<boolean> {
+  const row = await env.CRT_STORIES_CONTENT.prepare(`SELECT slug FROM ${table} WHERE slug = ? AND deleted_at IS NULL`).bind(slug).first();
+  return !!row;
+}
+
+async function validateBookRelations(env: any, payload: ReturnType<typeof normalizeBookPayload>): Promise<string | null> {
+  for (const worldSlug of payload.worldSlugs) {
+    const ok = await ensureSlugExists(env, 'worlds', worldSlug);
+    if (!ok) return `Invalid world slug: ${worldSlug}`;
+  }
+  for (const seriesSlug of payload.seriesSlugs) {
+    const ok = await ensureSlugExists(env, 'series', seriesSlug);
+    if (!ok) return `Invalid series slug: ${seriesSlug}`;
+  }
+  for (const characterSlug of payload.characterSlugs) {
+    const ok = await ensureSlugExists(env, 'characters', characterSlug);
+    if (!ok) return `Invalid character slug: ${characterSlug}`;
+  }
+  return null;
 }
 
 export const onRequest: PagesFunction = async (context: any) => {
@@ -110,6 +133,10 @@ export const onRequest: PagesFunction = async (context: any) => {
       return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
     }
 
+    const { requireWorkerAdminAuth } = await import('./requireAuth.ts');
+    const authResponse = await requireWorkerAdminAuth(request);
+    if (authResponse) return authResponse;
+
     const body = await request.json();
     const payload = normalizeBookPayload(body as BookPayload);
 
@@ -117,15 +144,21 @@ export const onRequest: PagesFunction = async (context: any) => {
       if (!payload.slug || !payload.title) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+      const relationError = await validateBookRelations(env, payload);
+      if (relationError) {
+        return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      }
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE slug = ? AND deleted_at IS NULL').bind(payload.slug).first();
       if (exists) {
         return new Response(JSON.stringify({ error: 'Book with this slug already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
       }
+      await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, longDescription, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
       await env.CRT_STORIES_CONTENT.prepare('INSERT INTO books (slug, title, description, cover_image, publish_date, badges, tags, formats, characterSlugs, world_slug, series_slug, excerpt, related, published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))')
         .bind(
           payload.slug,
           payload.title,
           payload.description,
+          payload.longDescription,
           payload.coverImage,
           payload.publishDate,
           JSON.stringify(payload.badges),
@@ -145,10 +178,19 @@ export const onRequest: PagesFunction = async (context: any) => {
       if (!payload.slug || !payload.title) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
+      const relationError = await validateBookRelations(env, payload);
+      if (relationError) {
+        return new Response(JSON.stringify({ error: relationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      }
       const exists = await env.CRT_STORIES_CONTENT.prepare('SELECT slug FROM books WHERE slug = ? AND deleted_at IS NULL').bind(payload.slug).first();
       if (!exists) {
         return new Response(JSON.stringify({ error: 'Book not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
       }
+      await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET title = ?, description = ?, longDescription = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, world_slug = ?, series_slug = ?, excerpt = ?, related = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
+        .bind(
+          payload.title,
+          payload.description,
+          payload.longDescription,
       await env.CRT_STORIES_CONTENT.prepare('UPDATE books SET title = ?, description = ?, cover_image = ?, publish_date = ?, badges = ?, tags = ?, formats = ?, characterSlugs = ?, world_slug = ?, series_slug = ?, excerpt = ?, related = ?, published = ?, updated_at = datetime("now") WHERE slug = ? AND deleted_at IS NULL')
         .bind(
           payload.title,

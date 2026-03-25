@@ -147,6 +147,7 @@ export default function WorkerBooksPage() {
         slug: "",
         title: "",
         description: "",
+        longDescription: "",
         coverImage: "",
         publishDate: "",
         kindleUrl: "",
