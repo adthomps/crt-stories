@@ -137,6 +137,9 @@ export const onRequest: PagesFunction = async (context: any) => {
     const authResponse = await requireWorkerAdminAuth(request);
     if (authResponse) return authResponse;
 
+    if (method === 'POST') {
+      const body = await request.json();
+      const payload = normalizeBookPayload(body as BookPayload);
     const body = await request.json();
     const payload = normalizeBookPayload(body as BookPayload);
 
@@ -175,6 +178,8 @@ export const onRequest: PagesFunction = async (context: any) => {
     }
 
     if (method === 'PUT') {
+      const body = await request.json();
+      const payload = normalizeBookPayload(body as BookPayload);
       if (!payload.slug || !payload.title) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
@@ -212,6 +217,7 @@ export const onRequest: PagesFunction = async (context: any) => {
     }
 
     if (method === 'DELETE') {
+      const body = await request.json();
       const { slug } = body as { slug?: string };
       if (!slug) {
         return new Response(JSON.stringify({ error: 'Missing slug' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
